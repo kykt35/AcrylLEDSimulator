@@ -25,19 +25,19 @@
 
 | ID | 種別 | 内容 | 対応コミット(予定) | 実績コミット | 状態 | メモ |
 |---|---|---|---|---|---|---|
-| 2-1 | design | 現行 PoC の責務境界と不足点を整理する | `docs: capture current poc architecture gaps` | 未コミット | done | `PocWorkbench` 集中の問題を整理 |
-| 2-2 | design | `component-design.md` に責務分割とディレクトリ構成を記述する | `docs: define mvp component architecture` | 未コミット | done | 画面、UI、3D、保存の境界を定義 |
-| 2-3 | design | `state-design.md` に状態種別とデータフローを記述する | `docs: define simulator state management` | 未コミット | done | 画像入力、設定、保存、UI 補助 state を分類 |
-| 2-4 | verify | 画面仕様と状態更新起点の整合性を確認する | - | 未コミット | done | 画面遷移と保存フローに合わせて持ち場所を整理 |
+| 2-1 | design | 現行 PoC の責務境界と不足点を整理する | `docs: capture current poc architecture gaps` | `c785bef` | done | `PocWorkbench` 集中の問題を整理 |
+| 2-2 | design | `component-design.md` に責務分割とディレクトリ構成を記述する | `docs: define mvp component architecture` | `c785bef` | done | 画面、UI、3D、保存の境界を定義 |
+| 2-3 | design | `state-design.md` に状態種別とデータフローを記述する | `docs: define simulator state management` | `c785bef` | done | 画像入力、設定、保存、UI 補助 state を分類 |
+| 2-4 | verify | 画面仕様と状態更新起点の整合性を確認する | - | `c785bef` | done | 画面遷移と保存フローに合わせて持ち場所を整理 |
 
 ### Task 3: API、保存データ、エラー処理を設計する
 
 | ID | 種別 | 内容 | 対応コミット(予定) | 実績コミット | 状態 | メモ |
 |---|---|---|---|---|---|---|
-| 3-1 | design | 保存対象とクライアント / サーバー境界を整理する | `docs: outline save flow constraints` |  | planned |  |
-| 3-2 | design | `api-spec.md` にアップロード / 保存 API 契約を記述する | `docs: define upload and save api contracts` |  | planned |  |
-| 3-3 | design | `data-model.md` と `error-handling.md` に保存データと失敗時挙動を記述する | `docs: define save data and error handling` |  | planned |  |
-| 3-4 | verify | Phase 3 の保存実装に必要な判断材料が揃っているか確認する | - |  | planned |  |
+| 3-1 | design | 保存対象とクライアント / サーバー境界を整理する | `docs: outline save flow constraints` | 未コミット | done | クライアント書き出し + Route Handler 保存で整理 |
+| 3-2 | design | `api-spec.md` にアップロード / 保存 API 契約を記述する | `docs: define upload and save api contracts` | 未コミット | done | `/api/upload` と `/api/save` の最小契約を定義 |
+| 3-3 | design | `data-model.md` と `error-handling.md` に保存データと失敗時挙動を記述する | `docs: define save data and error handling` | 未コミット | done | 保存モデルと UI 応答を定義 |
+| 3-4 | verify | Phase 3 の保存実装に必要な判断材料が揃っているか確認する | - | 未コミット | done | リクエスト / レスポンス / 異常系を網羅 |
 
 ### Task 4: 受入基準と Phase 3 着手用バックログを確定する
 
