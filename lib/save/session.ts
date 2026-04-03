@@ -26,38 +26,48 @@ export type SavedSimulationResult = {
 
 const RESULT_STORAGE_KEY = "acryl-led-simulator:result";
 const EDITOR_STORAGE_KEY = "acryl-led-simulator:editor";
+let latestResultMemory: SavedSimulationResult | null = null;
+let editorSnapshotMemory: EditorSnapshot | null = null;
 
 function canUseSessionStorage(): boolean {
   return typeof window !== "undefined" && typeof window.sessionStorage !== "undefined";
 }
 
 export function writeLatestResult(result: SavedSimulationResult): void {
+  latestResultMemory = result;
+
   if (!canUseSessionStorage()) {
     return;
   }
 
-  window.sessionStorage.setItem(RESULT_STORAGE_KEY, JSON.stringify(result));
+  try {
+    window.sessionStorage.setItem(RESULT_STORAGE_KEY, JSON.stringify(result));
+  } catch {
+    // Fall back to in-memory storage when browser quota is exceeded.
+  }
 }
 
 export function readLatestResult(): SavedSimulationResult | null {
   if (!canUseSessionStorage()) {
-    return null;
+    return latestResultMemory;
   }
 
   const rawValue = window.sessionStorage.getItem(RESULT_STORAGE_KEY);
 
   if (!rawValue) {
-    return null;
+    return latestResultMemory;
   }
 
   try {
     return JSON.parse(rawValue) as SavedSimulationResult;
   } catch {
-    return null;
+    return latestResultMemory;
   }
 }
 
 export function clearLatestResult(): void {
+  latestResultMemory = null;
+
   if (!canUseSessionStorage()) {
     return;
   }
@@ -66,32 +76,40 @@ export function clearLatestResult(): void {
 }
 
 export function writeEditorSnapshot(snapshot: EditorSnapshot): void {
+  editorSnapshotMemory = snapshot;
+
   if (!canUseSessionStorage()) {
     return;
   }
 
-  window.sessionStorage.setItem(EDITOR_STORAGE_KEY, JSON.stringify(snapshot));
+  try {
+    window.sessionStorage.setItem(EDITOR_STORAGE_KEY, JSON.stringify(snapshot));
+  } catch {
+    // Fall back to in-memory storage when browser quota is exceeded.
+  }
 }
 
 export function readEditorSnapshot(): EditorSnapshot | null {
   if (!canUseSessionStorage()) {
-    return null;
+    return editorSnapshotMemory;
   }
 
   const rawValue = window.sessionStorage.getItem(EDITOR_STORAGE_KEY);
 
   if (!rawValue) {
-    return null;
+    return editorSnapshotMemory;
   }
 
   try {
     return JSON.parse(rawValue) as EditorSnapshot;
   } catch {
-    return null;
+    return editorSnapshotMemory;
   }
 }
 
 export function clearEditorSnapshot(): void {
+  editorSnapshotMemory = null;
+
   if (!canUseSessionStorage()) {
     return;
   }

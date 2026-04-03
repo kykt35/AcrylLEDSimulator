@@ -54,4 +54,46 @@ describe("save session helpers", () => {
     clearEditorSnapshot();
     expect(readEditorSnapshot()).toBeNull();
   });
+
+  it("falls back to in-memory state when sessionStorage writes fail", () => {
+    const setItemSpy = vi
+      .spyOn(Storage.prototype, "setItem")
+      .mockImplementation(() => {
+        throw new Error("quota exceeded");
+      });
+
+    writeLatestResult({
+      savedSimulationId: "sim_memory",
+      resultImageUrl: "data:image/png;base64,result",
+      savedAt: "2026-04-03T10:00:00.000Z",
+      sourceImage: {
+        fileName: "sample.png",
+        src: "data:image/png;base64,source"
+      },
+      simulation: {
+        ledColorId: "ice-blue",
+        brightness: 1.2,
+        backgroundId: "night",
+        cameraPresetId: "front"
+      }
+    });
+
+    writeEditorSnapshot({
+      sourceImage: {
+        fileName: "sample.png",
+        src: "data:image/png;base64,source"
+      },
+      simulation: {
+        ledColorId: "ice-blue",
+        brightness: 1.2,
+        backgroundId: "night",
+        cameraPresetId: "front"
+      }
+    });
+
+    expect(readLatestResult()?.savedSimulationId).toBe("sim_memory");
+    expect(readEditorSnapshot()?.sourceImage.fileName).toBe("sample.png");
+
+    setItemSpy.mockRestore();
+  });
 });
