@@ -312,6 +312,17 @@ button {
   line-height: 1.6;
 }
 
+.helper-list {
+  display: grid;
+  gap: 6px;
+}
+
+.helper-list p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
 .error-notice {
   display: grid;
   gap: 6px;

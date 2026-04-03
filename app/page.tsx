@@ -59,6 +59,30 @@ export default function HomePage() {
           </article>
         </div>
       </section>
+
+      <section className="home-section">
+        <div className="section-heading">
+          <p className="section-kicker">Before You Start</p>
+          <h2>事前に確認しておくこと</h2>
+        </div>
+        <div className="steps-grid">
+          <article className="info-card">
+            <p className="card-label">PNG</p>
+            <h3>透過画像を用意する</h3>
+            <p>背景が透過された PNG だとアクリル板の見え方を確認しやすくなります。</p>
+          </article>
+          <article className="info-card">
+            <p className="card-label">Compare</p>
+            <h3>複数条件で見比べる</h3>
+            <p>背景とカメラを切り替え、保存前に複数パターンを確認してください。</p>
+          </article>
+          <article className="info-card">
+            <p className="card-label">Notice</p>
+            <h3>実物との差異を読む</h3>
+            <p>光り方や色味は実機と差が出るため、注意事項を合わせて確認します。</p>
+          </article>
+        </div>
+      </section>
     </main>
   );
 }

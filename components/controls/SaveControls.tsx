@@ -24,6 +24,10 @@ export function SaveControls({
   savedAt,
   onSave
 }: SaveControlsProps) {
+  const helperMessage = !hasImage
+    ? "先に PNG を読み込むと保存ボタンが有効になります。"
+    : errorMessage ?? saveStatusLabels[saveStatus];
+
   return (
     <section className="panel-section">
       <div>
@@ -39,7 +43,7 @@ export function SaveControls({
         {saveStatus === "saving" ? "保存中..." : "画像を保存する"}
       </button>
       <div className="status-box">
-        <p className="status-secondary">{errorMessage ?? saveStatusLabels[saveStatus]}</p>
+        <p className="status-secondary">{helperMessage}</p>
         {savedAt ? <p className="status-secondary">最終保存: {new Date(savedAt).toLocaleString("ja-JP")}</p> : null}
       </div>
     </section>
