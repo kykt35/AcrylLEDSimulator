@@ -9,7 +9,8 @@
 
 | Item | Result | Evidence |
 |---|---|---|
-| Unit / component tests | pass | `npm test` |
+| Unit / component tests | pass | `npm test` (12 files, 20 tests) |
+| Type check | pass | `npx tsc --noEmit` |
 | Production build | pass | `npm run build` |
 | Top -> simulator flow | pass | `tests/app/page.test.tsx`, `tests/components/screens/SimulatorScreen.test.tsx` |
 | Save -> result flow | pass | `tests/components/screens/SimulatorScreen.test.tsx`, `tests/components/screens/ResultScreen.test.tsx` |
@@ -26,5 +27,6 @@
 
 ## Acceptance Notes
 - 現時点では自動テストと build を通過している
+- 不正ファイル選択、保存失敗、結果未保存状態の回復性テストを追加済み
 - Safari / Edge の実機確認はこの環境では未実施
 - Go / Hold 判定は manual browser verification を追記して最終化する

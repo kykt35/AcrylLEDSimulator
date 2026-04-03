@@ -12,3 +12,4 @@
 |---|---|---|---|---|---|
 | QA-001 | Low | test environment | accepted | R3F component tests emit jsdom DOM warnings | 実アプリ不具合ではなく、test mock の制約による warning |
 | QA-002 | Medium | manual verification | open | Safari / Edge の実機確認が未完了 | Go / Hold 判定前に手動確認が必要 |
+| QA-003 | Resolved | error recovery | closed | 不正ファイル選択時と保存失敗時の回復性テストを追加 | Phase 4 で修正と test 追加を完了 |

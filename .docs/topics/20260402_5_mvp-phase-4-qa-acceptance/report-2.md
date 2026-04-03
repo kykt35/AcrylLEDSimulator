@@ -5,6 +5,7 @@
 
 ## Verification Result
 - `npm test`: pass
+- `npx tsc --noEmit`: pass
 - `npm run build`: pass
 - 主要フローの自動テスト: pass
 - Safari / Edge 実機確認: pending
@@ -16,6 +17,7 @@
 ## Open Issues
 - QA-001: jsdom 上の R3F warning は残るが、公開阻害ではない
 - QA-002: Safari / Edge 実機確認を完了し、結果を受入ログへ反映する必要がある
+- QA-003: closed
 
 ## Handoff To Phase 5
 - Safari / Edge の手動確認後、Go / Hold 判定を更新する
