@@ -34,27 +34,27 @@
 
 | ID | 種別 | 内容 | 対応コミット(予定) | 実績コミット | 状態 | メモ |
 |---|---|---|---|---|---|---|
-| 3-1 | design | 保存対象とクライアント / サーバー境界を整理する | `docs: outline save flow constraints` | 未コミット | done | クライアント書き出し + Route Handler 保存で整理 |
-| 3-2 | design | `api-spec.md` にアップロード / 保存 API 契約を記述する | `docs: define upload and save api contracts` | 未コミット | done | `/api/upload` と `/api/save` の最小契約を定義 |
-| 3-3 | design | `data-model.md` と `error-handling.md` に保存データと失敗時挙動を記述する | `docs: define save data and error handling` | 未コミット | done | 保存モデルと UI 応答を定義 |
-| 3-4 | verify | Phase 3 の保存実装に必要な判断材料が揃っているか確認する | - | 未コミット | done | リクエスト / レスポンス / 異常系を網羅 |
+| 3-1 | design | 保存対象とクライアント / サーバー境界を整理する | `docs: outline save flow constraints` | `02fd4cd` | done | クライアント書き出し + Route Handler 保存で整理 |
+| 3-2 | design | `api-spec.md` にアップロード / 保存 API 契約を記述する | `docs: define upload and save api contracts` | `02fd4cd` | done | `/api/upload` と `/api/save` の最小契約を定義 |
+| 3-3 | design | `data-model.md` と `error-handling.md` に保存データと失敗時挙動を記述する | `docs: define save data and error handling` | `02fd4cd` | done | 保存モデルと UI 応答を定義 |
+| 3-4 | verify | Phase 3 の保存実装に必要な判断材料が揃っているか確認する | - | `02fd4cd` | done | リクエスト / レスポンス / 異常系を網羅 |
 
 ### Task 4: 受入基準と Phase 3 着手用バックログを確定する
 
 | ID | 種別 | 内容 | 対応コミット(予定) | 実績コミット | 状態 | メモ |
 |---|---|---|---|---|---|---|
-| 4-1 | design | 受入観点とブラウザ確認観点を整理する | `docs: outline mvp acceptance viewpoints` |  | planned |  |
-| 4-2 | design | `acceptance-criteria.md` に Must 機能中心の受入基準を記述する | `docs: define mvp acceptance criteria` |  | planned |  |
-| 4-3 | design | `phase-3-backlog.md` に Phase 3 の実装順とバックログを記述する | `docs: create phase3 execution backlog` |  | planned |  |
-| 4-4 | verify | 受入基準と実装順の依存関係整合性を確認する | - |  | planned |  |
+| 4-1 | design | 受入観点とブラウザ確認観点を整理する | `docs: outline mvp acceptance viewpoints` | 未コミット | done | Must 機能中心の判定軸へ整理 |
+| 4-2 | design | `acceptance-criteria.md` に Must 機能中心の受入基準を記述する | `docs: define mvp acceptance criteria` | 未コミット | done | 操作、保存、エラー時挙動を定義 |
+| 4-3 | design | `phase-3-backlog.md` に Phase 3 の実装順とバックログを記述する | `docs: create phase3 execution backlog` | 未コミット | done | 依存関係順に Epic 化 |
+| 4-4 | verify | 受入基準と実装順の依存関係整合性を確認する | - | 未コミット | done | Phase 3 の着手順を検証 |
 
 ## 計画差分ログ
 
 | 日時 | 変更内容 | 理由 | 承認者 |
 |---|---|---|---|
-|  |  |  |  |
+| 2026-04-03 | Phase 2 計画を設計成果物の追加とチェックリスト更新として実施 | plan-1.md に基づく実装対象がドキュメントであるため | Codex |
 
 ## 最終確認
-- [ ] 全タスクの状態を更新した
-- [ ] `changed/skipped` の理由を記載した
+- [x] 全タスクの状態を更新した
+- [x] `changed/skipped` の理由を記載した
 - [ ] 実施内容が PR 要約に反映された
