@@ -188,6 +188,130 @@ button {
   padding: 24px;
 }
 
+.simulator-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(320px, 0.92fr);
+  gap: 20px;
+}
+
+.preview-shell,
+.control-panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  backdrop-filter: blur(18px);
+}
+
+.preview-shell {
+  padding: 20px;
+  display: grid;
+  gap: 16px;
+}
+
+.preview-header {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.preview-status {
+  margin: 0;
+  max-width: 320px;
+  color: var(--muted);
+  line-height: 1.6;
+  text-align: right;
+}
+
+.control-panel {
+  padding: 20px;
+  display: grid;
+  gap: 18px;
+}
+
+.panel-section {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(169, 216, 255, 0.12);
+}
+
+.panel-label,
+.status-title {
+  margin: 0;
+  color: var(--muted);
+}
+
+.panel-title {
+  margin: 4px 0 0;
+  font-size: 1.2rem;
+}
+
+.control-group {
+  display: grid;
+  gap: 8px;
+}
+
+.control-label {
+  color: var(--text);
+}
+
+.choice-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chip-button,
+.secondary-button,
+.primary-button {
+  min-height: 42px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+}
+
+.chip-button[aria-pressed="true"] {
+  background: rgba(136, 240, 255, 0.2);
+}
+
+.secondary-button {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.primary-button {
+  background: linear-gradient(135deg, rgba(137, 239, 255, 0.92), rgba(73, 197, 255, 0.92));
+  color: #04101e;
+  font-weight: 700;
+}
+
+.primary-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.status-box {
+  display: grid;
+  gap: 6px;
+}
+
+.status-primary,
+.status-secondary {
+  margin: 0;
+}
+
+.status-primary {
+  font-weight: 600;
+}
+
+.status-secondary {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
 @media (max-width: 960px) {
   .shell {
     width: min(100%, calc(100% - 32px));
@@ -195,12 +319,22 @@ button {
   }
 
   .hero-grid,
-  .steps-grid {
+  .steps-grid,
+  .simulator-layout {
     grid-template-columns: 1fr;
   }
 
   .simulator-header {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .preview-header {
+    flex-direction: column;
+  }
+
+  .preview-status {
+    max-width: none;
+    text-align: left;
   }
 }

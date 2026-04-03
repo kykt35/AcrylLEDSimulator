@@ -1,35 +1,23 @@
 "use client";
 
 import React, { useId, useState } from "react";
-import { loadPngTexture } from "@/lib/image/loadPngTexture";
 
 type ImageUploaderProps = {
-  onImageSelected: (payload: { src: string; name: string }) => void;
+  onFileSelected: (file: File) => void;
 };
 
-export function ImageUploader({ onImageSelected }: ImageUploaderProps) {
+export function ImageUploader({ onFileSelected }: ImageUploaderProps) {
   const inputId = useId();
   const [status, setStatus] = useState("PNG をアップロードすると 3D プレビューへ反映されます。");
-  const [error, setError] = useState<string | null>(null);
 
-  async function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
 
     if (!file) {
       return;
     }
-
-    try {
-      const payload = await loadPngTexture(file);
-      setError(null);
-      setStatus(`${payload.name} を読み込みました。`);
-      onImageSelected(payload);
-    } catch (caughtError) {
-      const message =
-        caughtError instanceof Error ? caughtError.message : "PNG の読み込みに失敗しました。";
-      setError(message);
-      setStatus("別の PNG ファイルで再試行してください。");
-    }
+    setStatus(`${file.name} を選択しました。`);
+    onFileSelected(file);
   }
 
   return (
@@ -47,8 +35,8 @@ export function ImageUploader({ onImageSelected }: ImageUploaderProps) {
           />
         </label>
       </div>
-      <p id={`${inputId}-status`} style={{ margin: 0, color: error ? "#ffb4b4" : "var(--muted)" }}>
-        {error ?? status}
+      <p id={`${inputId}-status`} style={{ margin: 0, color: "var(--muted)" }}>
+        {status}
       </p>
     </section>
   );
