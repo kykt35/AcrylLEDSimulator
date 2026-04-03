@@ -43,10 +43,10 @@
 
 | ID | 種別 | 内容 | 対応コミット(予定) | 実績コミット | 状態 | メモ |
 |---|---|---|---|---|---|---|
-| 4-1 | design | 受入観点とブラウザ確認観点を整理する | `docs: outline mvp acceptance viewpoints` | 未コミット | done | Must 機能中心の判定軸へ整理 |
-| 4-2 | design | `acceptance-criteria.md` に Must 機能中心の受入基準を記述する | `docs: define mvp acceptance criteria` | 未コミット | done | 操作、保存、エラー時挙動を定義 |
-| 4-3 | design | `phase-3-backlog.md` に Phase 3 の実装順とバックログを記述する | `docs: create phase3 execution backlog` | 未コミット | done | 依存関係順に Epic 化 |
-| 4-4 | verify | 受入基準と実装順の依存関係整合性を確認する | - | 未コミット | done | Phase 3 の着手順を検証 |
+| 4-1 | design | 受入観点とブラウザ確認観点を整理する | `docs: outline mvp acceptance viewpoints` | `b62d80e` | done | Must 機能中心の判定軸へ整理 |
+| 4-2 | design | `acceptance-criteria.md` に Must 機能中心の受入基準を記述する | `docs: define mvp acceptance criteria` | `b62d80e` | done | 操作、保存、エラー時挙動を定義 |
+| 4-3 | design | `phase-3-backlog.md` に Phase 3 の実装順とバックログを記述する | `docs: create phase3 execution backlog` | `b62d80e` | done | 依存関係順に Epic 化 |
+| 4-4 | verify | 受入基準と実装順の依存関係整合性を確認する | - | `b62d80e` | done | Phase 3 の着手順を検証 |
 
 ## 計画差分ログ
 
