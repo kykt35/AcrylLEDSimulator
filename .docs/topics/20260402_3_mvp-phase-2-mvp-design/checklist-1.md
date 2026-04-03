@@ -16,19 +16,19 @@
 
 | ID | 種別 | 内容 | 対応コミット(予定) | 実績コミット | 状態 | メモ |
 |---|---|---|---|---|---|---|
-| 1-1 | design | 対象画面、遷移、主要アクション、MVP 対象外を整理する | `docs: outline phase2 screen spec scope` | 未コミット | done | 3 画面 + 3 モーダル構成を固定 |
-| 1-2 | design | `screen-spec.md` に 3 画面と補助モーダルの仕様を記述する | `docs: define mvp screen specifications` | 未コミット | done | 画面責務、状態別 UI、レスポンシブ方針まで記述 |
-| 1-3 | design | `user-flow.md` に主要導線と分岐条件を記述する | `docs: add simulator user flow design` | 未コミット | done | 保存成功 / 失敗分岐を明文化 |
-| 1-4 | verify | PRD の Must 機能との対応を確認する | - | 未コミット | done | 画像入力、調整、保存導線を仕様へ反映 |
+| 1-1 | design | 対象画面、遷移、主要アクション、MVP 対象外を整理する | `docs: outline phase2 screen spec scope` | `359e1e9` | done | 3 画面 + 3 モーダル構成を固定 |
+| 1-2 | design | `screen-spec.md` に 3 画面と補助モーダルの仕様を記述する | `docs: define mvp screen specifications` | `359e1e9` | done | 画面責務、状態別 UI、レスポンシブ方針まで記述 |
+| 1-3 | design | `user-flow.md` に主要導線と分岐条件を記述する | `docs: add simulator user flow design` | `359e1e9` | done | 保存成功 / 失敗分岐を明文化 |
+| 1-4 | verify | PRD の Must 機能との対応を確認する | - | `359e1e9` | done | 画像入力、調整、保存導線を仕様へ反映 |
 
 ### Task 2: コンポーネント構成と状態管理方針を設計する
 
 | ID | 種別 | 内容 | 対応コミット(予定) | 実績コミット | 状態 | メモ |
 |---|---|---|---|---|---|---|
-| 2-1 | design | 現行 PoC の責務境界と不足点を整理する | `docs: capture current poc architecture gaps` |  | planned |  |
-| 2-2 | design | `component-design.md` に責務分割とディレクトリ構成を記述する | `docs: define mvp component architecture` |  | planned |  |
-| 2-3 | design | `state-design.md` に状態種別とデータフローを記述する | `docs: define simulator state management` |  | planned |  |
-| 2-4 | verify | 画面仕様と状態更新起点の整合性を確認する | - |  | planned |  |
+| 2-1 | design | 現行 PoC の責務境界と不足点を整理する | `docs: capture current poc architecture gaps` | 未コミット | done | `PocWorkbench` 集中の問題を整理 |
+| 2-2 | design | `component-design.md` に責務分割とディレクトリ構成を記述する | `docs: define mvp component architecture` | 未コミット | done | 画面、UI、3D、保存の境界を定義 |
+| 2-3 | design | `state-design.md` に状態種別とデータフローを記述する | `docs: define simulator state management` | 未コミット | done | 画像入力、設定、保存、UI 補助 state を分類 |
+| 2-4 | verify | 画面仕様と状態更新起点の整合性を確認する | - | 未コミット | done | 画面遷移と保存フローに合わせて持ち場所を整理 |
 
 ### Task 3: API、保存データ、エラー処理を設計する
 
