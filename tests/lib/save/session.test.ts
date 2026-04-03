@@ -15,6 +15,17 @@ describe("save session helpers", () => {
         fileName: "sample.png",
         src: "data:image/png;base64,source"
       },
+      engraving: {
+        src: "data:image/png;base64,engraving",
+        adjustments: {
+          contrast: 1.4,
+          gamma: 0.9,
+          threshold: 0.2,
+          invert: false,
+          edgeWeight: 0.25
+        },
+        averageStrength: 0.4
+      },
       simulation: {
         ledColorId: "lime",
         brightness: 1.6,
@@ -40,6 +51,17 @@ describe("save session helpers", () => {
       sourceImage: {
         fileName: "sample.png",
         src: "data:image/png;base64,source"
+      },
+      engraving: {
+        src: "data:image/png;base64,engraving",
+        adjustments: {
+          contrast: 1.35,
+          gamma: 0.9,
+          threshold: 0.18,
+          invert: false,
+          edgeWeight: 0.2
+        },
+        averageStrength: 0.3
       },
       simulation: {
         ledColorId: "ice-blue",

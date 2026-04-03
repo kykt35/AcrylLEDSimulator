@@ -24,7 +24,7 @@ export function ImageControls({
       </div>
       <div className="helper-list">
         <p>透過 PNG を推奨します</p>
-        <p>読み込み失敗時も現在の設定は保持されます</p>
+        <p>読み込み後に彫刻用グレースケール画像を自動生成します</p>
       </div>
       <ImageUploader onFileSelected={onFileSelected} />
       <div className="status-box">

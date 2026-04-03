@@ -1,0 +1,49 @@
+import React from "react";
+import { fireEvent, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { EngravingControls } from "@/components/controls/EngravingControls";
+import { defaultEngravingAdjustments } from "@/lib/image/engravingFilters";
+
+describe("EngravingControls", () => {
+  it("updates numeric adjustments and toggles invert", async () => {
+    const user = userEvent.setup();
+    const onAdjustmentsChange = vi.fn();
+    const onDownload = vi.fn();
+
+    render(
+      <EngravingControls
+        adjustments={defaultEngravingAdjustments}
+        engravingImageUrl="data:image/png;base64,engraving"
+        sourceImageUrl="data:image/png;base64,source"
+        onAdjustmentsChange={onAdjustmentsChange}
+        onDownload={onDownload}
+      />
+    );
+
+    fireEvent.change(screen.getByLabelText("しきい値"), { target: { value: "0.45" } });
+    await user.click(screen.getByLabelText("白黒を反転"));
+    await user.click(screen.getByRole("button", { name: "彫刻用 PNG をダウンロード" }));
+
+    expect(onAdjustmentsChange).toHaveBeenCalledWith({ threshold: 0.45 });
+    expect(onAdjustmentsChange).toHaveBeenCalledWith({ invert: true });
+    expect(onDownload).toHaveBeenCalled();
+  });
+
+  it("shows both source and engraving previews", () => {
+    render(
+      <EngravingControls
+        adjustments={defaultEngravingAdjustments}
+        engravingImageUrl="data:image/png;base64,engraving"
+        sourceImageUrl="data:image/png;base64,source"
+        onAdjustmentsChange={vi.fn()}
+        onDownload={vi.fn()}
+      />
+    );
+
+    expect(screen.getByAltText("元画像プレビュー")).toHaveAttribute("src", "data:image/png;base64,source");
+    expect(screen.getByAltText("彫刻用グレースケールプレビュー")).toHaveAttribute(
+      "src",
+      "data:image/png;base64,engraving"
+    );
+  });
+});

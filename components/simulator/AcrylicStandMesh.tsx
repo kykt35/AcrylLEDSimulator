@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useTexture } from "@react-three/drei";
+import { EngravingGlowMaterial } from "@/components/simulator/EngravingGlowMaterial";
 import { getAcrylicMaterialPreset } from "@/lib/simulator/acrylicMaterial";
 
 const TRANSPARENT_PIXEL =
@@ -9,12 +10,14 @@ const TRANSPARENT_PIXEL =
 
 type AcrylicStandMeshProps = {
   imageUrl?: string | null;
+  engravingImageUrl?: string | null;
   glowColor?: string;
   brightness?: number;
 };
 
 export function AcrylicStandMesh({
   imageUrl,
+  engravingImageUrl,
   glowColor = "#7fe7ff",
   brightness = 1
 }: AcrylicStandMeshProps) {
@@ -34,6 +37,14 @@ export function AcrylicStandMesh({
           opacity={preset.opacity}
           roughness={preset.roughness}
           metalness={preset.metalness}
+        />
+      </mesh>
+      <mesh position={[0, 0, 0.042]}>
+        <planeGeometry args={[1.58, 2.38]} />
+        <EngravingGlowMaterial
+          engravingImageUrl={engravingImageUrl}
+          glowColor={glowColor}
+          brightness={brightness}
         />
       </mesh>
     </group>

@@ -5,11 +5,24 @@ export type SimulationSnapshot = {
   cameraPresetId: string;
 };
 
+export type EngravingSnapshot = {
+  src: string | null;
+  adjustments: {
+    contrast: number;
+    gamma: number;
+    threshold: number;
+    invert: boolean;
+    edgeWeight: number;
+  };
+  averageStrength: number | null;
+};
+
 export type EditorSnapshot = {
   sourceImage: {
     fileName: string;
     src: string | null;
   };
+  engraving: EngravingSnapshot;
   simulation: SimulationSnapshot;
 };
 
