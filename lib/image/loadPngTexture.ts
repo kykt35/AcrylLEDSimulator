@@ -1,3 +1,5 @@
+import { generateEngravingMapFromDataUrl, type EngravingMapResult } from "@/lib/image/generateEngravingMap";
+
 export function validatePngFile(file: File): string | null {
   if (file.type !== "image/png") {
     return "PNGファイルを選択してください。";
@@ -30,6 +32,7 @@ export async function readFileAsDataUrl(file: File): Promise<string> {
 export async function loadPngTexture(file: File): Promise<{
   src: string;
   name: string;
+  engraving: EngravingMapResult;
 }> {
   const error = validatePngFile(file);
 
@@ -38,6 +41,11 @@ export async function loadPngTexture(file: File): Promise<{
   }
 
   const src = await readFileAsDataUrl(file);
+  const engraving = await generateEngravingMapFromDataUrl(src);
 
-  return { src, name: file.name };
+  return {
+    src,
+    name: file.name,
+    engraving
+  };
 }
