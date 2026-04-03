@@ -3,6 +3,19 @@ export type SimulationSnapshot = {
   brightness: number;
   backgroundId: string;
   cameraPresetId: string;
+  showSourceOverlay: boolean;
+};
+
+export type EngravingSnapshot = {
+  src: string | null;
+  adjustments: {
+    contrast: number;
+    gamma: number;
+    threshold: number;
+    invert: boolean;
+    edgeWeight: number;
+  };
+  averageStrength: number | null;
 };
 
 export type EditorSnapshot = {
@@ -10,6 +23,7 @@ export type EditorSnapshot = {
     fileName: string;
     src: string | null;
   };
+  engraving: EngravingSnapshot;
   simulation: SimulationSnapshot;
 };
 

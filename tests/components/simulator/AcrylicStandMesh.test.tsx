@@ -8,13 +8,22 @@ vi.mock("@react-three/drei", () => ({
   useTexture: (value: string) => useTextureMock(value)
 }));
 
+vi.mock("@/components/simulator/EngravingGlowMaterial", () => ({
+  EngravingGlowMaterial: () => <div data-testid="engraving-glow-material" />
+}));
+
 describe("AcrylicStandMesh", () => {
   beforeEach(() => {
     useTextureMock.mockClear();
   });
 
   it("loads the provided image texture when an image is present", () => {
-    render(<AcrylicStandMesh imageUrl="data:image/png;base64,abc" />);
+    render(
+      <AcrylicStandMesh
+        imageUrl="data:image/png;base64,abc"
+        engravingImageUrl="data:image/png;base64,engraving"
+      />
+    );
 
     expect(useTextureMock).toHaveBeenCalledWith("data:image/png;base64,abc");
   });

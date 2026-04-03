@@ -3,6 +3,7 @@
 import Link from "next/link";
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { DisplayControls } from "@/components/controls/DisplayControls";
+import { EngravingControls } from "@/components/controls/EngravingControls";
 import { ImageControls } from "@/components/controls/ImageControls";
 import { LightingControls } from "@/components/controls/LightingControls";
 import { SaveControls } from "@/components/controls/SaveControls";
@@ -12,6 +13,12 @@ import { SimulatorCanvas } from "@/components/simulator/SimulatorCanvas";
 import { ErrorNotice } from "@/components/ui/ErrorNotice";
 import { downloadBlob } from "@/lib/download/downloadBlob";
 import { exportCanvasImage, type ExportImageFormat } from "@/lib/export/exportCanvasImage";
+import { exportEngravingImage } from "@/lib/export/exportEngravingImage";
+import { generateEngravingMapFromDataUrl, type EngravingMapResult } from "@/lib/image/generateEngravingMap";
+import {
+  defaultEngravingAdjustments,
+  type EngravingAdjustments
+} from "@/lib/image/engravingFilters";
 import { loadPngTexture } from "@/lib/image/loadPngTexture";
 import {
   clearEditorSnapshot,
@@ -47,6 +54,15 @@ type SaveAction =
   | { type: "save-error"; message: string }
   | { type: "save-reset" };
 
+type EngravingState = {
+  src: string | null;
+  width: number | null;
+  height: number | null;
+  averageStrength: number | null;
+  status: "idle" | "loading" | "ready" | "error";
+  errorMessage: string | null;
+};
+
 const defaultSourceImageState: SourceImageState = {
   fileName: "未選択",
   src: null,
@@ -57,6 +73,15 @@ const defaultSourceImageState: SourceImageState = {
 const defaultSaveState: SaveState = {
   status: "idle",
   savedAt: null,
+  errorMessage: null
+};
+
+const defaultEngravingState: EngravingState = {
+  src: null,
+  width: null,
+  height: null,
+  averageStrength: null,
+  status: "idle",
   errorMessage: null
 };
 
@@ -131,10 +156,15 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
   const previewRef = useRef<HTMLDivElement>(null);
   const [sourceImage, dispatchSourceImage] = useReducer(sourceImageReducer, defaultSourceImageState);
   const [save, dispatchSave] = useReducer(saveReducer, defaultSaveState);
+  const [engraving, setEngraving] = useState<EngravingState>(defaultEngravingState);
+  const [engravingAdjustments, setEngravingAdjustments] = useState<EngravingAdjustments>(
+    defaultEngravingAdjustments
+  );
   const [ledColorId, setLedColorId] = useState(lightingPresets[0].id);
   const [brightness, setBrightness] = useState(1.2);
   const [backgroundId, setBackgroundId] = useState("night");
   const [cameraPresetId, setCameraPresetId] = useState("front");
+  const [showSourceOverlay, setShowSourceOverlay] = useState(true);
   const [isSaveCompleteOpen, setIsSaveCompleteOpen] = useState(false);
   const [exportFormat, setExportFormat] = useState<ExportImageFormat>("png");
 
@@ -147,14 +177,31 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
         fileName: sourceImage.fileName,
         src: sourceImage.src
       },
+      engraving: {
+        src: engraving.src,
+        adjustments: engravingAdjustments,
+        averageStrength: engraving.averageStrength
+      },
       simulation: {
         ledColorId,
         brightness,
         backgroundId,
-        cameraPresetId
+        cameraPresetId,
+        showSourceOverlay
       }
     }),
-    [backgroundId, brightness, cameraPresetId, ledColorId, sourceImage.fileName, sourceImage.src]
+    [
+      backgroundId,
+      brightness,
+      cameraPresetId,
+      engraving.averageStrength,
+      engraving.src,
+      engravingAdjustments,
+      ledColorId,
+      showSourceOverlay,
+      sourceImage.fileName,
+      sourceImage.src
+    ]
   );
 
   const imageStatusLabel = useMemo(() => {
@@ -181,27 +228,40 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
         fileName: payload.name,
         src: payload.src
       });
+      setEngraving({
+        src: payload.engraving.src,
+        width: payload.engraving.width,
+        height: payload.engraving.height,
+        averageStrength: payload.engraving.averageStrength,
+        status: "ready",
+        errorMessage: null
+      });
     } catch (caughtError) {
       dispatchSourceImage({
         type: "load-error",
         message:
           caughtError instanceof Error ? caughtError.message : "PNG の読み込みに失敗しました。"
       });
+      setEngraving(defaultEngravingState);
     }
   }, []);
 
   const handleResetView = useCallback(() => {
     setBackgroundId("night");
     setCameraPresetId("front");
+    setShowSourceOverlay(true);
   }, []);
 
   const resetEditor = useCallback(() => {
     dispatchSourceImage({ type: "reset" });
     dispatchSave({ type: "save-reset" });
+    setEngraving(defaultEngravingState);
+    setEngravingAdjustments(defaultEngravingAdjustments);
     setLedColorId(lightingPresets[0].id);
     setBrightness(1.2);
     setBackgroundId("night");
     setCameraPresetId("front");
+    setShowSourceOverlay(true);
     clearEditorSnapshot();
   }, []);
 
@@ -232,14 +292,87 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
         fileName: snapshot.sourceImage.fileName,
         src: snapshot.sourceImage.src
       });
+      setEngraving({
+        src: snapshot.engraving.src,
+        width: null,
+        height: null,
+        averageStrength: snapshot.engraving.averageStrength,
+        status: snapshot.engraving.src ? "ready" : "idle",
+        errorMessage: null
+      });
     } else {
       dispatchSourceImage({ type: "reset" });
+      setEngraving(defaultEngravingState);
     }
+    setEngravingAdjustments(snapshot.engraving.adjustments);
     setLedColorId(snapshot.simulation.ledColorId);
     setBrightness(snapshot.simulation.brightness);
     setBackgroundId(snapshot.simulation.backgroundId);
     setCameraPresetId(snapshot.simulation.cameraPresetId);
+    setShowSourceOverlay(snapshot.simulation.showSourceOverlay ?? true);
   }, [resetEditor, searchParams]);
+
+  useEffect(() => {
+    if (!sourceImage.src) {
+      return;
+    }
+
+    let isActive = true;
+    setEngraving((current) => ({
+      ...current,
+      status: "loading",
+      errorMessage: null
+    }));
+
+    generateEngravingMapFromDataUrl(sourceImage.src, engravingAdjustments)
+      .then((result: EngravingMapResult) => {
+        if (!isActive) {
+          return;
+        }
+
+        setEngraving({
+          src: result.src,
+          width: result.width,
+          height: result.height,
+          averageStrength: result.averageStrength,
+          status: "ready",
+          errorMessage: null
+        });
+      })
+      .catch((caughtError) => {
+        if (!isActive) {
+          return;
+        }
+
+        setEngraving({
+          ...defaultEngravingState,
+          status: "error",
+          errorMessage:
+            caughtError instanceof Error ? caughtError.message : "彫刻用画像の生成に失敗しました。"
+        });
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [engravingAdjustments, sourceImage.src]);
+
+  const handleEngravingAdjustmentsChange = useCallback((patch: Partial<EngravingAdjustments>) => {
+    setEngravingAdjustments((current) => ({
+      ...current,
+      ...patch
+    }));
+  }, []);
+
+  const handleDownloadEngraving = useCallback(async () => {
+    if (!engraving.src) {
+      return;
+    }
+
+    const baseName = sourceImage.fileName.replace(/\.[^.]+$/, "") || "acryl-led-simulation";
+    const exported = await exportEngravingImage(engraving.src, `${baseName}-engraving.png`);
+    downloadBlob(exported.blob, exported.fileName);
+  }, [engraving.src, sourceImage.fileName]);
 
   const handleSave = useCallback(async () => {
     if (!sourceImage.src) {
@@ -315,6 +448,8 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
           </div>
           <SimulatorCanvas
             imageUrl={sourceImage.src}
+            engravingImageUrl={engraving.src}
+            showSourceOverlay={showSourceOverlay}
             glowColor={activeLightingPreset.glowColor}
             background={activeBackgroundPreset.background}
             brightness={brightness}
@@ -323,6 +458,29 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
           />
           {sourceImage.errorMessage ? (
             <ErrorNotice title="画像の読み込みに失敗しました" message={sourceImage.errorMessage} />
+          ) : null}
+          {sourceImage.src ? (
+            <div className="preview-grid" data-testid="simulator-preview-grid">
+              <figure className="preview-card">
+                <figcaption className="status-title">入力画像</figcaption>
+                <img src={sourceImage.src ?? undefined} alt="元画像プレビュー" className="preview-image" />
+              </figure>
+              <figure className="preview-card">
+                <figcaption className="status-title">彫刻用グレースケール</figcaption>
+                {engraving.src ? (
+                  <img
+                    src={engraving.src}
+                    alt="彫刻用グレースケールプレビュー"
+                    className="preview-image"
+                  />
+                ) : (
+                  <p className="status-secondary">生成待ち</p>
+                )}
+              </figure>
+            </div>
+          ) : null}
+          {engraving.status === "error" && engraving.errorMessage ? (
+            <ErrorNotice title="彫刻用画像の生成に失敗しました" message={engraving.errorMessage} />
           ) : null}
           {save.status === "error" && save.errorMessage ? (
             <ErrorNotice title="ダウンロードに失敗しました" message={save.errorMessage} />
@@ -336,6 +494,14 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
             errorMessage={sourceImage.errorMessage}
             onFileSelected={handleFileSelected}
           />
+          <EngravingControls
+            adjustments={engravingAdjustments}
+            sourceImageUrl={sourceImage.src}
+            engravingImageUrl={engraving.src}
+            averageStrength={engraving.averageStrength}
+            onAdjustmentsChange={handleEngravingAdjustmentsChange}
+            onDownload={handleDownloadEngraving}
+          />
           <LightingControls
             activePresetId={ledColorId}
             brightness={brightness}
@@ -345,8 +511,10 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
           <DisplayControls
             activeBackgroundId={backgroundId}
             activeCameraPreset={cameraPresetId}
+            showSourceOverlay={showSourceOverlay}
             onBackgroundChange={setBackgroundId}
             onCameraPresetChange={setCameraPresetId}
+            onSourceOverlayChange={setShowSourceOverlay}
             onResetView={handleResetView}
           />
           <SaveControls

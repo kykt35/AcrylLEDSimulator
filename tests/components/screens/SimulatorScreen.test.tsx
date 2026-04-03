@@ -4,7 +4,9 @@ import { within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { SimulatorScreen } from "@/components/screens/SimulatorScreen";
 import { downloadBlob } from "@/lib/download/downloadBlob";
+import { exportEngravingImage } from "@/lib/export/exportEngravingImage";
 import { exportCanvasImage } from "@/lib/export/exportCanvasImage";
+import { generateEngravingMapFromDataUrl } from "@/lib/image/generateEngravingMap";
 import { loadPngTexture } from "@/lib/image/loadPngTexture";
 
 vi.mock("next/navigation", () => ({
@@ -17,12 +19,18 @@ vi.mock("next/navigation", () => ({
 vi.mock("@/components/simulator/SimulatorCanvas", () => ({
   SimulatorCanvas: ({
     imageUrl,
+    showSourceOverlay,
     containerRef
   }: {
     imageUrl?: string | null;
+    showSourceOverlay?: boolean;
     containerRef?: React.RefObject<HTMLDivElement | null>;
   }) => (
-    <div ref={containerRef} data-testid="simulator-canvas">
+    <div
+      ref={containerRef}
+      data-testid="simulator-canvas"
+      data-show-source-overlay={String(Boolean(showSourceOverlay))}
+    >
       {imageUrl ?? "empty"}
     </div>
   )
@@ -32,6 +40,22 @@ vi.mock("@/lib/export/exportCanvasImage", () => ({
   exportCanvasImage: vi.fn(async () => new Blob(["png"], { type: "image/png" }))
 }));
 
+vi.mock("@/lib/export/exportEngravingImage", () => ({
+  exportEngravingImage: vi.fn(async () => ({
+    blob: new Blob(["engraving"], { type: "image/png" }),
+    fileName: "simulator-engraving.png"
+  }))
+}));
+
+vi.mock("@/lib/image/generateEngravingMap", () => ({
+  generateEngravingMapFromDataUrl: vi.fn().mockResolvedValue({
+    src: "data:image/png;base64,engraving",
+    width: 640,
+    height: 640,
+    averageStrength: 0.4
+  })
+}));
+
 vi.mock("@/lib/download/downloadBlob", () => ({
   downloadBlob: vi.fn()
 }));
@@ -39,7 +63,13 @@ vi.mock("@/lib/download/downloadBlob", () => ({
 vi.mock("@/lib/image/loadPngTexture", () => ({
   loadPngTexture: vi.fn().mockResolvedValue({
     src: "data:image/png;base64,simulator",
-    name: "simulator.png"
+    name: "simulator.png",
+    engraving: {
+      src: "data:image/png;base64,engraving",
+      width: 640,
+      height: 640,
+      averageStrength: 0.4
+    }
   })
 }));
 
@@ -47,9 +77,25 @@ describe("SimulatorScreen", () => {
   beforeEach(() => {
     vi.mocked(loadPngTexture).mockResolvedValue({
       src: "data:image/png;base64,simulator",
-      name: "simulator.png"
+      name: "simulator.png",
+      engraving: {
+        src: "data:image/png;base64,engraving",
+        width: 640,
+        height: 640,
+        averageStrength: 0.4
+      }
     });
     vi.mocked(exportCanvasImage).mockResolvedValue(new Blob(["png"], { type: "image/png" }));
+    vi.mocked(exportEngravingImage).mockResolvedValue({
+      blob: new Blob(["engraving"], { type: "image/png" }),
+      fileName: "simulator-engraving.png"
+    });
+    vi.mocked(generateEngravingMapFromDataUrl).mockResolvedValue({
+      src: "data:image/png;base64,engraving",
+      width: 640,
+      height: 640,
+      averageStrength: 0.4
+    });
     vi.mocked(downloadBlob).mockReset();
   });
 
@@ -73,6 +119,27 @@ describe("SimulatorScreen", () => {
 
     expect(screen.getByText("simulator.png")).toBeInTheDocument();
     expect(screen.getByText("プレビューへ反映済みです。")).toBeInTheDocument();
+    expect(screen.getAllByAltText("彫刻用グレースケールプレビュー")).toHaveLength(2);
+    expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "true");
+  });
+
+  it("can hide the source overlay in the simulator preview", async () => {
+    const user = userEvent.setup();
+
+    render(<SimulatorScreen />);
+
+    const input = screen.getByLabelText("PNG アップロード");
+    const file = new File(["png"], "simulator.png", { type: "image/png" });
+
+    await user.upload(input, file);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "true");
+    });
+
+    await user.click(screen.getByLabelText("元画像を重ねて表示"));
+
+    expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "false");
   });
 
   it("shows an error and keeps save disabled when image loading fails", async () => {
@@ -163,5 +230,36 @@ describe("SimulatorScreen", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("simulator.png")).toBeInTheDocument();
     expect(downloadBlob).not.toHaveBeenCalled();
+  });
+
+  it("regenerates the engraving preview and downloads the engraving png", async () => {
+    const user = userEvent.setup();
+
+    render(<SimulatorScreen />);
+
+    const input = screen.getByLabelText("PNG アップロード");
+    const file = new File(["png"], "simulator.png", { type: "image/png" });
+
+    await user.upload(input, file);
+    await waitFor(() => {
+      expect(screen.getAllByAltText("彫刻用グレースケールプレビュー")).toHaveLength(2);
+    });
+
+    await user.clear(screen.getByLabelText("しきい値"));
+    await user.type(screen.getByLabelText("しきい値"), "0.45");
+    await user.click(screen.getByRole("button", { name: "彫刻用 PNG をダウンロード" }));
+
+    await waitFor(() => {
+      expect(generateEngravingMapFromDataUrl).toHaveBeenCalledWith(
+        "data:image/png;base64,simulator",
+        expect.objectContaining({ threshold: 0.45 })
+      );
+      expect(exportEngravingImage).toHaveBeenCalledWith(
+        "data:image/png;base64,engraving",
+        "simulator-engraving.png"
+      );
+    });
+
+    expect(downloadBlob).toHaveBeenCalledWith(expect.any(Blob), "simulator-engraving.png");
   });
 });

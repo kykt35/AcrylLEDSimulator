@@ -254,8 +254,83 @@ button {
   gap: 8px;
 }
 
+.control-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.control-field,
+.checkbox-field {
+  display: grid;
+  gap: 6px;
+}
+
+.control-field input[type="number"] {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+}
+
+.checkbox-field {
+  grid-column: 1 / -1;
+  grid-auto-flow: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
 .control-label {
   color: var(--text);
+}
+
+.helper-list,
+.preview-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.helper-list p,
+.preview-card,
+.status-secondary {
+  margin: 0;
+}
+
+.preview-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.preview-card {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(169, 216, 255, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.preview-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  border-radius: 12px;
+  background:
+    linear-gradient(45deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.05) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.05) 75%);
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+  background-size: 20px 20px;
+}
+
+.secondary-button {
+  min-height: 44px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .choice-row {

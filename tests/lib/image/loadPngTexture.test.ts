@@ -1,5 +1,16 @@
 import { loadPngTexture, validatePngFile } from "@/lib/image/loadPngTexture";
 
+vi.mock("@/lib/image/generateEngravingMap", () => ({
+  generateEngravingMapFromDataUrl: vi.fn().mockResolvedValue({
+    src: "data:image/png;base64,engraving123",
+    width: 320,
+    height: 240,
+    averageStrength: 0.42
+  })
+}));
+
+import { generateEngravingMapFromDataUrl } from "@/lib/image/generateEngravingMap";
+
 describe("loadPngTexture", () => {
   it("rejects non-png files", async () => {
     const file = new File(["hello"], "sample.jpg", { type: "image/jpeg" });
@@ -29,10 +40,17 @@ describe("loadPngTexture", () => {
 
     await expect(loadPngTexture(file)).resolves.toEqual({
       src: "data:image/png;base64,abc123",
-      name: "sample.png"
+      name: "sample.png",
+      engraving: {
+        src: "data:image/png;base64,engraving123",
+        width: 320,
+        height: 240,
+        averageStrength: 0.42
+      }
     });
 
     expect(validatePngFile(file)).toBeNull();
+    expect(generateEngravingMapFromDataUrl).toHaveBeenCalledWith("data:image/png;base64,abc123");
     vi.unstubAllGlobals();
   });
 });

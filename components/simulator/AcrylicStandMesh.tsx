@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useTexture } from "@react-three/drei";
+import { EngravingGlowMaterial } from "@/components/simulator/EngravingGlowMaterial";
 import { getAcrylicMaterialPreset } from "@/lib/simulator/acrylicMaterial";
 
 const TRANSPARENT_PIXEL =
@@ -9,17 +10,22 @@ const TRANSPARENT_PIXEL =
 
 type AcrylicStandMeshProps = {
   imageUrl?: string | null;
+  engravingImageUrl?: string | null;
+  showSourceOverlay?: boolean;
   glowColor?: string;
   brightness?: number;
 };
 
 export function AcrylicStandMesh({
   imageUrl,
+  engravingImageUrl,
+  showSourceOverlay = true,
   glowColor = "#7fe7ff",
   brightness = 1
 }: AcrylicStandMeshProps) {
-  const preset = getAcrylicMaterialPreset(Boolean(imageUrl));
-  const texture = useTexture(imageUrl || TRANSPARENT_PIXEL);
+  const resolvedImageUrl = showSourceOverlay ? imageUrl : null;
+  const preset = getAcrylicMaterialPreset(Boolean(resolvedImageUrl));
+  const texture = useTexture(resolvedImageUrl || TRANSPARENT_PIXEL);
 
   return (
     <group>
@@ -34,6 +40,14 @@ export function AcrylicStandMesh({
           opacity={preset.opacity}
           roughness={preset.roughness}
           metalness={preset.metalness}
+        />
+      </mesh>
+      <mesh position={[0, 0, 0.042]}>
+        <planeGeometry args={[1.58, 2.38]} />
+        <EngravingGlowMaterial
+          engravingImageUrl={engravingImageUrl}
+          glowColor={glowColor}
+          brightness={brightness}
         />
       </mesh>
     </group>

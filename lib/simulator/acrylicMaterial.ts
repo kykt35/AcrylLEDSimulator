@@ -12,9 +12,9 @@ export function getAcrylicMaterialPreset(hasTexture: boolean): AcrylicMaterialPr
     return {
       color: "#f3fbff",
       emissive: "#7fe7ff",
-      emissiveIntensity: 0.28,
-      opacity: 0.88,
-      roughness: 0.14,
+      emissiveIntensity: 0.14,
+      opacity: 0.56,
+      roughness: 0.12,
       metalness: 0.08
     };
   }
@@ -22,8 +22,8 @@ export function getAcrylicMaterialPreset(hasTexture: boolean): AcrylicMaterialPr
   return {
     color: "#8fe9ff",
     emissive: "#44d8ff",
-    emissiveIntensity: 0.18,
-    opacity: 0.58,
+    emissiveIntensity: 0.1,
+    opacity: 0.42,
     roughness: 0.18,
     metalness: 0.06
   };

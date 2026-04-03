@@ -9,13 +9,13 @@ export default function HomePage() {
         <div className="hero-copy">
           <p className="eyebrow">MVP Acrylic LED Simulator</p>
           <h1 className="hero-title">
-            LEDアクスタの見え方を
+            LEDアクスタの彫刻データと見え方を
             <br />
-            ダウンロード前に確認する
+            まとめて確認する
           </h1>
           <p className="hero-description">
-            PNG を読み込み、発光色や明るさ、背景、カメラを調整しながら仕上がりイメージをその場で確認できます。
-            MVP では、アップロードからダウンロードまでの主要フローをデスクトップ中心で成立させます。
+            PNG を読み込むと彫刻用グレースケール画像を生成し、LED の発光色や明るさ、背景、カメラを切り替えながら
+            完成イメージを確認できます。MVP では、入力から彫刻用 PNG とシミュレーション画像の出力までを 1 画面で完結させます。
           </p>
           <div className="hero-actions">
             <Link href="/simulator" className="primary-link">
@@ -29,9 +29,10 @@ export default function HomePage() {
           <p className="card-label">できること</p>
           <ul className="feature-list">
             <li>透過 PNG を 3D プレビューへ即時反映</li>
+            <li>彫刻用グレースケール画像を自動生成して調整</li>
             <li>LED 色と明るさをプリセット操作で調整</li>
             <li>背景切替とカメラ切替で見え方を比較</li>
-            <li>現在の表示を PNG / JPG でダウンロード</li>
+            <li>彫刻用 PNG と現在の表示をそれぞれダウンロード</li>
           </ul>
         </div>
       </section>
@@ -39,7 +40,7 @@ export default function HomePage() {
       <section className="home-section">
         <div className="section-heading">
           <p className="section-kicker">Flow</p>
-          <h2>ダウンロードまでの流れ</h2>
+          <h2>出力までの流れ</h2>
         </div>
         <div className="steps-grid">
           <article className="info-card">
@@ -49,13 +50,13 @@ export default function HomePage() {
           </article>
           <article className="info-card">
             <p className="card-label">02 Adjust</p>
-            <h3>見え方を調整する</h3>
-            <p>LED 色、明るさ、背景、カメラを切り替えてプレビューを確認します。</p>
+            <h3>彫刻データを調整する</h3>
+            <p>しきい値やコントラストを調整し、彫刻用グレースケール画像を確認します。</p>
           </article>
           <article className="info-card">
-            <p className="card-label">03 Download</p>
-            <h3>画像を書き出す</h3>
-            <p>現在のプレビューを PNG または JPG としてその場でダウンロードします。</p>
+            <p className="card-label">03 Simulate</p>
+            <h3>LED 導光の見え方を確認する</h3>
+            <p>彫刻部がどのように光るかを 3D プレビューで確認し、必要に応じて画像を書き出します。</p>
           </article>
         </div>
       </section>
@@ -69,12 +70,12 @@ export default function HomePage() {
           <article className="info-card">
             <p className="card-label">PNG</p>
             <h3>透過画像を用意する</h3>
-            <p>背景が透過された PNG だとアクリル板の見え方を確認しやすくなります。</p>
+            <p>背景が透過された PNG だと彫刻対象が明確になり、アクリル板の見え方を確認しやすくなります。</p>
           </article>
           <article className="info-card">
-            <p className="card-label">Compare</p>
-            <h3>複数条件で見比べる</h3>
-            <p>背景とカメラを切り替え、ダウンロード前に複数パターンを確認してください。</p>
+            <p className="card-label">Engraving</p>
+            <h3>白が強く光る前提で調整する</h3>
+            <p>黒は未彫刻、白は強彫刻として扱うため、グレースケール preview を見ながら調整してください。</p>
           </article>
           <article className="info-card">
             <p className="card-label">Notice</p>
