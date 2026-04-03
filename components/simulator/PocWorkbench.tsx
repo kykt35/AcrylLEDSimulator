@@ -84,7 +84,7 @@ export function PocWorkbench() {
             onCameraPresetChange={setCameraPreset}
           />
 
-          <ExportPreviewButton previewRoot={previewRef.current} onExported={setExportedImage} />
+          <ExportPreviewButton previewRootRef={previewRef} onExported={setExportedImage} />
 
           <section>
             <p style={{ margin: "0 0 8px", color: "var(--muted)" }}>現在の入力</p>

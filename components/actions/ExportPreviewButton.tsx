@@ -4,16 +4,16 @@ import React, { useState } from "react";
 import { exportCanvasImage } from "@/lib/export/exportCanvasImage";
 
 type ExportPreviewButtonProps = {
-  previewRoot: HTMLElement | null;
+  previewRootRef: React.RefObject<HTMLElement | null>;
   onExported: (dataUrl: string) => void;
 };
 
-export function ExportPreviewButton({ previewRoot, onExported }: ExportPreviewButtonProps) {
+export function ExportPreviewButton({ previewRootRef, onExported }: ExportPreviewButtonProps) {
   const [status, setStatus] = useState("未出力");
 
   function handleExport() {
     try {
-      const dataUrl = exportCanvasImage(previewRoot);
+      const dataUrl = exportCanvasImage(previewRootRef.current);
       onExported(dataUrl);
       setStatus("PNGを書き出しました。");
     } catch (caughtError) {
