@@ -3,25 +3,37 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { SimulatorScreen } from "@/components/screens/SimulatorScreen";
+import { downloadBlob } from "@/lib/download/downloadBlob";
+import { exportCanvasImage } from "@/lib/export/exportCanvasImage";
 import { loadPngTexture } from "@/lib/image/loadPngTexture";
-
-const push = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
-    push
+    push: vi.fn()
   }),
   useSearchParams: () => new URLSearchParams()
 }));
 
 vi.mock("@/components/simulator/SimulatorCanvas", () => ({
-  SimulatorCanvas: ({ imageUrl }: { imageUrl?: string | null }) => (
-    <div data-testid="simulator-canvas">{imageUrl ?? "empty"}</div>
+  SimulatorCanvas: ({
+    imageUrl,
+    containerRef
+  }: {
+    imageUrl?: string | null;
+    containerRef?: React.RefObject<HTMLDivElement | null>;
+  }) => (
+    <div ref={containerRef} data-testid="simulator-canvas">
+      {imageUrl ?? "empty"}
+    </div>
   )
 }));
 
 vi.mock("@/lib/export/exportCanvasImage", () => ({
-  exportCanvasImage: vi.fn(() => "data:image/png;base64,exported")
+  exportCanvasImage: vi.fn(async () => new Blob(["png"], { type: "image/png" }))
+}));
+
+vi.mock("@/lib/download/downloadBlob", () => ({
+  downloadBlob: vi.fn()
 }));
 
 vi.mock("@/lib/image/loadPngTexture", () => ({
@@ -33,26 +45,15 @@ vi.mock("@/lib/image/loadPngTexture", () => ({
 
 describe("SimulatorScreen", () => {
   beforeEach(() => {
-    push.mockReset();
     vi.mocked(loadPngTexture).mockResolvedValue({
       src: "data:image/png;base64,simulator",
       name: "simulator.png"
     });
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => ({
-          savedSimulationId: "sim_test",
-          resultImageUrl: "data:image/png;base64,exported",
-          savedAt: "2026-04-03T10:00:00.000Z"
-        })
-      })
-    );
+    vi.mocked(exportCanvasImage).mockResolvedValue(new Blob(["png"], { type: "image/png" }));
+    vi.mocked(downloadBlob).mockReset();
   });
 
   afterEach(() => {
-    vi.unstubAllGlobals();
     window.sessionStorage.clear();
   });
 
@@ -88,10 +89,10 @@ describe("SimulatorScreen", () => {
 
     const alert = await screen.findByRole("alert");
     expect(within(alert).getByText("PNGファイルを選択してください。")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "画像を保存する" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "画像をダウンロードする" })).toBeDisabled();
   });
 
-  it("saves the current preview and opens the completion modal", async () => {
+  it("downloads the current preview as a png by default and opens the completion modal", async () => {
     const user = userEvent.setup();
 
     render(<SimulatorScreen />);
@@ -101,30 +102,47 @@ describe("SimulatorScreen", () => {
 
     await user.upload(input, file);
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: "画像を保存する" })).toBeEnabled();
+      expect(screen.getByRole("button", { name: "画像をダウンロードする" })).toBeEnabled();
     });
 
-    await user.click(screen.getByRole("button", { name: "画像を保存する" }));
+    await user.click(screen.getByRole("button", { name: "画像をダウンロードする" }));
 
     await waitFor(() => {
-      expect(screen.getByText("保存が完了しました")).toBeInTheDocument();
+      expect(screen.getByText("ダウンロードを開始しました")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("button", { name: "結果を見る" }));
-    expect(push).toHaveBeenCalledWith("/result");
+    expect(exportCanvasImage).toHaveBeenCalledWith(expect.any(HTMLDivElement), "png");
+    expect(downloadBlob).toHaveBeenCalledWith(expect.any(Blob), "simulator.png");
   });
 
-  it("keeps the current image and settings when saving fails", async () => {
+  it("supports switching the download format to jpg", async () => {
     const user = userEvent.setup();
 
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({
-        ok: false,
-        json: async () => ({
-          message: "保存に失敗しました。時間をおいて再試行してください。"
-        })
-      })
+    vi.mocked(exportCanvasImage).mockResolvedValueOnce(new Blob(["jpg"], { type: "image/jpeg" }));
+
+    render(<SimulatorScreen />);
+
+    const input = screen.getByLabelText("PNG アップロード");
+    const file = new File(["png"], "simulator.png", { type: "image/png" });
+
+    await user.upload(input, file);
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "画像をダウンロードする" })).toBeEnabled();
+    });
+
+    await user.click(screen.getByRole("radio", { name: "JPG" }));
+    await user.click(screen.getByRole("button", { name: "画像をダウンロードする" }));
+
+    await waitFor(() => {
+      expect(downloadBlob).toHaveBeenCalledWith(expect.any(Blob), "simulator.jpg");
+    });
+  });
+
+  it("keeps the current image and settings when downloading fails", async () => {
+    const user = userEvent.setup();
+
+    vi.mocked(exportCanvasImage).mockRejectedValueOnce(
+      new Error("ダウンロードに失敗しました。時間をおいて再試行してください。")
     );
 
     render(<SimulatorScreen />);
@@ -134,14 +152,16 @@ describe("SimulatorScreen", () => {
 
     await user.upload(input, file);
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: "画像を保存する" })).toBeEnabled();
+      expect(screen.getByRole("button", { name: "画像をダウンロードする" })).toBeEnabled();
     });
 
-    await user.click(screen.getByRole("button", { name: "画像を保存する" }));
+    await user.click(screen.getByRole("button", { name: "画像をダウンロードする" }));
 
     const alert = await screen.findByRole("alert");
-    expect(within(alert).getByText("保存に失敗しました。時間をおいて再試行してください。")).toBeInTheDocument();
+    expect(
+      within(alert).getByText("ダウンロードに失敗しました。時間をおいて再試行してください。")
+    ).toBeInTheDocument();
     expect(screen.getByText("simulator.png")).toBeInTheDocument();
-    expect(push).not.toHaveBeenCalled();
+    expect(downloadBlob).not.toHaveBeenCalled();
   });
 });

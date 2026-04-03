@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { DisplayControls } from "@/components/controls/DisplayControls";
 import { ImageControls } from "@/components/controls/ImageControls";
@@ -11,13 +10,13 @@ import { NoticeModal } from "@/components/modals/NoticeModal";
 import { SaveCompleteModal } from "@/components/modals/SaveCompleteModal";
 import { SimulatorCanvas } from "@/components/simulator/SimulatorCanvas";
 import { ErrorNotice } from "@/components/ui/ErrorNotice";
-import { exportCanvasImage } from "@/lib/export/exportCanvasImage";
+import { downloadBlob } from "@/lib/download/downloadBlob";
+import { exportCanvasImage, type ExportImageFormat } from "@/lib/export/exportCanvasImage";
 import { loadPngTexture } from "@/lib/image/loadPngTexture";
 import {
   clearEditorSnapshot,
   readEditorSnapshot,
   writeEditorSnapshot,
-  writeLatestResult,
   type EditorSnapshot
 } from "@/lib/save/session";
 import { getBackgroundPreset } from "@/lib/simulator/displayPresets";
@@ -38,20 +37,13 @@ type SourceImageAction =
 
 type SaveState = {
   status: "idle" | "saving" | "success" | "error";
-  exportedImageUrl: string | null;
   savedAt: string | null;
   errorMessage: string | null;
-  savedSimulationId: string | null;
 };
 
 type SaveAction =
   | { type: "save-start" }
-  | {
-      type: "save-success";
-      exportedImageUrl: string;
-      savedAt: string | null;
-      savedSimulationId: string;
-    }
+  | { type: "save-success"; savedAt: string | null }
   | { type: "save-error"; message: string }
   | { type: "save-reset" };
 
@@ -64,10 +56,8 @@ const defaultSourceImageState: SourceImageState = {
 
 const defaultSaveState: SaveState = {
   status: "idle",
-  exportedImageUrl: null,
   savedAt: null,
-  errorMessage: null,
-  savedSimulationId: null
+  errorMessage: null
 };
 
 type SimulatorScreenProps = {
@@ -114,10 +104,8 @@ function saveReducer(state: SaveState, action: SaveAction): SaveState {
     case "save-success":
       return {
         status: "success",
-        exportedImageUrl: action.exportedImageUrl,
         savedAt: action.savedAt,
-        errorMessage: null,
-        savedSimulationId: action.savedSimulationId
+        errorMessage: null
       };
     case "save-error":
       return {
@@ -134,8 +122,12 @@ function saveReducer(state: SaveState, action: SaveAction): SaveState {
   }
 }
 
+function buildDownloadFileName(fileName: string, format: ExportImageFormat): string {
+  const baseName = fileName.replace(/\.[^.]+$/, "");
+  return `${baseName || "acryl-led-simulation"}.${format}`;
+}
+
 export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
-  const router = useRouter();
   const previewRef = useRef<HTMLDivElement>(null);
   const [sourceImage, dispatchSourceImage] = useReducer(sourceImageReducer, defaultSourceImageState);
   const [save, dispatchSave] = useReducer(saveReducer, defaultSaveState);
@@ -144,6 +136,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
   const [backgroundId, setBackgroundId] = useState("night");
   const [cameraPresetId, setCameraPresetId] = useState("front");
   const [isSaveCompleteOpen, setIsSaveCompleteOpen] = useState(false);
+  const [exportFormat, setExportFormat] = useState<ExportImageFormat>("png");
 
   const activeLightingPreset = useMemo(() => getLightingPreset(ledColorId), [ledColorId]);
   const activeBackgroundPreset = useMemo(() => getBackgroundPreset(backgroundId), [backgroundId]);
@@ -256,68 +249,24 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
     dispatchSave({ type: "save-start" });
 
     try {
-      const exportedImageDataUrl = exportCanvasImage(previewRef.current);
-      const response = await fetch("/api/save", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          sourceImageId: null,
-          exportedImageDataUrl,
-          simulation: {
-            ledColorId,
-            brightness,
-            backgroundId,
-            cameraPresetId
-          },
-          meta: {
-            sourceFileName: sourceImage.fileName
-          }
-        })
-      });
-
-      const payload = (await response.json()) as {
-        code?: string;
-        message?: string;
-        savedSimulationId?: string;
-        resultImageUrl?: string;
-        savedAt?: string;
-      };
-
-      if (!response.ok || !payload.savedSimulationId || !payload.resultImageUrl || !payload.savedAt) {
-        throw new Error(payload.message ?? "保存に失敗しました。時間をおいて再試行してください。");
-      }
+      const exportedImageBlob = await exportCanvasImage(previewRef.current, exportFormat);
+      const downloadedAt = new Date().toISOString();
 
       writeEditorSnapshot(buildEditorSnapshot());
-      writeLatestResult({
-        savedSimulationId: payload.savedSimulationId,
-        resultImageUrl: payload.resultImageUrl,
-        savedAt: payload.savedAt,
-        sourceImage: {
-          fileName: sourceImage.fileName,
-          src: sourceImage.src
-        },
-        simulation: {
-          ledColorId,
-          brightness,
-          backgroundId,
-          cameraPresetId
-        }
-      });
+      downloadBlob(exportedImageBlob, buildDownloadFileName(sourceImage.fileName, exportFormat));
 
       dispatchSave({
         type: "save-success",
-        exportedImageUrl: payload.resultImageUrl,
-        savedAt: payload.savedAt,
-        savedSimulationId: payload.savedSimulationId
+        savedAt: downloadedAt
       });
       setIsSaveCompleteOpen(true);
     } catch (caughtError) {
       dispatchSave({
         type: "save-error",
         message:
-          caughtError instanceof Error ? caughtError.message : "保存に失敗しました。時間をおいて再試行してください。"
+          caughtError instanceof Error
+            ? caughtError.message
+            : "ダウンロードに失敗しました。時間をおいて再試行してください。"
       });
     }
   }, [
@@ -325,6 +274,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
     brightness,
     buildEditorSnapshot,
     cameraPresetId,
+    exportFormat,
     ledColorId,
     sourceImage.fileName,
     sourceImage.src
@@ -337,7 +287,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
           <p className="eyebrow">Simulator</p>
           <h1 className="page-title">LEDアクスタ シミュレーター</h1>
           <p className="page-description">
-            画像の読み込み、見え方の調整、保存までを 1 画面で進めます。
+            画像の読み込み、見え方の調整、ダウンロードまでを 1 画面で進めます。
           </p>
         </div>
         <div className="header-actions">
@@ -375,7 +325,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
             <ErrorNotice title="画像の読み込みに失敗しました" message={sourceImage.errorMessage} />
           ) : null}
           {save.status === "error" && save.errorMessage ? (
-            <ErrorNotice title="保存に失敗しました" message={save.errorMessage} />
+            <ErrorNotice title="ダウンロードに失敗しました" message={save.errorMessage} />
           ) : null}
         </section>
 
@@ -404,6 +354,8 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
             errorMessage={save.errorMessage}
             hasImage={Boolean(sourceImage.src)}
             savedAt={save.savedAt}
+            exportFormat={exportFormat}
+            onFormatChange={setExportFormat}
             onSave={handleSave}
           />
         </aside>
@@ -412,7 +364,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
       <SaveCompleteModal
         isOpen={isSaveCompleteOpen}
         onClose={() => setIsSaveCompleteOpen(false)}
-        onViewResult={() => router.push("/result")}
+        formatLabel={exportFormat === "png" ? "PNG" : "JPG"}
       />
     </main>
   );
