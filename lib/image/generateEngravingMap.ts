@@ -48,7 +48,11 @@ export function generateEngravingMapFromImageData(
     strengthMap.reduce((sum, value) => sum + value, 0) / Math.max(strengthMap.length, 1);
 
   return {
-    imageData: new ImageData(pixels, imageData.width, imageData.height),
+    imageData: new ImageData(
+      new Uint8ClampedArray(pixels),
+      imageData.width,
+      imageData.height
+    ),
     averageStrength
   };
 }
