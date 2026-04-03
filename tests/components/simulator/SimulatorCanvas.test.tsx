@@ -3,9 +3,13 @@ import { render, screen } from "@testing-library/react";
 import { SimulatorCanvas } from "@/components/simulator/SimulatorCanvas";
 
 vi.mock("@react-three/fiber", () => ({
-  Canvas: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="r3f-canvas">{children}</div>
-  ),
+  Canvas: ({
+    children,
+    gl
+  }: {
+    children: React.ReactNode;
+    gl?: { preserveDrawingBuffer?: boolean };
+  }) => <div data-testid="r3f-canvas" data-preserve-drawing-buffer={String(Boolean(gl?.preserveDrawingBuffer))}>{children}</div>,
   useThree: () => ({
     camera: {
       position: { set: vi.fn() },
@@ -27,6 +31,7 @@ describe("SimulatorCanvas", () => {
     render(<SimulatorCanvas />);
 
     expect(screen.getByTestId("r3f-canvas")).toBeInTheDocument();
+    expect(screen.getByTestId("r3f-canvas")).toHaveAttribute("data-preserve-drawing-buffer", "true");
     expect(screen.getByTestId("acrylic-stand-mesh")).toBeInTheDocument();
   });
 });
