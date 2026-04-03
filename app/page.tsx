@@ -1,5 +1,6 @@
 import Link from "next/link";
 import React from "react";
+import { NoticeModal } from "@/components/modals/NoticeModal";
 
 export default function HomePage() {
   return (
@@ -20,9 +21,7 @@ export default function HomePage() {
             <Link href="/simulator" className="primary-link">
               試してみる
             </Link>
-            <a href="#notice" className="secondary-link">
-              注意事項を見る
-            </a>
+            <NoticeModal triggerLabel="注意事項を見る" />
           </div>
         </div>
 
@@ -58,19 +57,6 @@ export default function HomePage() {
             <h3>結果を保存する</h3>
             <p>現在のプレビューを画像として保存し、保存結果画面で確認します。</p>
           </article>
-        </div>
-      </section>
-
-      <section id="notice" className="home-section">
-        <div className="section-heading">
-          <p className="section-kicker">Notice</p>
-          <h2>確認しておくこと</h2>
-        </div>
-        <div className="info-card">
-          <p>
-            シミュレーター上の発光や素材表現は、実物の LED、印刷、アクリル厚み、撮影環境とは差が出ます。
-            MVP では比較検討用の目安表示を優先し、光学的に厳密な再現は対象外です。
-          </p>
         </div>
       </section>
     </main>

@@ -6,7 +6,8 @@ type SaveControlsProps = {
   saveStatus: "idle" | "saving" | "success" | "error";
   errorMessage: string | null;
   hasImage: boolean;
-  onSave: () => void;
+  savedAt?: string | null;
+  onSave: () => void | Promise<void>;
 };
 
 const saveStatusLabels = {
@@ -16,7 +17,13 @@ const saveStatusLabels = {
   error: "保存に失敗しました。設定を保持したまま再試行できます。"
 } satisfies Record<SaveControlsProps["saveStatus"], string>;
 
-export function SaveControls({ saveStatus, errorMessage, hasImage, onSave }: SaveControlsProps) {
+export function SaveControls({
+  saveStatus,
+  errorMessage,
+  hasImage,
+  savedAt,
+  onSave
+}: SaveControlsProps) {
   return (
     <section className="panel-section">
       <div>
@@ -33,6 +40,7 @@ export function SaveControls({ saveStatus, errorMessage, hasImage, onSave }: Sav
       </button>
       <div className="status-box">
         <p className="status-secondary">{errorMessage ?? saveStatusLabels[saveStatus]}</p>
+        {savedAt ? <p className="status-secondary">最終保存: {new Date(savedAt).toLocaleString("ja-JP")}</p> : null}
       </div>
     </section>
   );
