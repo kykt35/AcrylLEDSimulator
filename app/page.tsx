@@ -1,44 +1,77 @@
+import Link from "next/link";
 import React from "react";
-import { PocWorkbench } from "@/components/simulator/PocWorkbench";
 
 export default function HomePage() {
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        padding: "40px 24px 56px"
-      }}
-    >
-      <section
-        style={{
-          maxWidth: "1280px",
-          margin: "0 auto"
-        }}
-      >
-        <header
-          style={{
-            display: "grid",
-            gap: "16px",
-            marginBottom: "28px"
-          }}
-        >
-          <p style={{ margin: 0, color: "var(--accent)", letterSpacing: "0.08em" }}>
-            Phase 1 Proof of Concept
+    <main className="shell">
+      <section className="hero-grid">
+        <div className="hero-copy">
+          <p className="eyebrow">MVP Acrylic LED Simulator</p>
+          <h1 className="hero-title">
+            LEDアクスタの見え方を
+            <br />
+            保存前に確認する
+          </h1>
+          <p className="hero-description">
+            PNG を読み込み、発光色や明るさ、背景、カメラを調整しながら仕上がりイメージをその場で確認できます。
+            MVP では、アップロードから保存までの主要フローをデスクトップ中心で成立させます。
           </p>
-          <div style={{ display: "grid", gap: "12px", maxWidth: "760px" }}>
-            <h1 style={{ margin: 0, fontSize: "clamp(2.8rem, 6vw, 5.5rem)", lineHeight: 0.98 }}>
-              LEDアクスタの見え方を
-              <br />
-              その場で検証する
-            </h1>
-            <p style={{ margin: 0, color: "var(--muted)", fontSize: "1.05rem", lineHeight: 1.7 }}>
-              MVP に必要な 3D 表現、発光表現、保存方式を見極めるための PoC シェルです。
-              左側のプレビュー領域を主役にし、右側へ今後の操作パネルを組み込みます。
-            </p>
+          <div className="hero-actions">
+            <Link href="/simulator" className="primary-link">
+              試してみる
+            </Link>
+            <a href="#notice" className="secondary-link">
+              注意事項を見る
+            </a>
           </div>
-        </header>
+        </div>
 
-        <PocWorkbench />
+        <div className="hero-card">
+          <p className="card-label">できること</p>
+          <ul className="feature-list">
+            <li>透過 PNG を 3D プレビューへ即時反映</li>
+            <li>LED 色と明るさをプリセット操作で調整</li>
+            <li>背景切替とカメラ切替で見え方を比較</li>
+            <li>現在の表示を画像として保存</li>
+          </ul>
+        </div>
+      </section>
+
+      <section className="home-section">
+        <div className="section-heading">
+          <p className="section-kicker">Flow</p>
+          <h2>保存までの流れ</h2>
+        </div>
+        <div className="steps-grid">
+          <article className="info-card">
+            <p className="card-label">01 Upload</p>
+            <h3>PNG を読み込む</h3>
+            <p>透過 PNG をアップロードし、アクリル板へ即時反映します。</p>
+          </article>
+          <article className="info-card">
+            <p className="card-label">02 Adjust</p>
+            <h3>見え方を調整する</h3>
+            <p>LED 色、明るさ、背景、カメラを切り替えてプレビューを確認します。</p>
+          </article>
+          <article className="info-card">
+            <p className="card-label">03 Save</p>
+            <h3>結果を保存する</h3>
+            <p>現在のプレビューを画像として保存し、保存結果画面で確認します。</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="notice" className="home-section">
+        <div className="section-heading">
+          <p className="section-kicker">Notice</p>
+          <h2>確認しておくこと</h2>
+        </div>
+        <div className="info-card">
+          <p>
+            シミュレーター上の発光や素材表現は、実物の LED、印刷、アクリル厚み、撮影環境とは差が出ます。
+            MVP では比較検討用の目安表示を優先し、光学的に厳密な再現は対象外です。
+          </p>
+        </div>
       </section>
     </main>
   );

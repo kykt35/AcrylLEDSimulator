@@ -39,3 +39,168 @@ input,
 select {
   font: inherit;
 }
+
+button {
+  color: inherit;
+}
+
+.shell {
+  width: min(1280px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 40px 0 56px;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.95fr);
+  gap: 24px;
+  align-items: stretch;
+}
+
+.hero-copy,
+.hero-card,
+.info-card,
+.page-card,
+.simulator-header {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  backdrop-filter: blur(18px);
+}
+
+.hero-copy,
+.hero-card,
+.page-card {
+  padding: 32px;
+}
+
+.simulator-header {
+  padding: 24px 28px;
+  margin-bottom: 24px;
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.hero-title,
+.page-title,
+.section-heading h2 {
+  margin: 0;
+}
+
+.hero-title {
+  font-size: clamp(2.8rem, 6vw, 5.4rem);
+  line-height: 0.98;
+}
+
+.page-title {
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.hero-description,
+.page-description,
+.info-card p,
+.hero-card li {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.hero-copy {
+  display: grid;
+  gap: 18px;
+}
+
+.hero-actions,
+.header-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.eyebrow,
+.section-kicker,
+.card-label {
+  margin: 0;
+  color: var(--accent);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.82rem;
+}
+
+.primary-link,
+.secondary-link,
+.ghost-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+}
+
+.primary-link {
+  background: linear-gradient(135deg, #89efff 0%, #49c5ff 100%);
+  color: #04101e;
+  font-weight: 700;
+}
+
+.secondary-link {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.ghost-link {
+  background: transparent;
+}
+
+.feature-list,
+.steps-grid {
+  margin: 0;
+  padding: 0;
+}
+
+.feature-list {
+  display: grid;
+  gap: 12px;
+  padding-left: 18px;
+}
+
+.home-section {
+  margin-top: 24px;
+  display: grid;
+  gap: 16px;
+}
+
+.section-heading {
+  display: grid;
+  gap: 8px;
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  list-style: none;
+}
+
+.info-card {
+  padding: 24px;
+}
+
+@media (max-width: 960px) {
+  .shell {
+    width: min(100%, calc(100% - 32px));
+    padding: 28px 0 40px;
+  }
+
+  .hero-grid,
+  .steps-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .simulator-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
