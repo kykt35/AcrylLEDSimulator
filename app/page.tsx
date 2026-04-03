@@ -11,11 +11,11 @@ export default function HomePage() {
           <h1 className="hero-title">
             LEDアクスタの見え方を
             <br />
-            保存前に確認する
+            ダウンロード前に確認する
           </h1>
           <p className="hero-description">
             PNG を読み込み、発光色や明るさ、背景、カメラを調整しながら仕上がりイメージをその場で確認できます。
-            MVP では、アップロードから保存までの主要フローをデスクトップ中心で成立させます。
+            MVP では、アップロードからダウンロードまでの主要フローをデスクトップ中心で成立させます。
           </p>
           <div className="hero-actions">
             <Link href="/simulator" className="primary-link">
@@ -31,7 +31,7 @@ export default function HomePage() {
             <li>透過 PNG を 3D プレビューへ即時反映</li>
             <li>LED 色と明るさをプリセット操作で調整</li>
             <li>背景切替とカメラ切替で見え方を比較</li>
-            <li>現在の表示を画像として保存</li>
+            <li>現在の表示を PNG / JPG でダウンロード</li>
           </ul>
         </div>
       </section>
@@ -39,7 +39,7 @@ export default function HomePage() {
       <section className="home-section">
         <div className="section-heading">
           <p className="section-kicker">Flow</p>
-          <h2>保存までの流れ</h2>
+          <h2>ダウンロードまでの流れ</h2>
         </div>
         <div className="steps-grid">
           <article className="info-card">
@@ -53,9 +53,9 @@ export default function HomePage() {
             <p>LED 色、明るさ、背景、カメラを切り替えてプレビューを確認します。</p>
           </article>
           <article className="info-card">
-            <p className="card-label">03 Save</p>
-            <h3>結果を保存する</h3>
-            <p>現在のプレビューを画像として保存し、保存結果画面で確認します。</p>
+            <p className="card-label">03 Download</p>
+            <h3>画像を書き出す</h3>
+            <p>現在のプレビューを PNG または JPG としてその場でダウンロードします。</p>
           </article>
         </div>
       </section>
@@ -74,7 +74,7 @@ export default function HomePage() {
           <article className="info-card">
             <p className="card-label">Compare</p>
             <h3>複数条件で見比べる</h3>
-            <p>背景とカメラを切り替え、保存前に複数パターンを確認してください。</p>
+            <p>背景とカメラを切り替え、ダウンロード前に複数パターンを確認してください。</p>
           </article>
           <article className="info-card">
             <p className="card-label">Notice</p>

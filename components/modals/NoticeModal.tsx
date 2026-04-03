@@ -31,7 +31,7 @@ export function NoticeModal({ triggerLabel, buttonClassName = "secondary-link" }
             <div className="modal-copy">
               <p>表示上の色味や発光量は、実際の LED、印刷、アクリル素材、撮影環境によって差が出ます。</p>
               <p>この MVP は比較検討用のプレビューを優先しており、光学的に厳密な再現や量産時の個体差までは扱いません。</p>
-              <p>保存前に複数の背景やカメラで確認し、最終判断は実機サンプルと併用してください。</p>
+              <p>ダウンロード前に複数の背景やカメラで確認し、最終判断は実機サンプルと併用してください。</p>
             </div>
             <div className="modal-actions">
               <button type="button" className="primary-button" onClick={() => setIsOpen(false)}>

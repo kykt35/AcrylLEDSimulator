@@ -5,10 +5,10 @@ import React from "react";
 type SaveCompleteModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  onViewResult: () => void;
+  formatLabel: string;
 };
 
-export function SaveCompleteModal({ isOpen, onClose, onViewResult }: SaveCompleteModalProps) {
+export function SaveCompleteModal({ isOpen, onClose, formatLabel }: SaveCompleteModalProps) {
   if (!isOpen) {
     return null;
   }
@@ -22,18 +22,15 @@ export function SaveCompleteModal({ isOpen, onClose, onViewResult }: SaveComplet
         aria-labelledby="save-complete-title"
         onClick={(event) => event.stopPropagation()}
       >
-        <p className="panel-label">Save Complete</p>
+        <p className="panel-label">Download Ready</p>
         <h2 id="save-complete-title" className="panel-title">
-          保存が完了しました
+          ダウンロードを開始しました
         </h2>
         <div className="modal-copy">
-          <p>現在の見え方を保存しました。結果画面で画像確認とダウンロードができます。</p>
+          <p>現在の見え方を {formatLabel} ファイルとして出力しました。続けて調整する場合はこのまま編集を続けてください。</p>
         </div>
         <div className="modal-actions">
-          <button type="button" className="primary-button" onClick={onViewResult}>
-            結果を見る
-          </button>
-          <button type="button" className="secondary-button" onClick={onClose}>
+          <button type="button" className="primary-button" onClick={onClose}>
             編集を続ける
           </button>
         </div>

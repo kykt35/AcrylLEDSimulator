@@ -1,25 +1,67 @@
 import { exportCanvasImage } from "@/lib/export/exportCanvasImage";
 
 describe("exportCanvasImage", () => {
-  it("exports a png data url from the nested canvas", () => {
+  it("exports a png blob from the nested canvas by default", async () => {
     const root = document.createElement("div");
     const canvas = document.createElement("canvas");
-    const toDataURL = vi.fn(() => "data:image/png;base64,exported");
+    const exportedBlob = new Blob(["png"], { type: "image/png" });
+    const toBlob = vi.fn((callback: BlobCallback, type?: string) => {
+      callback(exportedBlob);
+      return undefined;
+    });
 
-    Object.defineProperty(canvas, "toDataURL", {
+    Object.defineProperty(canvas, "toBlob", {
       configurable: true,
-      value: toDataURL
+      value: toBlob
     });
 
     root.appendChild(canvas);
 
-    expect(exportCanvasImage(root)).toBe("data:image/png;base64,exported");
-    expect(toDataURL).toHaveBeenCalledWith("image/png");
+    await expect(exportCanvasImage(root)).resolves.toBe(exportedBlob);
+    expect(toBlob).toHaveBeenCalledWith(expect.any(Function), "image/png");
   });
 
-  it("throws when the canvas does not exist", () => {
+  it("exports a jpeg blob when the format is specified", async () => {
+    const root = document.createElement("div");
+    const canvas = document.createElement("canvas");
+    const exportedBlob = new Blob(["jpeg"], { type: "image/jpeg" });
+    const toBlob = vi.fn((callback: BlobCallback, type?: string) => {
+      callback(exportedBlob);
+      return undefined;
+    });
+
+    Object.defineProperty(canvas, "toBlob", {
+      configurable: true,
+      value: toBlob
+    });
+
+    root.appendChild(canvas);
+
+    await expect(exportCanvasImage(root, "jpg")).resolves.toBe(exportedBlob);
+    expect(toBlob).toHaveBeenCalledWith(expect.any(Function), "image/jpeg");
+  });
+
+  it("throws when the canvas does not exist", async () => {
     const root = document.createElement("div");
 
-    expect(() => exportCanvasImage(root)).toThrow("書き出し対象の canvas が見つかりません。");
+    await expect(exportCanvasImage(root)).rejects.toThrow("書き出し対象の canvas が見つかりません。");
+  });
+
+  it("throws when blob export fails", async () => {
+    const root = document.createElement("div");
+    const canvas = document.createElement("canvas");
+    const toBlob = vi.fn((callback: BlobCallback) => {
+      callback(null);
+      return undefined;
+    });
+
+    Object.defineProperty(canvas, "toBlob", {
+      configurable: true,
+      value: toBlob
+    });
+
+    root.appendChild(canvas);
+
+    await expect(exportCanvasImage(root)).rejects.toThrow("画像の書き出しに失敗しました。");
   });
 });

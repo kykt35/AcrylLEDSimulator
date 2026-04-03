@@ -8,10 +8,10 @@ describe("HomePage", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: "LEDアクスタの見え方を 保存前に確認する"
+        name: "LEDアクスタの見え方を ダウンロード前に確認する"
       })
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "試してみる" })).toHaveAttribute("href", "/simulator");
-    expect(screen.getByText("保存までの流れ")).toBeInTheDocument();
+    expect(screen.getByText("ダウンロードまでの流れ")).toBeInTheDocument();
   });
 });

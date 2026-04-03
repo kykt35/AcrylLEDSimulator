@@ -1,4 +1,14 @@
-export function exportCanvasImage(rootElement: HTMLElement | null): string {
+export type ExportImageFormat = "png" | "jpg";
+
+const mimeTypeMap: Record<ExportImageFormat, string> = {
+  png: "image/png",
+  jpg: "image/jpeg"
+};
+
+export async function exportCanvasImage(
+  rootElement: HTMLElement | null,
+  format: ExportImageFormat = "png"
+): Promise<Blob> {
   if (!rootElement) {
     throw new Error("プレビュー領域が見つかりません。");
   }
@@ -9,5 +19,14 @@ export function exportCanvasImage(rootElement: HTMLElement | null): string {
     throw new Error("書き出し対象の canvas が見つかりません。");
   }
 
-  return canvas.toDataURL("image/png");
+  return new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        reject(new Error("画像の書き出しに失敗しました。"));
+        return;
+      }
+
+      resolve(blob);
+    }, mimeTypeMap[format]);
+  });
 }

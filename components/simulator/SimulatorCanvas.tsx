@@ -37,7 +37,10 @@ export function SimulatorCanvas({
           "radial-gradient(circle at top, rgba(136, 240, 255, 0.18), rgba(7, 17, 31, 0.9) 48%, rgba(3, 7, 13, 0.98) 100%)"
       }}
     >
-      <Canvas camera={{ position: [0, 0.8, 4.6], fov: 36 }}>
+      <Canvas
+        camera={{ position: [0, 0.8, 4.6], fov: 36 }}
+        gl={{ preserveDrawingBuffer: true }}
+      >
         <SceneLighting background={background} glowColor={glowColor} brightness={brightness} />
         <AcrylicStandMesh imageUrl={imageUrl} glowColor={glowColor} brightness={brightness} />
         <LedBaseMesh glowColor={glowColor} brightness={brightness} />
