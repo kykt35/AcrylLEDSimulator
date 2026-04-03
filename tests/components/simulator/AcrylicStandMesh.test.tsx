@@ -1,15 +1,27 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import { AcrylicStandMesh } from "@/components/simulator/AcrylicStandMesh";
 
+const useTextureMock = vi.fn(() => ({}));
+
 vi.mock("@react-three/drei", () => ({
-  useTexture: () => ({})
+  useTexture: (value: string) => useTextureMock(value)
 }));
 
 describe("AcrylicStandMesh", () => {
-  it("marks the mesh as loaded when an image is present", () => {
+  beforeEach(() => {
+    useTextureMock.mockClear();
+  });
+
+  it("loads the provided image texture when an image is present", () => {
     render(<AcrylicStandMesh imageUrl="data:image/png;base64,abc" />);
 
-    expect(screen.getByTestId("acrylic-stand-mesh")).toHaveAttribute("data-image-loaded", "true");
+    expect(useTextureMock).toHaveBeenCalledWith("data:image/png;base64,abc");
+  });
+
+  it("falls back to a transparent pixel when no image is present", () => {
+    render(<AcrylicStandMesh />);
+
+    expect(useTextureMock).toHaveBeenCalledWith(expect.stringContaining("data:image/png;base64,"));
   });
 });

@@ -22,7 +22,7 @@ export function AcrylicStandMesh({
   const texture = useTexture(imageUrl || TRANSPARENT_PIXEL);
 
   return (
-    <group data-testid="acrylic-stand-mesh" data-image-loaded={imageUrl ? "true" : "false"}>
+    <group>
       <mesh position={[0, 0, 0]}>
         <boxGeometry args={[1.6, 2.4, 0.08]} />
         <meshStandardMaterial
