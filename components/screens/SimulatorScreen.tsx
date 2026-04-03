@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { DisplayControls } from "@/components/controls/DisplayControls";
 import { ImageControls } from "@/components/controls/ImageControls";
@@ -70,6 +70,10 @@ const defaultSaveState: SaveState = {
   savedSimulationId: null
 };
 
+type SimulatorScreenProps = {
+  searchParams?: Record<string, string | string[] | undefined>;
+};
+
 function sourceImageReducer(state: SourceImageState, action: SourceImageAction): SourceImageState {
   switch (action.type) {
     case "load-start":
@@ -130,9 +134,8 @@ function saveReducer(state: SaveState, action: SaveAction): SaveState {
   }
 }
 
-export function SimulatorScreen() {
+export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const previewRef = useRef<HTMLDivElement>(null);
   const [sourceImage, dispatchSourceImage] = useReducer(sourceImageReducer, defaultSourceImageState);
   const [save, dispatchSave] = useReducer(saveReducer, defaultSaveState);
@@ -210,12 +213,17 @@ export function SimulatorScreen() {
   }, []);
 
   useEffect(() => {
-    if (searchParams.get("reset") === "1") {
+    const reset = searchParams.reset;
+    const resume = searchParams.resume;
+    const resetValue = Array.isArray(reset) ? reset[0] : reset;
+    const resumeValue = Array.isArray(resume) ? resume[0] : resume;
+
+    if (resetValue === "1") {
       resetEditor();
       return;
     }
 
-    if (searchParams.get("resume") !== "1") {
+    if (resumeValue !== "1") {
       return;
     }
 
