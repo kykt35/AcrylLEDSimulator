@@ -1,38 +1,12 @@
 import {
   clearEditorSnapshot,
-  clearLatestResult,
   readEditorSnapshot,
-  readLatestResult,
-  writeEditorSnapshot,
-  writeLatestResult
+  writeEditorSnapshot
 } from "@/lib/save/session";
 
 describe("save session helpers", () => {
   beforeEach(() => {
     window.sessionStorage.clear();
-  });
-
-  it("persists and reads the latest result", () => {
-    writeLatestResult({
-      savedSimulationId: "sim_test",
-      resultImageUrl: "data:image/png;base64,result",
-      savedAt: "2026-04-03T10:00:00.000Z",
-      sourceImage: {
-        fileName: "sample.png",
-        src: "data:image/png;base64,source"
-      },
-      simulation: {
-        ledColorId: "ice-blue",
-        brightness: 1.2,
-        backgroundId: "night",
-        cameraPresetId: "front"
-      }
-    });
-
-    expect(readLatestResult()?.savedSimulationId).toBe("sim_test");
-
-    clearLatestResult();
-    expect(readLatestResult()).toBeNull();
   });
 
   it("persists and reads the editor snapshot", () => {
@@ -62,22 +36,6 @@ describe("save session helpers", () => {
         throw new Error("quota exceeded");
       });
 
-    writeLatestResult({
-      savedSimulationId: "sim_memory",
-      resultImageUrl: "data:image/png;base64,result",
-      savedAt: "2026-04-03T10:00:00.000Z",
-      sourceImage: {
-        fileName: "sample.png",
-        src: "data:image/png;base64,source"
-      },
-      simulation: {
-        ledColorId: "ice-blue",
-        brightness: 1.2,
-        backgroundId: "night",
-        cameraPresetId: "front"
-      }
-    });
-
     writeEditorSnapshot({
       sourceImage: {
         fileName: "sample.png",
@@ -91,7 +49,6 @@ describe("save session helpers", () => {
       }
     });
 
-    expect(readLatestResult()?.savedSimulationId).toBe("sim_memory");
     expect(readEditorSnapshot()?.sourceImage.fileName).toBe("sample.png");
 
     setItemSpy.mockRestore();
