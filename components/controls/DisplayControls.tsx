@@ -6,16 +6,20 @@ import { backgroundPresets, cameraOptions } from "@/lib/simulator/displayPresets
 type DisplayControlsProps = {
   activeBackgroundId: string;
   activeCameraPreset: string;
+  showSourceOverlay: boolean;
   onBackgroundChange: (backgroundId: string) => void;
   onCameraPresetChange: (presetId: string) => void;
+  onSourceOverlayChange: (show: boolean) => void;
   onResetView: () => void;
 };
 
 export function DisplayControls({
   activeBackgroundId,
   activeCameraPreset,
+  showSourceOverlay,
   onBackgroundChange,
   onCameraPresetChange,
+  onSourceOverlayChange,
   onResetView
 }: DisplayControlsProps) {
   return (
@@ -58,6 +62,16 @@ export function DisplayControls({
           ))}
         </div>
       </div>
+
+      <label className="checkbox-field">
+        <input
+          type="checkbox"
+          aria-label="元画像を重ねて表示"
+          checked={showSourceOverlay}
+          onChange={(event) => onSourceOverlayChange(event.target.checked)}
+        />
+        元画像を重ねて表示
+      </label>
 
       <button type="button" className="secondary-button" onClick={onResetView}>
         表示設定をリセット

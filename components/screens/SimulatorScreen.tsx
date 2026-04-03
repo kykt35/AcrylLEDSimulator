@@ -164,6 +164,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
   const [brightness, setBrightness] = useState(1.2);
   const [backgroundId, setBackgroundId] = useState("night");
   const [cameraPresetId, setCameraPresetId] = useState("front");
+  const [showSourceOverlay, setShowSourceOverlay] = useState(true);
   const [isSaveCompleteOpen, setIsSaveCompleteOpen] = useState(false);
   const [exportFormat, setExportFormat] = useState<ExportImageFormat>("png");
 
@@ -185,7 +186,8 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
         ledColorId,
         brightness,
         backgroundId,
-        cameraPresetId
+        cameraPresetId,
+        showSourceOverlay
       }
     }),
     [
@@ -196,6 +198,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
       engraving.src,
       engravingAdjustments,
       ledColorId,
+      showSourceOverlay,
       sourceImage.fileName,
       sourceImage.src
     ]
@@ -246,6 +249,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
   const handleResetView = useCallback(() => {
     setBackgroundId("night");
     setCameraPresetId("front");
+    setShowSourceOverlay(true);
   }, []);
 
   const resetEditor = useCallback(() => {
@@ -257,6 +261,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
     setBrightness(1.2);
     setBackgroundId("night");
     setCameraPresetId("front");
+    setShowSourceOverlay(true);
     clearEditorSnapshot();
   }, []);
 
@@ -304,6 +309,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
     setBrightness(snapshot.simulation.brightness);
     setBackgroundId(snapshot.simulation.backgroundId);
     setCameraPresetId(snapshot.simulation.cameraPresetId);
+    setShowSourceOverlay(snapshot.simulation.showSourceOverlay ?? true);
   }, [resetEditor, searchParams]);
 
   useEffect(() => {
@@ -443,6 +449,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
           <SimulatorCanvas
             imageUrl={sourceImage.src}
             engravingImageUrl={engraving.src}
+            showSourceOverlay={showSourceOverlay}
             glowColor={activeLightingPreset.glowColor}
             background={activeBackgroundPreset.background}
             brightness={brightness}
@@ -504,8 +511,10 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
           <DisplayControls
             activeBackgroundId={backgroundId}
             activeCameraPreset={cameraPresetId}
+            showSourceOverlay={showSourceOverlay}
             onBackgroundChange={setBackgroundId}
             onCameraPresetChange={setCameraPresetId}
+            onSourceOverlayChange={setShowSourceOverlay}
             onResetView={handleResetView}
           />
           <SaveControls

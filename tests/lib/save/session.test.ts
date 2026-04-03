@@ -30,7 +30,8 @@ describe("save session helpers", () => {
         ledColorId: "lime",
         brightness: 1.6,
         backgroundId: "forest",
-        cameraPresetId: "detail"
+        cameraPresetId: "detail",
+        showSourceOverlay: true
       }
     });
 
@@ -67,7 +68,8 @@ describe("save session helpers", () => {
         ledColorId: "ice-blue",
         brightness: 1.2,
         backgroundId: "night",
-        cameraPresetId: "front"
+        cameraPresetId: "front",
+        showSourceOverlay: true
       }
     });
 

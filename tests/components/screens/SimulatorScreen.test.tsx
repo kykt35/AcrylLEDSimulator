@@ -19,12 +19,18 @@ vi.mock("next/navigation", () => ({
 vi.mock("@/components/simulator/SimulatorCanvas", () => ({
   SimulatorCanvas: ({
     imageUrl,
+    showSourceOverlay,
     containerRef
   }: {
     imageUrl?: string | null;
+    showSourceOverlay?: boolean;
     containerRef?: React.RefObject<HTMLDivElement | null>;
   }) => (
-    <div ref={containerRef} data-testid="simulator-canvas">
+    <div
+      ref={containerRef}
+      data-testid="simulator-canvas"
+      data-show-source-overlay={String(Boolean(showSourceOverlay))}
+    >
       {imageUrl ?? "empty"}
     </div>
   )
@@ -114,6 +120,26 @@ describe("SimulatorScreen", () => {
     expect(screen.getByText("simulator.png")).toBeInTheDocument();
     expect(screen.getByText("プレビューへ反映済みです。")).toBeInTheDocument();
     expect(screen.getAllByAltText("彫刻用グレースケールプレビュー")).toHaveLength(2);
+    expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "true");
+  });
+
+  it("can hide the source overlay in the simulator preview", async () => {
+    const user = userEvent.setup();
+
+    render(<SimulatorScreen />);
+
+    const input = screen.getByLabelText("PNG アップロード");
+    const file = new File(["png"], "simulator.png", { type: "image/png" });
+
+    await user.upload(input, file);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "true");
+    });
+
+    await user.click(screen.getByLabelText("元画像を重ねて表示"));
+
+    expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "false");
   });
 
   it("shows an error and keeps save disabled when image loading fails", async () => {

@@ -3,6 +3,7 @@ export type SimulationSnapshot = {
   brightness: number;
   backgroundId: string;
   cameraPresetId: string;
+  showSourceOverlay: boolean;
 };
 
 export type EngravingSnapshot = {

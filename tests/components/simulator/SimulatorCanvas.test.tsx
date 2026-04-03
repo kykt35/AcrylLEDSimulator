@@ -21,15 +21,18 @@ vi.mock("@react-three/fiber", () => ({
 vi.mock("@/components/simulator/AcrylicStandMesh", () => ({
   AcrylicStandMesh: ({
     imageUrl,
-    engravingImageUrl
+    engravingImageUrl,
+    showSourceOverlay
   }: {
     imageUrl?: string | null;
     engravingImageUrl?: string | null;
+    showSourceOverlay?: boolean;
   }) => (
     <div
       data-testid="acrylic-stand-mesh"
       data-image-url={imageUrl ?? ""}
       data-engraving-image-url={engravingImageUrl ?? ""}
+      data-show-source-overlay={String(Boolean(showSourceOverlay))}
     />
   )
 }));
@@ -61,6 +64,10 @@ describe("SimulatorCanvas", () => {
     expect(screen.getByTestId("acrylic-stand-mesh")).toHaveAttribute(
       "data-engraving-image-url",
       "data:image/png;base64,engraving"
+    );
+    expect(screen.getByTestId("acrylic-stand-mesh")).toHaveAttribute(
+      "data-show-source-overlay",
+      "true"
     );
   });
 });

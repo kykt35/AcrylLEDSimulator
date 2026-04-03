@@ -10,6 +10,7 @@ import { SceneLighting } from "@/components/simulator/SceneLighting";
 type SimulatorCanvasProps = {
   imageUrl?: string | null;
   engravingImageUrl?: string | null;
+  showSourceOverlay?: boolean;
   glowColor?: string;
   brightness?: number;
   background?: string;
@@ -20,6 +21,7 @@ type SimulatorCanvasProps = {
 export function SimulatorCanvas({
   imageUrl,
   engravingImageUrl,
+  showSourceOverlay = true,
   glowColor = "#7fe7ff",
   brightness = 1,
   background = "#07111f",
@@ -47,6 +49,7 @@ export function SimulatorCanvas({
         <AcrylicStandMesh
           imageUrl={imageUrl}
           engravingImageUrl={engravingImageUrl}
+          showSourceOverlay={showSourceOverlay}
           glowColor={glowColor}
           brightness={brightness}
         />

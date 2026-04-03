@@ -11,6 +11,7 @@ const TRANSPARENT_PIXEL =
 type AcrylicStandMeshProps = {
   imageUrl?: string | null;
   engravingImageUrl?: string | null;
+  showSourceOverlay?: boolean;
   glowColor?: string;
   brightness?: number;
 };
@@ -18,11 +19,13 @@ type AcrylicStandMeshProps = {
 export function AcrylicStandMesh({
   imageUrl,
   engravingImageUrl,
+  showSourceOverlay = true,
   glowColor = "#7fe7ff",
   brightness = 1
 }: AcrylicStandMeshProps) {
-  const preset = getAcrylicMaterialPreset(Boolean(imageUrl));
-  const texture = useTexture(imageUrl || TRANSPARENT_PIXEL);
+  const resolvedImageUrl = showSourceOverlay ? imageUrl : null;
+  const preset = getAcrylicMaterialPreset(Boolean(resolvedImageUrl));
+  const texture = useTexture(resolvedImageUrl || TRANSPARENT_PIXEL);
 
   return (
     <group>
