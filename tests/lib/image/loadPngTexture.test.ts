@@ -14,7 +14,7 @@ describe("loadPngTexture", () => {
         configurable: true,
         value: "data:image/png;base64,abc123"
       });
-      this.onload?.(new ProgressEvent("load"));
+      this.onload?.(new ProgressEvent("load") as ProgressEvent<FileReader>);
     });
 
     vi.stubGlobal(

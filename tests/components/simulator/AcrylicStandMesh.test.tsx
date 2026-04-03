@@ -2,7 +2,7 @@ import React from "react";
 import { render } from "@testing-library/react";
 import { AcrylicStandMesh } from "@/components/simulator/AcrylicStandMesh";
 
-const useTextureMock = vi.fn(() => ({}));
+const useTextureMock = vi.fn((value?: string) => ({ value }));
 
 vi.mock("@react-three/drei", () => ({
   useTexture: (value: string) => useTextureMock(value)

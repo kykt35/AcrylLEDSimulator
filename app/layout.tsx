@@ -3,8 +3,8 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
-  title: "Acryl LED Simulator PoC",
-  description: "Phase 1 proof of concept for the acrylic LED stand simulator."
+  title: "Acryl LED Simulator",
+  description: "MVP simulator for previewing acrylic LED stand designs before export."
 };
 
 type RootLayoutProps = Readonly<{
