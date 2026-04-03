@@ -32,7 +32,7 @@ type SourceImageState = {
 
 type SourceImageAction =
   | { type: "load-start"; fileName: string }
-  | { type: "load-success"; fileName: string; src: string }
+  | { type: "load-success"; fileName: string; src: string | null }
   | { type: "load-error"; message: string }
   | { type: "reset" };
 
@@ -233,11 +233,15 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
       return;
     }
 
-    dispatchSourceImage({
-      type: "load-success",
-      fileName: snapshot.sourceImage.fileName,
-      src: snapshot.sourceImage.src ?? ""
-    });
+    if (snapshot.sourceImage.src) {
+      dispatchSourceImage({
+        type: "load-success",
+        fileName: snapshot.sourceImage.fileName,
+        src: snapshot.sourceImage.src
+      });
+    } else {
+      dispatchSourceImage({ type: "reset" });
+    }
     setLedColorId(snapshot.simulation.ledColorId);
     setBrightness(snapshot.simulation.brightness);
     setBackgroundId(snapshot.simulation.backgroundId);

@@ -88,6 +88,9 @@ export function ResultScreen() {
               <a className="secondary-button download-link" href={result.resultImageUrl} download="acryl-led-simulation.png">
                 ダウンロード
               </a>
+              <Link className="ghost-link" href="/">
+                トップへ戻る
+              </Link>
             </div>
           </div>
         </div>

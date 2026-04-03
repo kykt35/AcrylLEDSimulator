@@ -22,6 +22,10 @@ export function ImageControls({
         <p className="panel-label">画像設定</p>
         <h2 className="panel-title">PNG をアップロード</h2>
       </div>
+      <div className="helper-list">
+        <p>透過 PNG を推奨します</p>
+        <p>読み込み失敗時も現在の設定は保持されます</p>
+      </div>
       <ImageUploader onFileSelected={onFileSelected} />
       <div className="status-box">
         <p className="status-title">現在の入力</p>
