@@ -1,5 +1,3 @@
-import type { CSSProperties } from "react";
-
 export type ImageContentFit = "contain" | "cover" | "fill";
 
 export type ImageLayout = {
@@ -22,16 +20,5 @@ export function clampImageLayout(layout: ImageLayout): ImageLayout {
     scale: Math.min(1.6, Math.max(0.4, layout.scale)),
     offsetX: Math.min(100, Math.max(-100, layout.offsetX)),
     offsetY: Math.min(100, Math.max(-100, layout.offsetY))
-  };
-}
-
-export function buildPreviewImageStyle(layout: ImageLayout): CSSProperties {
-  const normalized = clampImageLayout(layout);
-
-  return {
-    objectFit: normalized.contentFit,
-    objectPosition: `${50 + normalized.offsetX / 2}% ${50 + normalized.offsetY / 2}%`,
-    transform: `scale(${normalized.scale})`,
-    transformOrigin: "center"
   };
 }

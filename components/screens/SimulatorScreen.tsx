@@ -14,6 +14,7 @@ import { ErrorNotice } from "@/components/ui/ErrorNotice";
 import { downloadBlob } from "@/lib/download/downloadBlob";
 import { exportCanvasImage, type ExportImageFormat } from "@/lib/export/exportCanvasImage";
 import { exportEngravingImage } from "@/lib/export/exportEngravingImage";
+import { composePreviewImageFromDataUrl } from "@/lib/image/composePreviewImage";
 import { generateEngravingMapFromDataUrl, type EngravingMapResult } from "@/lib/image/generateEngravingMap";
 import {
   defaultEngravingAdjustments,
@@ -28,7 +29,6 @@ import {
 } from "@/lib/save/session";
 import {
   clampImageLayout,
-  buildPreviewImageStyle,
   defaultImageLayout,
   type ImageLayout
 } from "@/lib/simulator/imageLayout";
@@ -67,6 +67,11 @@ type EngravingState = {
   averageStrength: number | null;
   status: "idle" | "loading" | "ready" | "error";
   errorMessage: string | null;
+};
+
+type PreviewImageState = {
+  src: string | null;
+  status: "idle" | "loading" | "ready" | "error";
 };
 
 const defaultSourceImageState: SourceImageState = {
@@ -163,6 +168,10 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
   const [sourceImage, dispatchSourceImage] = useReducer(sourceImageReducer, defaultSourceImageState);
   const [save, dispatchSave] = useReducer(saveReducer, defaultSaveState);
   const [engraving, setEngraving] = useState<EngravingState>(defaultEngravingState);
+  const [previewImage, setPreviewImage] = useState<PreviewImageState>({
+    src: null,
+    status: "idle"
+  });
   const [engravingAdjustments, setEngravingAdjustments] = useState<EngravingAdjustments>(
     defaultEngravingAdjustments
   );
@@ -237,6 +246,10 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
         fileName: payload.name,
         src: payload.src
       });
+      setPreviewImage({
+        src: payload.src,
+        status: "ready"
+      });
       setEngraving({
         src: payload.engraving.src,
         width: payload.engraving.width,
@@ -250,6 +263,10 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
         type: "load-error",
         message:
           caughtError instanceof Error ? caughtError.message : "PNG の読み込みに失敗しました。"
+      });
+      setPreviewImage({
+        src: null,
+        status: "error"
       });
       setEngraving(defaultEngravingState);
     }
@@ -274,6 +291,10 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
     dispatchSourceImage({ type: "reset" });
     dispatchSave({ type: "save-reset" });
     setEngraving(defaultEngravingState);
+    setPreviewImage({
+      src: null,
+      status: "idle"
+    });
     setEngravingAdjustments(defaultEngravingAdjustments);
     setLedColorId(lightingPresets[0].id);
     setBrightness(1.2);
@@ -319,9 +340,17 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
         status: snapshot.engraving.src ? "ready" : "idle",
         errorMessage: null
       });
+      setPreviewImage({
+        src: snapshot.sourceImage.src,
+        status: snapshot.sourceImage.src ? "ready" : "idle"
+      });
     } else {
       dispatchSourceImage({ type: "reset" });
       setEngraving(defaultEngravingState);
+      setPreviewImage({
+        src: null,
+        status: "idle"
+      });
     }
     setEngravingAdjustments(snapshot.engraving.adjustments);
     setLedColorId(snapshot.simulation.ledColorId);
@@ -331,6 +360,48 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
     setShowSourceOverlay(snapshot.simulation.showSourceOverlay ?? true);
     setImageLayout(clampImageLayout(snapshot.simulation.imageLayout ?? defaultImageLayout));
   }, [resetEditor, searchParams]);
+
+  useEffect(() => {
+    if (!sourceImage.src) {
+      setPreviewImage({
+        src: null,
+        status: "idle"
+      });
+      return;
+    }
+
+    let isActive = true;
+    setPreviewImage((current) => ({
+      src: current.src ?? sourceImage.src,
+      status: "loading"
+    }));
+
+    composePreviewImageFromDataUrl(sourceImage.src, imageLayout)
+      .then((src) => {
+        if (!isActive) {
+          return;
+        }
+
+        setPreviewImage({
+          src,
+          status: "ready"
+        });
+      })
+      .catch(() => {
+        if (!isActive) {
+          return;
+        }
+
+        setPreviewImage({
+          src: sourceImage.src,
+          status: "error"
+        });
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [imageLayout, sourceImage.src]);
 
   useEffect(() => {
     if (!sourceImage.src) {
@@ -433,7 +504,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
     sourceImage.src
   ]);
 
-  const sourcePreviewStyle = useMemo(() => buildPreviewImageStyle(imageLayout), [imageLayout]);
+  const previewSourceUrl = previewImage.src ?? sourceImage.src;
 
   return (
     <main className="shell">
@@ -469,9 +540,8 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
             </p>
           </div>
           <SimulatorCanvas
-            imageUrl={sourceImage.src}
+            imageUrl={previewSourceUrl}
             engravingImageUrl={engraving.src}
-            imageLayout={imageLayout}
             showSourceOverlay={showSourceOverlay}
             glowColor={activeLightingPreset.glowColor}
             background={activeBackgroundPreset.background}
@@ -488,10 +558,9 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                 <figcaption className="status-title">入力画像</figcaption>
                 <div className="preview-image-frame">
                   <img
-                    src={sourceImage.src ?? undefined}
+                    src={previewSourceUrl ?? undefined}
                     alt="元画像プレビュー"
                     className="preview-image"
-                    style={sourcePreviewStyle}
                   />
                 </div>
               </figure>
@@ -531,9 +600,8 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
           />
           <EngravingControls
             adjustments={engravingAdjustments}
-            sourceImageUrl={sourceImage.src}
+            sourceImageUrl={previewSourceUrl}
             engravingImageUrl={engraving.src}
-            imageLayout={imageLayout}
             averageStrength={engraving.averageStrength}
             onAdjustmentsChange={handleEngravingAdjustmentsChange}
             onDownload={handleDownloadEngraving}

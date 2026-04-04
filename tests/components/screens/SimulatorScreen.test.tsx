@@ -6,6 +6,7 @@ import { SimulatorScreen } from "@/components/screens/SimulatorScreen";
 import { downloadBlob } from "@/lib/download/downloadBlob";
 import { exportEngravingImage } from "@/lib/export/exportEngravingImage";
 import { exportCanvasImage } from "@/lib/export/exportCanvasImage";
+import { composePreviewImageFromDataUrl } from "@/lib/image/composePreviewImage";
 import { generateEngravingMapFromDataUrl } from "@/lib/image/generateEngravingMap";
 import { loadPngTexture } from "@/lib/image/loadPngTexture";
 
@@ -16,31 +17,24 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams()
 }));
 
+vi.mock("@/lib/image/composePreviewImage", () => ({
+  composePreviewImageFromDataUrl: vi.fn(async (src: string) => `${src}-preview`)
+}));
+
 vi.mock("@/components/simulator/SimulatorCanvas", () => ({
   SimulatorCanvas: ({
     imageUrl,
     showSourceOverlay,
-    imageLayout,
     containerRef
   }: {
     imageUrl?: string | null;
     showSourceOverlay?: boolean;
-    imageLayout?: {
-      contentFit: string;
-      scale: number;
-      offsetX: number;
-      offsetY: number;
-    };
     containerRef?: React.RefObject<HTMLDivElement | null>;
   }) => (
     <div
       ref={containerRef}
       data-testid="simulator-canvas"
       data-show-source-overlay={String(Boolean(showSourceOverlay))}
-      data-image-fit={imageLayout?.contentFit ?? ""}
-      data-image-scale={String(imageLayout?.scale ?? "")}
-      data-image-offset-x={String(imageLayout?.offsetX ?? "")}
-      data-image-offset-y={String(imageLayout?.offsetY ?? "")}
     >
       {imageUrl ?? "empty"}
     </div>
@@ -107,6 +101,7 @@ describe("SimulatorScreen", () => {
       height: 640,
       averageStrength: 0.4
     });
+    vi.mocked(composePreviewImageFromDataUrl).mockImplementation(async (src: string) => `${src}-preview`);
     vi.mocked(downloadBlob).mockReset();
   });
 
@@ -125,14 +120,13 @@ describe("SimulatorScreen", () => {
     await user.upload(input, file);
 
     await waitFor(() => {
-      expect(screen.getByTestId("simulator-canvas")).toHaveTextContent("data:image/png;base64,simulator");
+      expect(screen.getByTestId("simulator-canvas")).toHaveTextContent("data:image/png;base64,simulator-preview");
     });
 
     expect(screen.getByText("simulator.png")).toBeInTheDocument();
     expect(screen.getByText("プレビューへ反映済みです。")).toBeInTheDocument();
     expect(screen.getAllByAltText("彫刻用グレースケールプレビュー")).toHaveLength(2);
     expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "true");
-    expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-image-fit", "contain");
   });
 
   it("can hide the source overlay in the simulator preview", async () => {
@@ -164,16 +158,27 @@ describe("SimulatorScreen", () => {
 
     await user.upload(input, file);
     await waitFor(() => {
-      expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-image-fit", "contain");
+      expect(composePreviewImageFromDataUrl).toHaveBeenCalledWith(
+        "data:image/png;base64,simulator",
+        expect.objectContaining({ contentFit: "contain" })
+      );
     });
 
     await user.click(screen.getByRole("button", { name: "Cover" }));
     fireEvent.change(screen.getByLabelText("画像サイズ"), { target: { value: "130" } });
     fireEvent.change(screen.getByLabelText("画像の横位置"), { target: { value: "25" } });
 
-    expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-image-fit", "cover");
-    expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-image-scale", "1.3");
-    expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-image-offset-x", "25");
+    expect(composePreviewImageFromDataUrl).toHaveBeenLastCalledWith(
+      "data:image/png;base64,simulator",
+      expect.objectContaining({
+        contentFit: "cover",
+        scale: 1.3,
+        offsetX: 25
+      })
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("simulator-canvas")).toHaveTextContent("data:image/png;base64,simulator-preview");
+    });
   });
 
   it("shows an error and keeps save disabled when image loading fails", async () => {

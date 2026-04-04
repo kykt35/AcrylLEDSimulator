@@ -6,12 +6,10 @@ import { AcrylicStandMesh } from "@/components/simulator/AcrylicStandMesh";
 import { CameraController } from "@/components/simulator/CameraController";
 import { LedBaseMesh } from "@/components/simulator/LedBaseMesh";
 import { SceneLighting } from "@/components/simulator/SceneLighting";
-import type { ImageLayout } from "@/lib/simulator/imageLayout";
 
 type SimulatorCanvasProps = {
   imageUrl?: string | null;
   engravingImageUrl?: string | null;
-  imageLayout?: ImageLayout;
   showSourceOverlay?: boolean;
   glowColor?: string;
   brightness?: number;
@@ -23,7 +21,6 @@ type SimulatorCanvasProps = {
 export function SimulatorCanvas({
   imageUrl,
   engravingImageUrl,
-  imageLayout,
   showSourceOverlay = true,
   glowColor = "#7fe7ff",
   brightness = 1,
@@ -52,7 +49,6 @@ export function SimulatorCanvas({
         <AcrylicStandMesh
           imageUrl={imageUrl}
           engravingImageUrl={engravingImageUrl}
-          imageLayout={imageLayout}
           showSourceOverlay={showSourceOverlay}
           glowColor={glowColor}
           brightness={brightness}

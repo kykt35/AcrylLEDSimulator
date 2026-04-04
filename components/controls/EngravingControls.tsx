@@ -2,13 +2,11 @@
 
 import React from "react";
 import type { EngravingAdjustments } from "@/lib/image/engravingFilters";
-import { buildPreviewImageStyle, defaultImageLayout, type ImageLayout } from "@/lib/simulator/imageLayout";
 
 type EngravingControlsProps = {
   adjustments: EngravingAdjustments;
   sourceImageUrl: string | null;
   engravingImageUrl: string | null;
-  imageLayout?: ImageLayout;
   averageStrength?: number | null;
   onAdjustmentsChange: (patch: Partial<EngravingAdjustments>) => void;
   onDownload: () => void | Promise<void>;
@@ -33,7 +31,6 @@ export function EngravingControls({
   adjustments,
   sourceImageUrl,
   engravingImageUrl,
-  imageLayout = defaultImageLayout,
   averageStrength,
   onAdjustmentsChange,
   onDownload
@@ -84,7 +81,6 @@ export function EngravingControls({
                 src={sourceImageUrl}
                 alt="元画像プレビュー"
                 className="preview-image"
-                style={buildPreviewImageStyle(imageLayout)}
               />
             </div>
           ) : (
