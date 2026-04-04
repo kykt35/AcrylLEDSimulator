@@ -29,18 +29,7 @@ export function SimulatorCanvas({
   containerRef
 }: SimulatorCanvasProps) {
   return (
-    <div
-      ref={containerRef}
-      style={{
-        width: "100%",
-        minHeight: "420px",
-        borderRadius: "24px",
-        overflow: "hidden",
-        border: "1px solid rgba(169, 216, 255, 0.2)",
-        background:
-          "radial-gradient(circle at top, rgba(136, 240, 255, 0.18), rgba(7, 17, 31, 0.9) 48%, rgba(3, 7, 13, 0.98) 100%)"
-      }}
-    >
+    <div ref={containerRef} className="simulator-canvas-host">
       <Canvas
         camera={{ position: [0, 0.8, 4.6], fov: 36 }}
         gl={{ preserveDrawingBuffer: true }}

@@ -4,6 +4,12 @@ export type SimulationSnapshot = {
   backgroundId: string;
   cameraPresetId: string;
   showSourceOverlay: boolean;
+  imageLayout: {
+    contentFit: "contain" | "cover" | "fill";
+    scale: number;
+    offsetX: number;
+    offsetY: number;
+  };
 };
 
 export type EngravingSnapshot = {

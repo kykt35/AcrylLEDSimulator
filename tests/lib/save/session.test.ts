@@ -31,11 +31,18 @@ describe("save session helpers", () => {
         brightness: 1.6,
         backgroundId: "forest",
         cameraPresetId: "detail",
-        showSourceOverlay: true
+        showSourceOverlay: true,
+        imageLayout: {
+          contentFit: "cover",
+          scale: 1.15,
+          offsetX: 24,
+          offsetY: -12
+        }
       }
     });
 
     expect(readEditorSnapshot()?.simulation.cameraPresetId).toBe("detail");
+    expect(readEditorSnapshot()?.simulation.imageLayout.contentFit).toBe("cover");
 
     clearEditorSnapshot();
     expect(readEditorSnapshot()).toBeNull();
@@ -69,7 +76,13 @@ describe("save session helpers", () => {
         brightness: 1.2,
         backgroundId: "night",
         cameraPresetId: "front",
-        showSourceOverlay: true
+        showSourceOverlay: true,
+        imageLayout: {
+          contentFit: "contain",
+          scale: 1,
+          offsetX: 0,
+          offsetY: 0
+        }
       }
     });
 

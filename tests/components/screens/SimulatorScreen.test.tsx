@@ -1,11 +1,12 @@
 import React from "react";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { SimulatorScreen } from "@/components/screens/SimulatorScreen";
 import { downloadBlob } from "@/lib/download/downloadBlob";
 import { exportEngravingImage } from "@/lib/export/exportEngravingImage";
 import { exportCanvasImage } from "@/lib/export/exportCanvasImage";
+import { composePreviewImageFromDataUrl } from "@/lib/image/composePreviewImage";
 import { generateEngravingMapFromDataUrl } from "@/lib/image/generateEngravingMap";
 import { loadPngTexture } from "@/lib/image/loadPngTexture";
 
@@ -14,6 +15,10 @@ vi.mock("next/navigation", () => ({
     push: vi.fn()
   }),
   useSearchParams: () => new URLSearchParams()
+}));
+
+vi.mock("@/lib/image/composePreviewImage", () => ({
+  composePreviewImageFromDataUrl: vi.fn(async (src: string) => `${src}-preview`)
 }));
 
 vi.mock("@/components/simulator/SimulatorCanvas", () => ({
@@ -96,6 +101,7 @@ describe("SimulatorScreen", () => {
       height: 640,
       averageStrength: 0.4
     });
+    vi.mocked(composePreviewImageFromDataUrl).mockImplementation(async (src: string) => `${src}-preview`);
     vi.mocked(downloadBlob).mockReset();
   });
 
@@ -114,9 +120,13 @@ describe("SimulatorScreen", () => {
     await user.upload(input, file);
 
     await waitFor(() => {
-      expect(screen.getByTestId("simulator-canvas")).toHaveTextContent("data:image/png;base64,simulator");
+      expect(screen.getByTestId("simulator-canvas")).toHaveTextContent("data:image/png;base64,simulator-preview");
     });
 
+    expect(composePreviewImageFromDataUrl).toHaveBeenCalledWith(
+      "data:image/png;base64,engraving",
+      expect.objectContaining({ contentFit: "contain" })
+    );
     expect(screen.getByText("simulator.png")).toBeInTheDocument();
     expect(screen.getByText("プレビューへ反映済みです。")).toBeInTheDocument();
     expect(screen.getAllByAltText("彫刻用グレースケールプレビュー")).toHaveLength(2);
@@ -137,9 +147,55 @@ describe("SimulatorScreen", () => {
       expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "true");
     });
 
+    await user.click(screen.getByRole("tab", { name: "表示" }));
     await user.click(screen.getByLabelText("元画像を重ねて表示"));
 
     expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "false");
+  });
+
+  it("updates image layout controls for the preview", async () => {
+    const user = userEvent.setup();
+
+    render(<SimulatorScreen />);
+
+    const input = screen.getByLabelText("PNG アップロード");
+    const file = new File(["png"], "simulator.png", { type: "image/png" });
+
+    await user.upload(input, file);
+    await waitFor(() => {
+      expect(composePreviewImageFromDataUrl).toHaveBeenCalledWith(
+        "data:image/png;base64,simulator",
+        expect.objectContaining({ contentFit: "contain" })
+      );
+      expect(composePreviewImageFromDataUrl).toHaveBeenCalledWith(
+        "data:image/png;base64,engraving",
+        expect.objectContaining({ contentFit: "contain" })
+      );
+    });
+
+    await user.click(screen.getByRole("button", { name: "Cover" }));
+    fireEvent.change(screen.getByLabelText("画像サイズ"), { target: { value: "130" } });
+    fireEvent.change(screen.getByLabelText("画像の横位置"), { target: { value: "25" } });
+
+    await waitFor(() => {
+      expect(composePreviewImageFromDataUrl).toHaveBeenCalledWith(
+        "data:image/png;base64,simulator",
+        expect.objectContaining({
+          contentFit: "cover",
+          scale: 1.3,
+          offsetX: 25
+        })
+      );
+      expect(composePreviewImageFromDataUrl).toHaveBeenCalledWith(
+        "data:image/png;base64,engraving",
+        expect.objectContaining({
+          contentFit: "cover",
+          scale: 1.3,
+          offsetX: 25
+        })
+      );
+      expect(screen.getByTestId("simulator-canvas")).toHaveTextContent("data:image/png;base64,simulator-preview");
+    });
   });
 
   it("shows an error and keeps save disabled when image loading fails", async () => {
@@ -156,6 +212,7 @@ describe("SimulatorScreen", () => {
 
     const alert = await screen.findByRole("alert");
     expect(within(alert).getByText("PNGファイルを選択してください。")).toBeInTheDocument();
+    await user.click(screen.getByRole("tab", { name: "書き出し" }));
     expect(screen.getByRole("button", { name: "画像をダウンロードする" })).toBeDisabled();
   });
 
@@ -168,6 +225,11 @@ describe("SimulatorScreen", () => {
     const file = new File(["png"], "simulator.png", { type: "image/png" });
 
     await user.upload(input, file);
+    await waitFor(() => {
+      expect(screen.getByRole("tab", { name: "書き出し" })).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("tab", { name: "書き出し" }));
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "画像をダウンロードする" })).toBeEnabled();
     });
@@ -194,6 +256,11 @@ describe("SimulatorScreen", () => {
 
     await user.upload(input, file);
     await waitFor(() => {
+      expect(screen.getByRole("tab", { name: "書き出し" })).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("tab", { name: "書き出し" }));
+    await waitFor(() => {
       expect(screen.getByRole("button", { name: "画像をダウンロードする" })).toBeEnabled();
     });
 
@@ -218,6 +285,11 @@ describe("SimulatorScreen", () => {
     const file = new File(["png"], "simulator.png", { type: "image/png" });
 
     await user.upload(input, file);
+    await waitFor(() => {
+      expect(screen.getByRole("tab", { name: "書き出し" })).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("tab", { name: "書き出し" }));
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "画像をダウンロードする" })).toBeEnabled();
     });
@@ -245,6 +317,7 @@ describe("SimulatorScreen", () => {
       expect(screen.getAllByAltText("彫刻用グレースケールプレビュー")).toHaveLength(2);
     });
 
+    await user.click(screen.getByRole("tab", { name: "彫刻" }));
     await user.clear(screen.getByLabelText("しきい値"));
     await user.type(screen.getByLabelText("しきい値"), "0.45");
     await user.click(screen.getByRole("button", { name: "彫刻用 PNG をダウンロード" }));

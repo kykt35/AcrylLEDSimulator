@@ -75,16 +75,28 @@ export function EngravingControls({
       <div className="preview-grid" data-testid="engraving-preview-grid">
         <figure className="preview-card">
           <figcaption className="status-title">元画像</figcaption>
-          {sourceImageUrl ? <img src={sourceImageUrl} alt="元画像プレビュー" className="preview-image" /> : <p className="status-secondary">未選択</p>}
+          {sourceImageUrl ? (
+            <div className="preview-image-frame">
+              <img
+                src={sourceImageUrl}
+                alt="元画像プレビュー"
+                className="preview-image"
+              />
+            </div>
+          ) : (
+            <p className="status-secondary">未選択</p>
+          )}
         </figure>
         <figure className="preview-card">
           <figcaption className="status-title">彫刻用グレースケール</figcaption>
           {engravingImageUrl ? (
-            <img
-              src={engravingImageUrl}
-              alt="彫刻用グレースケールプレビュー"
-              className="preview-image"
-            />
+            <div className="preview-image-frame">
+              <img
+                src={engravingImageUrl}
+                alt="彫刻用グレースケールプレビュー"
+                className="preview-image"
+              />
+            </div>
           ) : (
             <p className="status-secondary">未生成</p>
           )}
