@@ -26,6 +26,12 @@ import {
   writeEditorSnapshot,
   type EditorSnapshot
 } from "@/lib/save/session";
+import {
+  clampImageLayout,
+  buildPreviewImageStyle,
+  defaultImageLayout,
+  type ImageLayout
+} from "@/lib/simulator/imageLayout";
 import { getBackgroundPreset } from "@/lib/simulator/displayPresets";
 import { getLightingPreset, lightingPresets } from "@/lib/simulator/lightingPresets";
 
@@ -165,6 +171,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
   const [backgroundId, setBackgroundId] = useState("night");
   const [cameraPresetId, setCameraPresetId] = useState("front");
   const [showSourceOverlay, setShowSourceOverlay] = useState(true);
+  const [imageLayout, setImageLayout] = useState<ImageLayout>(defaultImageLayout);
   const [isSaveCompleteOpen, setIsSaveCompleteOpen] = useState(false);
   const [exportFormat, setExportFormat] = useState<ExportImageFormat>("png");
 
@@ -187,7 +194,8 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
         brightness,
         backgroundId,
         cameraPresetId,
-        showSourceOverlay
+        showSourceOverlay,
+        imageLayout: clampImageLayout(imageLayout)
       }
     }),
     [
@@ -197,6 +205,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
       engraving.averageStrength,
       engraving.src,
       engravingAdjustments,
+      imageLayout,
       ledColorId,
       showSourceOverlay,
       sourceImage.fileName,
@@ -252,6 +261,15 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
     setShowSourceOverlay(true);
   }, []);
 
+  const handleImageLayoutChange = useCallback((patch: Partial<ImageLayout>) => {
+    setImageLayout((current) =>
+      clampImageLayout({
+        ...current,
+        ...patch
+      })
+    );
+  }, []);
+
   const resetEditor = useCallback(() => {
     dispatchSourceImage({ type: "reset" });
     dispatchSave({ type: "save-reset" });
@@ -262,6 +280,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
     setBackgroundId("night");
     setCameraPresetId("front");
     setShowSourceOverlay(true);
+    setImageLayout(defaultImageLayout);
     clearEditorSnapshot();
   }, []);
 
@@ -310,6 +329,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
     setBackgroundId(snapshot.simulation.backgroundId);
     setCameraPresetId(snapshot.simulation.cameraPresetId);
     setShowSourceOverlay(snapshot.simulation.showSourceOverlay ?? true);
+    setImageLayout(clampImageLayout(snapshot.simulation.imageLayout ?? defaultImageLayout));
   }, [resetEditor, searchParams]);
 
   useEffect(() => {
@@ -413,6 +433,8 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
     sourceImage.src
   ]);
 
+  const sourcePreviewStyle = useMemo(() => buildPreviewImageStyle(imageLayout), [imageLayout]);
+
   return (
     <main className="shell">
       <section className="simulator-header">
@@ -449,6 +471,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
           <SimulatorCanvas
             imageUrl={sourceImage.src}
             engravingImageUrl={engraving.src}
+            imageLayout={imageLayout}
             showSourceOverlay={showSourceOverlay}
             glowColor={activeLightingPreset.glowColor}
             background={activeBackgroundPreset.background}
@@ -463,16 +486,25 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
             <div className="preview-grid" data-testid="simulator-preview-grid">
               <figure className="preview-card">
                 <figcaption className="status-title">入力画像</figcaption>
-                <img src={sourceImage.src ?? undefined} alt="元画像プレビュー" className="preview-image" />
+                <div className="preview-image-frame">
+                  <img
+                    src={sourceImage.src ?? undefined}
+                    alt="元画像プレビュー"
+                    className="preview-image"
+                    style={sourcePreviewStyle}
+                  />
+                </div>
               </figure>
               <figure className="preview-card">
                 <figcaption className="status-title">彫刻用グレースケール</figcaption>
                 {engraving.src ? (
-                  <img
-                    src={engraving.src}
-                    alt="彫刻用グレースケールプレビュー"
-                    className="preview-image"
-                  />
+                  <div className="preview-image-frame">
+                    <img
+                      src={engraving.src}
+                      alt="彫刻用グレースケールプレビュー"
+                      className="preview-image"
+                    />
+                  </div>
                 ) : (
                   <p className="status-secondary">生成待ち</p>
                 )}
@@ -492,12 +524,16 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
             fileName={sourceImage.fileName}
             statusLabel={imageStatusLabel}
             errorMessage={sourceImage.errorMessage}
+            imageLayout={imageLayout}
             onFileSelected={handleFileSelected}
+            onImageLayoutChange={handleImageLayoutChange}
+            onResetImageLayout={() => setImageLayout(defaultImageLayout)}
           />
           <EngravingControls
             adjustments={engravingAdjustments}
             sourceImageUrl={sourceImage.src}
             engravingImageUrl={engraving.src}
+            imageLayout={imageLayout}
             averageStrength={engraving.averageStrength}
             onAdjustmentsChange={handleEngravingAdjustmentsChange}
             onDownload={handleDownloadEngraving}

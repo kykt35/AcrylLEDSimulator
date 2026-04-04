@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { SimulatorScreen } from "@/components/screens/SimulatorScreen";
@@ -20,16 +20,27 @@ vi.mock("@/components/simulator/SimulatorCanvas", () => ({
   SimulatorCanvas: ({
     imageUrl,
     showSourceOverlay,
+    imageLayout,
     containerRef
   }: {
     imageUrl?: string | null;
     showSourceOverlay?: boolean;
+    imageLayout?: {
+      contentFit: string;
+      scale: number;
+      offsetX: number;
+      offsetY: number;
+    };
     containerRef?: React.RefObject<HTMLDivElement | null>;
   }) => (
     <div
       ref={containerRef}
       data-testid="simulator-canvas"
       data-show-source-overlay={String(Boolean(showSourceOverlay))}
+      data-image-fit={imageLayout?.contentFit ?? ""}
+      data-image-scale={String(imageLayout?.scale ?? "")}
+      data-image-offset-x={String(imageLayout?.offsetX ?? "")}
+      data-image-offset-y={String(imageLayout?.offsetY ?? "")}
     >
       {imageUrl ?? "empty"}
     </div>
@@ -121,6 +132,7 @@ describe("SimulatorScreen", () => {
     expect(screen.getByText("プレビューへ反映済みです。")).toBeInTheDocument();
     expect(screen.getAllByAltText("彫刻用グレースケールプレビュー")).toHaveLength(2);
     expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "true");
+    expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-image-fit", "contain");
   });
 
   it("can hide the source overlay in the simulator preview", async () => {
@@ -140,6 +152,28 @@ describe("SimulatorScreen", () => {
     await user.click(screen.getByLabelText("元画像を重ねて表示"));
 
     expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "false");
+  });
+
+  it("updates image layout controls for the preview", async () => {
+    const user = userEvent.setup();
+
+    render(<SimulatorScreen />);
+
+    const input = screen.getByLabelText("PNG アップロード");
+    const file = new File(["png"], "simulator.png", { type: "image/png" });
+
+    await user.upload(input, file);
+    await waitFor(() => {
+      expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-image-fit", "contain");
+    });
+
+    await user.click(screen.getByRole("button", { name: "Cover" }));
+    fireEvent.change(screen.getByLabelText("画像サイズ"), { target: { value: "130" } });
+    fireEvent.change(screen.getByLabelText("画像の横位置"), { target: { value: "25" } });
+
+    expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-image-fit", "cover");
+    expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-image-scale", "1.3");
+    expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-image-offset-x", "25");
   });
 
   it("shows an error and keeps save disabled when image loading fails", async () => {

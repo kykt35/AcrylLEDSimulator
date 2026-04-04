@@ -3,6 +3,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { EngravingControls } from "@/components/controls/EngravingControls";
 import { defaultEngravingAdjustments } from "@/lib/image/engravingFilters";
+import { defaultImageLayout } from "@/lib/simulator/imageLayout";
 
 describe("EngravingControls", () => {
   it("updates numeric adjustments and toggles invert", async () => {
@@ -15,6 +16,7 @@ describe("EngravingControls", () => {
         adjustments={defaultEngravingAdjustments}
         engravingImageUrl="data:image/png;base64,engraving"
         sourceImageUrl="data:image/png;base64,source"
+        imageLayout={defaultImageLayout}
         onAdjustmentsChange={onAdjustmentsChange}
         onDownload={onDownload}
       />
@@ -35,6 +37,7 @@ describe("EngravingControls", () => {
         adjustments={defaultEngravingAdjustments}
         engravingImageUrl="data:image/png;base64,engraving"
         sourceImageUrl="data:image/png;base64,source"
+        imageLayout={defaultImageLayout}
         onAdjustmentsChange={vi.fn()}
         onDownload={vi.fn()}
       />

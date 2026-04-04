@@ -2,11 +2,13 @@
 
 import React from "react";
 import type { EngravingAdjustments } from "@/lib/image/engravingFilters";
+import { buildPreviewImageStyle, defaultImageLayout, type ImageLayout } from "@/lib/simulator/imageLayout";
 
 type EngravingControlsProps = {
   adjustments: EngravingAdjustments;
   sourceImageUrl: string | null;
   engravingImageUrl: string | null;
+  imageLayout?: ImageLayout;
   averageStrength?: number | null;
   onAdjustmentsChange: (patch: Partial<EngravingAdjustments>) => void;
   onDownload: () => void | Promise<void>;
@@ -31,6 +33,7 @@ export function EngravingControls({
   adjustments,
   sourceImageUrl,
   engravingImageUrl,
+  imageLayout = defaultImageLayout,
   averageStrength,
   onAdjustmentsChange,
   onDownload
@@ -75,16 +78,29 @@ export function EngravingControls({
       <div className="preview-grid" data-testid="engraving-preview-grid">
         <figure className="preview-card">
           <figcaption className="status-title">元画像</figcaption>
-          {sourceImageUrl ? <img src={sourceImageUrl} alt="元画像プレビュー" className="preview-image" /> : <p className="status-secondary">未選択</p>}
+          {sourceImageUrl ? (
+            <div className="preview-image-frame">
+              <img
+                src={sourceImageUrl}
+                alt="元画像プレビュー"
+                className="preview-image"
+                style={buildPreviewImageStyle(imageLayout)}
+              />
+            </div>
+          ) : (
+            <p className="status-secondary">未選択</p>
+          )}
         </figure>
         <figure className="preview-card">
           <figcaption className="status-title">彫刻用グレースケール</figcaption>
           {engravingImageUrl ? (
-            <img
-              src={engravingImageUrl}
-              alt="彫刻用グレースケールプレビュー"
-              className="preview-image"
-            />
+            <div className="preview-image-frame">
+              <img
+                src={engravingImageUrl}
+                alt="彫刻用グレースケールプレビュー"
+                className="preview-image"
+              />
+            </div>
           ) : (
             <p className="status-secondary">未生成</p>
           )}

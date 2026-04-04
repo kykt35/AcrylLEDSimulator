@@ -22,16 +22,24 @@ vi.mock("@/components/simulator/AcrylicStandMesh", () => ({
   AcrylicStandMesh: ({
     imageUrl,
     engravingImageUrl,
+    imageLayout,
     showSourceOverlay
   }: {
     imageUrl?: string | null;
     engravingImageUrl?: string | null;
+    imageLayout?: {
+      contentFit: string;
+      scale: number;
+      offsetX: number;
+      offsetY: number;
+    };
     showSourceOverlay?: boolean;
   }) => (
     <div
       data-testid="acrylic-stand-mesh"
       data-image-url={imageUrl ?? ""}
       data-engraving-image-url={engravingImageUrl ?? ""}
+      data-image-fit={imageLayout?.contentFit ?? ""}
       data-show-source-overlay={String(Boolean(showSourceOverlay))}
     />
   )
@@ -55,6 +63,12 @@ describe("SimulatorCanvas", () => {
       <SimulatorCanvas
         imageUrl="data:image/png;base64,source"
         engravingImageUrl="data:image/png;base64,engraving"
+        imageLayout={{
+          contentFit: "cover",
+          scale: 1.2,
+          offsetX: 10,
+          offsetY: -5
+        }}
       />
     );
 
@@ -69,5 +83,6 @@ describe("SimulatorCanvas", () => {
       "data-show-source-overlay",
       "true"
     );
+    expect(screen.getByTestId("acrylic-stand-mesh")).toHaveAttribute("data-image-fit", "cover");
   });
 });
