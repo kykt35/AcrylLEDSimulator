@@ -3,6 +3,7 @@ import { clampImageLayout } from "@/lib/simulator/imageLayout";
 
 const PREVIEW_WIDTH = 1580;
 const PREVIEW_HEIGHT = 2380;
+const ALPHA_THRESHOLD = 8;
 
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -13,11 +14,71 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
+function detectOpaqueBounds(
+  context: CanvasRenderingContext2D,
+  width: number,
+  height: number
+): {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+} {
+  const { data } = context.getImageData(0, 0, width, height);
+  let minX = width;
+  let minY = height;
+  let maxX = -1;
+  let maxY = -1;
+
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const alpha = data[(y * width + x) * 4 + 3];
+
+      if (alpha < ALPHA_THRESHOLD) {
+        continue;
+      }
+
+      minX = Math.min(minX, x);
+      minY = Math.min(minY, y);
+      maxX = Math.max(maxX, x);
+      maxY = Math.max(maxY, y);
+    }
+  }
+
+  if (maxX < minX || maxY < minY) {
+    return {
+      x: 0,
+      y: 0,
+      width,
+      height
+    };
+  }
+
+  return {
+    x: minX,
+    y: minY,
+    width: maxX - minX + 1,
+    height: maxY - minY + 1
+  };
+}
+
 export async function composePreviewImageFromDataUrl(
   src: string,
   imageLayout: ImageLayout
 ): Promise<string> {
   const image = await loadImage(src);
+  const sourceCanvas = document.createElement("canvas");
+  sourceCanvas.width = image.width;
+  sourceCanvas.height = image.height;
+  const sourceContext = sourceCanvas.getContext("2d");
+
+  if (!sourceContext) {
+    throw new Error("元画像の解析に必要な canvas を初期化できません。");
+  }
+
+  sourceContext.clearRect(0, 0, image.width, image.height);
+  sourceContext.drawImage(image, 0, 0, image.width, image.height);
+  const opaqueBounds = detectOpaqueBounds(sourceContext, image.width, image.height);
   const canvas = document.createElement("canvas");
   canvas.width = PREVIEW_WIDTH;
   canvas.height = PREVIEW_HEIGHT;
@@ -29,7 +90,7 @@ export async function composePreviewImageFromDataUrl(
   }
 
   const normalized = clampImageLayout(imageLayout);
-  const imageAspect = image.width / image.height;
+  const imageAspect = opaqueBounds.width / opaqueBounds.height;
   const frameAspect = PREVIEW_WIDTH / PREVIEW_HEIGHT;
   let drawWidth = PREVIEW_WIDTH;
   let drawHeight = PREVIEW_HEIGHT;
@@ -57,7 +118,17 @@ export async function composePreviewImageFromDataUrl(
   const y = (PREVIEW_HEIGHT - drawHeight) / 2 + (normalized.offsetY / 100) * maxOffsetY;
 
   context.clearRect(0, 0, PREVIEW_WIDTH, PREVIEW_HEIGHT);
-  context.drawImage(image, x, y, drawWidth, drawHeight);
+  context.drawImage(
+    image,
+    opaqueBounds.x,
+    opaqueBounds.y,
+    opaqueBounds.width,
+    opaqueBounds.height,
+    x,
+    y,
+    drawWidth,
+    drawHeight
+  );
 
   return canvas.toDataURL("image/png");
 }

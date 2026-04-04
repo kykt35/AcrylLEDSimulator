@@ -35,6 +35,16 @@ import {
 import { getBackgroundPreset } from "@/lib/simulator/displayPresets";
 import { getLightingPreset, lightingPresets } from "@/lib/simulator/lightingPresets";
 
+type ControlPanelTabId = "image" | "engraving" | "lighting" | "display" | "export";
+
+const CONTROL_PANEL_TABS: readonly { id: ControlPanelTabId; label: string }[] = [
+  { id: "image", label: "画像" },
+  { id: "engraving", label: "彫刻" },
+  { id: "lighting", label: "ライト" },
+  { id: "display", label: "表示" },
+  { id: "export", label: "書き出し" }
+] as const;
+
 type SourceImageState = {
   fileName: string;
   src: string | null;
@@ -172,6 +182,10 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
     src: null,
     status: "idle"
   });
+  const [previewEngravingImage, setPreviewEngravingImage] = useState<PreviewImageState>({
+    src: null,
+    status: "idle"
+  });
   const [engravingAdjustments, setEngravingAdjustments] = useState<EngravingAdjustments>(
     defaultEngravingAdjustments
   );
@@ -183,6 +197,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
   const [imageLayout, setImageLayout] = useState<ImageLayout>(defaultImageLayout);
   const [isSaveCompleteOpen, setIsSaveCompleteOpen] = useState(false);
   const [exportFormat, setExportFormat] = useState<ExportImageFormat>("png");
+  const [controlPanelTab, setControlPanelTab] = useState<ControlPanelTabId>("image");
 
   const activeLightingPreset = useMemo(() => getLightingPreset(ledColorId), [ledColorId]);
   const activeBackgroundPreset = useMemo(() => getBackgroundPreset(backgroundId), [backgroundId]);
@@ -258,6 +273,10 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
         status: "ready",
         errorMessage: null
       });
+      setPreviewEngravingImage({
+        src: payload.engraving.src,
+        status: "ready"
+      });
     } catch (caughtError) {
       dispatchSourceImage({
         type: "load-error",
@@ -265,6 +284,10 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
           caughtError instanceof Error ? caughtError.message : "PNG の読み込みに失敗しました。"
       });
       setPreviewImage({
+        src: null,
+        status: "error"
+      });
+      setPreviewEngravingImage({
         src: null,
         status: "error"
       });
@@ -292,6 +315,10 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
     dispatchSave({ type: "save-reset" });
     setEngraving(defaultEngravingState);
     setPreviewImage({
+      src: null,
+      status: "idle"
+    });
+    setPreviewEngravingImage({
       src: null,
       status: "idle"
     });
@@ -344,10 +371,18 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
         src: snapshot.sourceImage.src,
         status: snapshot.sourceImage.src ? "ready" : "idle"
       });
+      setPreviewEngravingImage({
+        src: snapshot.engraving.src,
+        status: snapshot.engraving.src ? "ready" : "idle"
+      });
     } else {
       dispatchSourceImage({ type: "reset" });
       setEngraving(defaultEngravingState);
       setPreviewImage({
+        src: null,
+        status: "idle"
+      });
+      setPreviewEngravingImage({
         src: null,
         status: "idle"
       });
@@ -402,6 +437,48 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
       isActive = false;
     };
   }, [imageLayout, sourceImage.src]);
+
+  useEffect(() => {
+    if (!engraving.src) {
+      setPreviewEngravingImage({
+        src: null,
+        status: "idle"
+      });
+      return;
+    }
+
+    let isActive = true;
+    setPreviewEngravingImage((current) => ({
+      src: current.src ?? engraving.src,
+      status: "loading"
+    }));
+
+    composePreviewImageFromDataUrl(engraving.src, imageLayout)
+      .then((src) => {
+        if (!isActive) {
+          return;
+        }
+
+        setPreviewEngravingImage({
+          src,
+          status: "ready"
+        });
+      })
+      .catch(() => {
+        if (!isActive) {
+          return;
+        }
+
+        setPreviewEngravingImage({
+          src: engraving.src,
+          status: "error"
+        });
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [engraving.src, imageLayout]);
 
   useEffect(() => {
     if (!sourceImage.src) {
@@ -505,6 +582,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
   ]);
 
   const previewSourceUrl = previewImage.src ?? sourceImage.src;
+  const previewEngravingUrl = previewEngravingImage.src ?? engraving.src;
 
   return (
     <main className="shell">
@@ -541,7 +619,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
           </div>
           <SimulatorCanvas
             imageUrl={previewSourceUrl}
-            engravingImageUrl={engraving.src}
+            engravingImageUrl={previewEngravingUrl}
             showSourceOverlay={showSourceOverlay}
             glowColor={activeLightingPreset.glowColor}
             background={activeBackgroundPreset.background}
@@ -569,7 +647,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                 {engraving.src ? (
                   <div className="preview-image-frame">
                     <img
-                      src={engraving.src}
+                      src={previewEngravingUrl}
                       alt="彫刻用グレースケールプレビュー"
                       className="preview-image"
                     />
@@ -589,47 +667,108 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
         </section>
 
         <aside className="control-panel">
-          <ImageControls
-            fileName={sourceImage.fileName}
-            statusLabel={imageStatusLabel}
-            errorMessage={sourceImage.errorMessage}
-            imageLayout={imageLayout}
-            onFileSelected={handleFileSelected}
-            onImageLayoutChange={handleImageLayoutChange}
-            onResetImageLayout={() => setImageLayout(defaultImageLayout)}
-          />
-          <EngravingControls
-            adjustments={engravingAdjustments}
-            sourceImageUrl={previewSourceUrl}
-            engravingImageUrl={engraving.src}
-            averageStrength={engraving.averageStrength}
-            onAdjustmentsChange={handleEngravingAdjustmentsChange}
-            onDownload={handleDownloadEngraving}
-          />
-          <LightingControls
-            activePresetId={ledColorId}
-            brightness={brightness}
-            onPresetChange={setLedColorId}
-            onBrightnessChange={setBrightness}
-          />
-          <DisplayControls
-            activeBackgroundId={backgroundId}
-            activeCameraPreset={cameraPresetId}
-            showSourceOverlay={showSourceOverlay}
-            onBackgroundChange={setBackgroundId}
-            onCameraPresetChange={setCameraPresetId}
-            onSourceOverlayChange={setShowSourceOverlay}
-            onResetView={handleResetView}
-          />
-          <SaveControls
-            saveStatus={save.status}
-            errorMessage={save.errorMessage}
-            hasImage={Boolean(sourceImage.src)}
-            savedAt={save.savedAt}
-            exportFormat={exportFormat}
-            onFormatChange={setExportFormat}
-            onSave={handleSave}
-          />
+          <div className="control-tablist" role="tablist" aria-label="シミュレーター設定">
+            {CONTROL_PANEL_TABS.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                id={`control-tab-${tab.id}`}
+                role="tab"
+                className="control-tab"
+                aria-selected={controlPanelTab === tab.id}
+                aria-controls={`control-panel-${tab.id}`}
+                tabIndex={controlPanelTab === tab.id ? 0 : -1}
+                onClick={() => setControlPanelTab(tab.id)}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+          <div className="control-tab-card">
+            <div className="control-tab-panels">
+              <div
+                id="control-panel-image"
+                role="tabpanel"
+                className="control-tab-panel"
+                aria-labelledby="control-tab-image"
+                hidden={controlPanelTab !== "image"}
+              >
+                <ImageControls
+                  fileName={sourceImage.fileName}
+                  statusLabel={imageStatusLabel}
+                  errorMessage={sourceImage.errorMessage}
+                  imageLayout={imageLayout}
+                  onFileSelected={handleFileSelected}
+                  onImageLayoutChange={handleImageLayoutChange}
+                  onResetImageLayout={() => setImageLayout(defaultImageLayout)}
+                />
+              </div>
+              <div
+                id="control-panel-engraving"
+                role="tabpanel"
+                className="control-tab-panel"
+                aria-labelledby="control-tab-engraving"
+                hidden={controlPanelTab !== "engraving"}
+              >
+                <EngravingControls
+                  adjustments={engravingAdjustments}
+                  sourceImageUrl={previewSourceUrl}
+                  engravingImageUrl={previewEngravingUrl}
+                  averageStrength={engraving.averageStrength}
+                  onAdjustmentsChange={handleEngravingAdjustmentsChange}
+                  onDownload={handleDownloadEngraving}
+                />
+              </div>
+              <div
+                id="control-panel-lighting"
+                role="tabpanel"
+                className="control-tab-panel"
+                aria-labelledby="control-tab-lighting"
+                hidden={controlPanelTab !== "lighting"}
+              >
+                <LightingControls
+                  activePresetId={ledColorId}
+                  brightness={brightness}
+                  onPresetChange={setLedColorId}
+                  onBrightnessChange={setBrightness}
+                />
+              </div>
+              <div
+                id="control-panel-display"
+                role="tabpanel"
+                className="control-tab-panel"
+                aria-labelledby="control-tab-display"
+                hidden={controlPanelTab !== "display"}
+              >
+                <DisplayControls
+                  activeBackgroundId={backgroundId}
+                  activeCameraPreset={cameraPresetId}
+                  showSourceOverlay={showSourceOverlay}
+                  onBackgroundChange={setBackgroundId}
+                  onCameraPresetChange={setCameraPresetId}
+                  onSourceOverlayChange={setShowSourceOverlay}
+                  onResetView={handleResetView}
+                />
+              </div>
+              <div
+                id="control-panel-export"
+                role="tabpanel"
+                className="control-tab-panel"
+                aria-labelledby="control-tab-export"
+                hidden={controlPanelTab !== "export"}
+              >
+                <SaveControls
+                  saveStatus={save.status}
+                  errorMessage={save.errorMessage}
+                  hasImage={Boolean(sourceImage.src)}
+                  savedAt={save.savedAt}
+                  exportFormat={exportFormat}
+                  onFormatChange={setExportFormat}
+                  onSave={handleSave}
+                />
+              </div>
+            </div>
+          </div>
         </aside>
       </div>
 
