@@ -233,7 +233,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
   const [brightness, setBrightness] = useState(1.2);
   const [backgroundId, setBackgroundId] = useState("night");
   const [cameraPresetId, setCameraPresetId] = useState("front");
-  const [showSourceOverlay, setShowSourceOverlay] = useState(true);
+  const [showSourceOverlay, setShowSourceOverlay] = useState(false);
   const [imageLayout, setImageLayout] = useState<ImageLayout>(defaultImageLayout);
   const [isSaveCompleteOpen, setIsSaveCompleteOpen] = useState(false);
   const [exportFormat, setExportFormat] = useState<ExportImageFormat>("png");
@@ -440,7 +440,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
   const handleResetView = useCallback(() => {
     setBackgroundId("night");
     setCameraPresetId("front");
-    setShowSourceOverlay(true);
+    setShowSourceOverlay(false);
   }, []);
 
   const handleImageLayoutChange = useCallback((patch: Partial<ImageLayout>) => {
@@ -469,7 +469,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
     setBrightness(1.2);
     setBackgroundId("night");
     setCameraPresetId("front");
-    setShowSourceOverlay(true);
+    setShowSourceOverlay(false);
     setImageLayout(defaultImageLayout);
     clearEditorSnapshot();
   }, []);
@@ -534,7 +534,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
     setBrightness(snapshot.simulation.brightness);
     setBackgroundId(snapshot.simulation.backgroundId);
     setCameraPresetId(snapshot.simulation.cameraPresetId);
-    setShowSourceOverlay(snapshot.simulation.showSourceOverlay ?? true);
+    setShowSourceOverlay(snapshot.simulation.showSourceOverlay ?? false);
     setImageLayout(clampImageLayout(snapshot.simulation.imageLayout ?? defaultImageLayout));
   }, [resetEditor, searchParams]);
 
