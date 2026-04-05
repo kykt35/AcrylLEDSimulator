@@ -3,6 +3,7 @@ import {
   readEditorSnapshot,
   writeEditorSnapshot
 } from "@/lib/save/session";
+import { defaultAcrylicSizePresetId } from "@/lib/simulator/acrylicSizePresets";
 
 describe("save session helpers", () => {
   beforeEach(() => {
@@ -31,6 +32,7 @@ describe("save session helpers", () => {
         brightness: 1.6,
         backgroundId: "forest",
         cameraPresetId: "detail",
+        acrylicSizeId: "medium",
         showSourceOverlay: true,
         imageLayout: {
           contentFit: "cover",
@@ -43,6 +45,7 @@ describe("save session helpers", () => {
 
     expect(readEditorSnapshot()?.simulation.cameraPresetId).toBe("detail");
     expect(readEditorSnapshot()?.simulation.imageLayout.contentFit).toBe("cover");
+    expect(readEditorSnapshot()?.simulation.acrylicSizeId).toBe("medium");
     expect(readEditorSnapshot()?.simulation.showSourceOverlay).toBe(true);
 
     clearEditorSnapshot();
@@ -71,6 +74,7 @@ describe("save session helpers", () => {
         brightness: 1.6,
         backgroundId: "forest",
         cameraPresetId: "detail",
+        acrylicSizeId: "medium",
         showSourceOverlay: false,
         imageLayout: {
           contentFit: "contain",
@@ -112,6 +116,7 @@ describe("save session helpers", () => {
         brightness: 1.2,
         backgroundId: "night",
         cameraPresetId: "front",
+        acrylicSizeId: "small",
         showSourceOverlay: true,
         imageLayout: {
           contentFit: "contain",
@@ -123,7 +128,46 @@ describe("save session helpers", () => {
     });
 
     expect(readEditorSnapshot()?.sourceImage.fileName).toBe("sample.png");
+    expect(readEditorSnapshot()?.simulation.acrylicSizeId).toBe("small");
 
     setItemSpy.mockRestore();
+  });
+
+  it("falls back to the default acrylic size when reading legacy snapshots", () => {
+    window.sessionStorage.setItem(
+      "acryl-led-simulator:editor",
+      JSON.stringify({
+        sourceImage: {
+          fileName: "legacy.png",
+          src: "data:image/png;base64,legacy"
+        },
+        engraving: {
+          src: "data:image/png;base64,legacy-engraving",
+          adjustments: {
+            contrast: 1.2,
+            gamma: 1,
+            threshold: 0.2,
+            invert: false,
+            edgeWeight: 0.25
+          },
+          averageStrength: 0.4
+        },
+        simulation: {
+          ledColorId: "lime",
+          brightness: 1.4,
+          backgroundId: "night",
+          cameraPresetId: "front",
+          showSourceOverlay: false,
+          imageLayout: {
+            contentFit: "contain",
+            scale: 1,
+            offsetX: 0,
+            offsetY: 0
+          }
+        }
+      })
+    );
+
+    expect(readEditorSnapshot()?.simulation.acrylicSizeId).toBe(defaultAcrylicSizePresetId);
   });
 });

@@ -1,8 +1,14 @@
+import {
+  defaultAcrylicSizePresetId,
+  type AcrylicSizePresetId
+} from "@/lib/simulator/acrylicSizePresets";
+
 export type SimulationSnapshot = {
   ledColorId: string;
   brightness: number;
   backgroundId: string;
   cameraPresetId: string;
+  acrylicSizeId: AcrylicSizePresetId;
   showSourceOverlay: boolean;
   imageLayout: {
     contentFit: "contain" | "cover" | "fill";
@@ -54,21 +60,31 @@ export function writeEditorSnapshot(snapshot: EditorSnapshot): void {
   }
 }
 
+function normalizeEditorSnapshot(snapshot: EditorSnapshot): EditorSnapshot {
+  return {
+    ...snapshot,
+    simulation: {
+      ...snapshot.simulation,
+      acrylicSizeId: snapshot.simulation.acrylicSizeId ?? defaultAcrylicSizePresetId
+    }
+  };
+}
+
 export function readEditorSnapshot(): EditorSnapshot | null {
   if (!canUseSessionStorage()) {
-    return editorSnapshotMemory;
+    return editorSnapshotMemory ? normalizeEditorSnapshot(editorSnapshotMemory) : null;
   }
 
   const rawValue = window.sessionStorage.getItem(EDITOR_STORAGE_KEY);
 
   if (!rawValue) {
-    return editorSnapshotMemory;
+    return editorSnapshotMemory ? normalizeEditorSnapshot(editorSnapshotMemory) : null;
   }
 
   try {
-    return JSON.parse(rawValue) as EditorSnapshot;
+    return normalizeEditorSnapshot(JSON.parse(rawValue) as EditorSnapshot);
   } catch {
-    return editorSnapshotMemory;
+    return editorSnapshotMemory ? normalizeEditorSnapshot(editorSnapshotMemory) : null;
   }
 }
 
