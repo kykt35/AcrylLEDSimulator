@@ -60,7 +60,7 @@ export function EngravingGlowMaterial({
 
   return (
     <shaderMaterial
-      key={`${glowColor}-${brightness}`}
+      key={`${engravingImageUrl ?? "empty"}-${glowColor}-${brightness}`}
       uniforms={uniforms}
       vertexShader={vertexShader}
       fragmentShader={fragmentShader}
