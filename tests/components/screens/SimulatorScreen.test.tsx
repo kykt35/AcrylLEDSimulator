@@ -131,6 +131,32 @@ describe("SimulatorScreen", () => {
     expect(screen.getByText("プレビューへ反映済みです。")).toBeInTheDocument();
     expect(screen.getAllByAltText("彫刻用グレースケールプレビュー")).toHaveLength(2);
     expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "true");
+    expect(screen.getByTestId("control-panel-summary")).toHaveTextContent("画像");
+    expect(screen.getByRole("tab", { name: "画像" })).toHaveTextContent("simulator.png");
+  });
+
+  it("updates the section summary and supports keyboard tab navigation", async () => {
+    const user = userEvent.setup();
+
+    render(<SimulatorScreen />);
+
+    const displayTab = screen.getByRole("tab", { name: "表示" });
+    displayTab.focus();
+
+    await user.keyboard("{ArrowRight}");
+
+    const exportTab = screen.getByRole("tab", { name: "書き出し" });
+    expect(exportTab).toHaveFocus();
+    expect(exportTab).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByTestId("control-panel-summary")).toHaveTextContent("書き出し");
+    expect(screen.getByTestId("control-panel-summary")).toHaveTextContent("画像未選択");
+
+    await user.keyboard("{Home}");
+
+    const imageTab = screen.getByRole("tab", { name: "画像" });
+    expect(imageTab).toHaveFocus();
+    expect(imageTab).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByTestId("control-panel-summary")).toHaveTextContent("入力画像の読み込み");
   });
 
   it("can hide the source overlay in the simulator preview", async () => {
@@ -148,6 +174,8 @@ describe("SimulatorScreen", () => {
     });
 
     await user.click(screen.getByRole("tab", { name: "表示" }));
+    expect(screen.getByTestId("control-panel-summary")).toHaveTextContent("背景、カメラ、オーバーレイ表示を切り替えます。");
+    expect(screen.getByText("現在の表示設定")).toBeInTheDocument();
     await user.click(screen.getByLabelText("元画像を重ねて表示"));
 
     expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "false");
@@ -263,6 +291,7 @@ describe("SimulatorScreen", () => {
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "画像をダウンロードする" })).toBeEnabled();
     });
+    expect(screen.getByText("ダウンロード状態")).toBeInTheDocument();
 
     await user.click(screen.getByRole("radio", { name: "JPG" }));
     await user.click(screen.getByRole("button", { name: "画像をダウンロードする" }));

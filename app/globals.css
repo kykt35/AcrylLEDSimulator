@@ -246,33 +246,37 @@ button {
 }
 
 .control-tablist {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
   flex-shrink: 0;
 }
 
 .control-tab {
-  flex: 1 1 auto;
   min-width: 0;
-  min-height: 40px;
-  padding: 8px 12px;
-  border-radius: 999px;
+  min-height: 72px;
+  padding: 12px 14px;
+  border-radius: 18px;
   border: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.04);
-  color: var(--muted);
+  color: var(--text);
   font: inherit;
   font-size: 0.88rem;
   cursor: pointer;
+  text-align: left;
+  display: grid;
+  gap: 10px;
   transition:
     background 0.15s ease,
     color 0.15s ease,
-    border-color 0.15s ease;
+    border-color 0.15s ease,
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .control-tab:hover {
-  color: var(--text);
   border-color: rgba(169, 216, 255, 0.35);
+  transform: translateY(-1px);
 }
 
 .control-tab[aria-selected="true"] {
@@ -280,11 +284,44 @@ button {
   font-weight: 600;
   border-color: transparent;
   background: linear-gradient(135deg, rgba(137, 239, 255, 0.92), rgba(73, 197, 255, 0.92));
+  box-shadow: 0 14px 30px rgba(73, 197, 255, 0.18);
 }
 
 .control-tab:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+
+.control-tab-label-group {
+  display: grid;
+  gap: 2px;
+}
+
+.control-tab-eyebrow {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.control-tab[aria-selected="true"] .control-tab-eyebrow {
+  color: rgba(4, 16, 30, 0.68);
+}
+
+.control-tab-label {
+  font-size: 0.98rem;
+  font-weight: 700;
+}
+
+.control-tab-status {
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.control-tab[aria-selected="true"] .control-tab-status {
+  color: rgba(4, 16, 30, 0.78);
 }
 
 /* タブの直下で切り替わる 1 枚のカード */
@@ -300,19 +337,54 @@ button {
   overflow: hidden;
 }
 
+.control-panel-summary {
+  display: grid;
+  gap: 8px;
+  padding: 18px 18px 16px;
+  border-bottom: 1px solid rgba(169, 216, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(136, 240, 255, 0.08), rgba(255, 255, 255, 0.02)),
+    rgba(255, 255, 255, 0.02);
+}
+
+.control-panel-summary-title,
+.control-panel-summary-status,
+.control-panel-summary-description {
+  margin: 0;
+}
+
+.control-panel-summary-title {
+  font-size: 1.15rem;
+}
+
+.control-panel-summary-status {
+  justify-self: start;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(169, 216, 255, 0.12);
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.control-panel-summary-description {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
 .control-tab-panels {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-gutter: stable;
-  padding: 18px;
+  padding: 20px;
 }
 
 .control-tab-panel {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 20px;
 }
 
 /* カード内のコンテンツは外枠に統合（二重の panel-section 枠を外す） */
@@ -337,11 +409,22 @@ button {
 
 .panel-section {
   display: grid;
-  gap: 14px;
-  padding: 18px;
+  gap: 18px;
+  padding: 0;
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(169, 216, 255, 0.12);
+}
+
+.panel-header,
+.panel-subsection {
+  display: grid;
+  gap: 12px;
+}
+
+.panel-subsection {
+  padding-top: 16px;
+  border-top: 1px solid rgba(169, 216, 255, 0.1);
 }
 
 .panel-label,
@@ -643,6 +726,10 @@ button {
   .control-panel {
     max-height: none;
     overflow: visible;
+  }
+
+  .control-tablist {
+    grid-template-columns: 1fr;
   }
 
   .control-tab-card {
