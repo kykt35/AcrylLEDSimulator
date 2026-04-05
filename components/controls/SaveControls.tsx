@@ -35,31 +35,42 @@ export function SaveControls({
 
   return (
     <section className="panel-section">
-      <div>
+      <div className="panel-header">
         <p className="panel-label">出力設定</p>
         <h2 className="panel-title">現在の表示をダウンロード</h2>
+        <div className="helper-list">
+          <p>シミュレータに表示中の見え方をそのまま書き出します。</p>
+          <p>形式を切り替えても設定内容は保持されます。</p>
+        </div>
       </div>
-      <div className="control-group" role="radiogroup" aria-label="出力形式">
-        <label className="status-secondary">
-          <input
-            type="radio"
-            name="export-format"
-            value="png"
-            checked={exportFormat === "png"}
-            onChange={() => onFormatChange("png")}
-          />
-          PNG
-        </label>
-        <label className="status-secondary">
-          <input
-            type="radio"
-            name="export-format"
-            value="jpg"
-            checked={exportFormat === "jpg"}
-            onChange={() => onFormatChange("jpg")}
-          />
-          JPG
-        </label>
+      <div className="panel-subsection">
+        <div className="status-box">
+          <p className="status-title">ダウンロード状態</p>
+          <p className="status-primary">{saveStatus === "saving" ? "準備中" : exportFormat.toUpperCase()}</p>
+          <p className="status-secondary">{helperMessage}</p>
+        </div>
+        <div className="control-group" role="radiogroup" aria-label="出力形式">
+          <label className="status-secondary">
+            <input
+              type="radio"
+              name="export-format"
+              value="png"
+              checked={exportFormat === "png"}
+              onChange={() => onFormatChange("png")}
+            />
+            PNG
+          </label>
+          <label className="status-secondary">
+            <input
+              type="radio"
+              name="export-format"
+              value="jpg"
+              checked={exportFormat === "jpg"}
+              onChange={() => onFormatChange("jpg")}
+            />
+            JPG
+          </label>
+        </div>
       </div>
       <button
         type="button"
@@ -70,7 +81,6 @@ export function SaveControls({
         {saveStatus === "saving" ? "ダウンロード中..." : "画像をダウンロードする"}
       </button>
       <div className="status-box">
-        <p className="status-secondary">{helperMessage}</p>
         {savedAt ? (
           <p className="status-secondary">最終ダウンロード: {new Date(savedAt).toLocaleString("ja-JP")}</p>
         ) : null}

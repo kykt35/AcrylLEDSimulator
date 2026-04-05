@@ -32,17 +32,53 @@ import {
   defaultImageLayout,
   type ImageLayout
 } from "@/lib/simulator/imageLayout";
-import { getBackgroundPreset } from "@/lib/simulator/displayPresets";
+import { cameraOptions, getBackgroundPreset } from "@/lib/simulator/displayPresets";
 import { getLightingPreset, lightingPresets } from "@/lib/simulator/lightingPresets";
 
 type ControlPanelTabId = "image" | "engraving" | "lighting" | "display" | "export";
 
-const CONTROL_PANEL_TABS: readonly { id: ControlPanelTabId; label: string }[] = [
-  { id: "image", label: "画像" },
-  { id: "engraving", label: "彫刻" },
-  { id: "lighting", label: "ライト" },
-  { id: "display", label: "表示" },
-  { id: "export", label: "書き出し" }
+type ControlPanelTabDefinition = {
+  id: ControlPanelTabId;
+  label: string;
+  eyebrow: string;
+  description: string;
+};
+
+type ControlPanelTabViewModel = ControlPanelTabDefinition & {
+  statusLabel: string;
+};
+
+const CONTROL_PANEL_TABS: readonly ControlPanelTabDefinition[] = [
+  {
+    id: "image",
+    label: "画像",
+    eyebrow: "Source",
+    description: "入力画像の読み込みとプレビュー範囲を調整します。"
+  },
+  {
+    id: "engraving",
+    label: "彫刻",
+    eyebrow: "Engraving",
+    description: "彫刻用グレースケールの強度を調整します。"
+  },
+  {
+    id: "lighting",
+    label: "ライト",
+    eyebrow: "Lighting",
+    description: "LED の色味と明るさを整えます。"
+  },
+  {
+    id: "display",
+    label: "表示",
+    eyebrow: "Display",
+    description: "背景、カメラ、オーバーレイ表示を切り替えます。"
+  },
+  {
+    id: "export",
+    label: "書き出し",
+    eyebrow: "Export",
+    description: "現在の見え方を画像としてダウンロードします。"
+  }
 ] as const;
 
 type SourceImageState = {
@@ -173,6 +209,10 @@ function buildDownloadFileName(fileName: string, format: ExportImageFormat): str
   return `${baseName || "acryl-led-simulation"}.${format}`;
 }
 
+function hasImage(src: string | null): src is string {
+  return Boolean(src);
+}
+
 export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
   const previewRef = useRef<HTMLDivElement>(null);
   const [sourceImage, dispatchSourceImage] = useReducer(sourceImageReducer, defaultSourceImageState);
@@ -201,6 +241,10 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
 
   const activeLightingPreset = useMemo(() => getLightingPreset(ledColorId), [ledColorId]);
   const activeBackgroundPreset = useMemo(() => getBackgroundPreset(backgroundId), [backgroundId]);
+  const activeCameraOption = useMemo(
+    () => cameraOptions.find((option) => option.id === cameraPresetId) ?? cameraOptions[0],
+    [cameraPresetId]
+  );
 
   const buildEditorSnapshot = useCallback(
     (): EditorSnapshot => ({
@@ -249,6 +293,104 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
         return "PNG をアップロードすると 3D プレビューへ反映されます。";
     }
   }, [sourceImage.status]);
+
+  const controlPanelTabs = useMemo<ControlPanelTabViewModel[]>(
+    () =>
+      CONTROL_PANEL_TABS.map((tab) => {
+        switch (tab.id) {
+          case "image":
+            return {
+              ...tab,
+              statusLabel: sourceImage.src ? sourceImage.fileName : "未選択"
+            };
+          case "engraving":
+            return {
+              ...tab,
+              statusLabel:
+                engraving.status === "ready" && engraving.averageStrength != null
+                  ? `平均 ${(engraving.averageStrength * 100).toFixed(0)}%`
+                  : sourceImage.src
+                    ? engraving.status === "loading"
+                      ? "生成中"
+                      : "調整前"
+                    : "入力待ち"
+            };
+          case "lighting":
+            return {
+              ...tab,
+              statusLabel: `${activeLightingPreset.label} / ${brightness.toFixed(1)}`
+            };
+          case "display":
+            return {
+              ...tab,
+              statusLabel: `${activeBackgroundPreset.label} / ${activeCameraOption.label}`
+            };
+          case "export":
+            return {
+              ...tab,
+              statusLabel: hasImage(sourceImage.src) ? exportFormat.toUpperCase() : "画像未選択"
+            };
+          default:
+            return {
+              ...tab,
+              statusLabel: ""
+            };
+        }
+      }),
+    [
+      activeBackgroundPreset.label,
+      activeCameraOption.label,
+      activeLightingPreset.label,
+      brightness,
+      engraving.averageStrength,
+      engraving.status,
+      exportFormat,
+      sourceImage.fileName,
+      sourceImage.src
+    ]
+  );
+
+  const activeControlPanelTab = useMemo(
+    () => controlPanelTabs.find((tab) => tab.id === controlPanelTab) ?? controlPanelTabs[0],
+    [controlPanelTab, controlPanelTabs]
+  );
+
+  const handleControlTabKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLButtonElement>, tabId: ControlPanelTabId) => {
+      const currentIndex = controlPanelTabs.findIndex((tab) => tab.id === tabId);
+
+      if (currentIndex === -1) {
+        return;
+      }
+
+      let nextIndex: number | null = null;
+
+      switch (event.key) {
+        case "ArrowRight":
+        case "ArrowDown":
+          nextIndex = (currentIndex + 1) % controlPanelTabs.length;
+          break;
+        case "ArrowLeft":
+        case "ArrowUp":
+          nextIndex = (currentIndex - 1 + controlPanelTabs.length) % controlPanelTabs.length;
+          break;
+        case "Home":
+          nextIndex = 0;
+          break;
+        case "End":
+          nextIndex = controlPanelTabs.length - 1;
+          break;
+        default:
+          return;
+      }
+
+      event.preventDefault();
+      const nextTab = controlPanelTabs[nextIndex];
+      setControlPanelTab(nextTab.id);
+      globalThis.document?.getElementById(`control-tab-${nextTab.id}`)?.focus();
+    },
+    [controlPanelTabs]
+  );
 
   const handleFileSelected = useCallback(async (file: File) => {
     dispatchSourceImage({ type: "load-start", fileName: file.name });
@@ -668,31 +810,53 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
 
         <aside className="control-panel">
           <div className="control-tablist" role="tablist" aria-label="シミュレーター設定">
-            {CONTROL_PANEL_TABS.map((tab) => (
+            {controlPanelTabs.map((tab) => (
               <button
                 key={tab.id}
                 type="button"
                 id={`control-tab-${tab.id}`}
                 role="tab"
                 className="control-tab"
+                aria-label={tab.label}
                 aria-selected={controlPanelTab === tab.id}
                 aria-controls={`control-panel-${tab.id}`}
+                aria-describedby={`control-tab-status-${tab.id}`}
                 tabIndex={controlPanelTab === tab.id ? 0 : -1}
                 onClick={() => setControlPanelTab(tab.id)}
+                onKeyDown={(event) => handleControlTabKeyDown(event, tab.id)}
               >
-                {tab.label}
+                <span className="control-tab-label-group">
+                  <span className="control-tab-eyebrow">{tab.eyebrow}</span>
+                  <span className="control-tab-label">{tab.label}</span>
+                </span>
+                <span className="control-tab-status" id={`control-tab-status-${tab.id}`}>
+                  {tab.statusLabel}
+                </span>
               </button>
             ))}
           </div>
-          <div className="control-tab-card">
-            <div className="control-tab-panels">
-              <div
-                id="control-panel-image"
-                role="tabpanel"
-                className="control-tab-panel"
-                aria-labelledby="control-tab-image"
-                hidden={controlPanelTab !== "image"}
-              >
+          <div className="control-tab-panels">
+            <div
+              id="control-panel-image"
+              role="tabpanel"
+              className="control-tab-panel"
+              aria-labelledby="control-tab-image"
+              hidden={controlPanelTab !== "image"}
+              data-testid="control-panel-image"
+            >
+              <article className="control-panel-card">
+                <div className="control-panel-summary" data-testid="control-panel-summary">
+                  <div>
+                    <p className="panel-label">現在のセクション</p>
+                    <h2 className="control-panel-summary-title">画像</h2>
+                  </div>
+                  <p className="control-panel-summary-status">
+                    {activeControlPanelTab.id === "image" ? activeControlPanelTab.statusLabel : ""}
+                  </p>
+                  <p className="control-panel-summary-description">
+                    入力画像の読み込みとプレビュー範囲を調整します。
+                  </p>
+                </div>
                 <ImageControls
                   fileName={sourceImage.fileName}
                   statusLabel={imageStatusLabel}
@@ -702,14 +866,29 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                   onImageLayoutChange={handleImageLayoutChange}
                   onResetImageLayout={() => setImageLayout(defaultImageLayout)}
                 />
-              </div>
-              <div
-                id="control-panel-engraving"
-                role="tabpanel"
-                className="control-tab-panel"
-                aria-labelledby="control-tab-engraving"
-                hidden={controlPanelTab !== "engraving"}
-              >
+              </article>
+            </div>
+            <div
+              id="control-panel-engraving"
+              role="tabpanel"
+              className="control-tab-panel"
+              aria-labelledby="control-tab-engraving"
+              hidden={controlPanelTab !== "engraving"}
+              data-testid="control-panel-engraving"
+            >
+              <article className="control-panel-card">
+                <div className="control-panel-summary" data-testid="control-panel-summary">
+                  <div>
+                    <p className="panel-label">現在のセクション</p>
+                    <h2 className="control-panel-summary-title">彫刻</h2>
+                  </div>
+                  <p className="control-panel-summary-status">
+                    {activeControlPanelTab.id === "engraving" ? activeControlPanelTab.statusLabel : ""}
+                  </p>
+                  <p className="control-panel-summary-description">
+                    彫刻用グレースケールの強度を調整します。
+                  </p>
+                </div>
                 <EngravingControls
                   adjustments={engravingAdjustments}
                   sourceImageUrl={previewSourceUrl}
@@ -718,28 +897,58 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                   onAdjustmentsChange={handleEngravingAdjustmentsChange}
                   onDownload={handleDownloadEngraving}
                 />
-              </div>
-              <div
-                id="control-panel-lighting"
-                role="tabpanel"
-                className="control-tab-panel"
-                aria-labelledby="control-tab-lighting"
-                hidden={controlPanelTab !== "lighting"}
-              >
+              </article>
+            </div>
+            <div
+              id="control-panel-lighting"
+              role="tabpanel"
+              className="control-tab-panel"
+              aria-labelledby="control-tab-lighting"
+              hidden={controlPanelTab !== "lighting"}
+              data-testid="control-panel-lighting"
+            >
+              <article className="control-panel-card">
+                <div className="control-panel-summary" data-testid="control-panel-summary">
+                  <div>
+                    <p className="panel-label">現在のセクション</p>
+                    <h2 className="control-panel-summary-title">ライト</h2>
+                  </div>
+                  <p className="control-panel-summary-status">
+                    {activeControlPanelTab.id === "lighting" ? activeControlPanelTab.statusLabel : ""}
+                  </p>
+                  <p className="control-panel-summary-description">
+                    LED の色味と明るさを整えます。
+                  </p>
+                </div>
                 <LightingControls
                   activePresetId={ledColorId}
                   brightness={brightness}
                   onPresetChange={setLedColorId}
                   onBrightnessChange={setBrightness}
                 />
-              </div>
-              <div
-                id="control-panel-display"
-                role="tabpanel"
-                className="control-tab-panel"
-                aria-labelledby="control-tab-display"
-                hidden={controlPanelTab !== "display"}
-              >
+              </article>
+            </div>
+            <div
+              id="control-panel-display"
+              role="tabpanel"
+              className="control-tab-panel"
+              aria-labelledby="control-tab-display"
+              hidden={controlPanelTab !== "display"}
+              data-testid="control-panel-display"
+            >
+              <article className="control-panel-card">
+                <div className="control-panel-summary" data-testid="control-panel-summary">
+                  <div>
+                    <p className="panel-label">現在のセクション</p>
+                    <h2 className="control-panel-summary-title">表示</h2>
+                  </div>
+                  <p className="control-panel-summary-status">
+                    {activeControlPanelTab.id === "display" ? activeControlPanelTab.statusLabel : ""}
+                  </p>
+                  <p className="control-panel-summary-description">
+                    背景、カメラ、オーバーレイ表示を切り替えます。
+                  </p>
+                </div>
                 <DisplayControls
                   activeBackgroundId={backgroundId}
                   activeCameraPreset={cameraPresetId}
@@ -749,14 +958,29 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                   onSourceOverlayChange={setShowSourceOverlay}
                   onResetView={handleResetView}
                 />
-              </div>
-              <div
-                id="control-panel-export"
-                role="tabpanel"
-                className="control-tab-panel"
-                aria-labelledby="control-tab-export"
-                hidden={controlPanelTab !== "export"}
-              >
+              </article>
+            </div>
+            <div
+              id="control-panel-export"
+              role="tabpanel"
+              className="control-tab-panel"
+              aria-labelledby="control-tab-export"
+              hidden={controlPanelTab !== "export"}
+              data-testid="control-panel-export"
+            >
+              <article className="control-panel-card">
+                <div className="control-panel-summary" data-testid="control-panel-summary">
+                  <div>
+                    <p className="panel-label">現在のセクション</p>
+                    <h2 className="control-panel-summary-title">書き出し</h2>
+                  </div>
+                  <p className="control-panel-summary-status">
+                    {activeControlPanelTab.id === "export" ? activeControlPanelTab.statusLabel : ""}
+                  </p>
+                  <p className="control-panel-summary-description">
+                    現在の見え方を画像としてダウンロードします。
+                  </p>
+                </div>
                 <SaveControls
                   saveStatus={save.status}
                   errorMessage={save.errorMessage}
@@ -766,7 +990,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                   onFormatChange={setExportFormat}
                   onSave={handleSave}
                 />
-              </div>
+              </article>
             </div>
           </div>
         </aside>

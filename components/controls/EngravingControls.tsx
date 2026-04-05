@@ -37,77 +37,83 @@ export function EngravingControls({
 }: EngravingControlsProps) {
   return (
     <section className="panel-section">
-      <div>
+      <div className="panel-header">
         <p className="panel-label">彫刻データ</p>
         <h2 className="panel-title">グレースケールを調整する</h2>
+        <div className="helper-list">
+          <p>白いほど強く彫刻され、LED 導光時に光りやすくなります。</p>
+          <p>黒は未彫刻として扱います。</p>
+        </div>
       </div>
-      <div className="helper-list">
-        <p>白いほど強く彫刻され、LED 導光時に光りやすくなります。</p>
-        <p>黒は未彫刻として扱います。</p>
-      </div>
-      <div className="control-grid">
-        {numericControls.map((control) => (
-          <label key={control.key} className="control-field">
-            <span className="status-title">{control.label}</span>
+      <div className="panel-subsection">
+        <div className="status-box">
+          <p className="status-title">現在の彫刻プレビュー</p>
+          <p className="status-secondary">
+            {averageStrength != null
+              ? `平均彫刻強度: ${(averageStrength * 100).toFixed(1)}%`
+              : "PNG を読み込むと彫刻用プレビューを生成します。"}
+          </p>
+        </div>
+        <div className="control-grid">
+          {numericControls.map((control) => (
+            <label key={control.key} className="control-field">
+              <span className="status-title">{control.label}</span>
+              <input
+                aria-label={control.label}
+                type="number"
+                min={control.min}
+                max={control.max}
+                step={control.step}
+                value={adjustments[control.key]}
+                onChange={(event) =>
+                  onAdjustmentsChange({ [control.key]: Number(event.target.value) })
+                }
+              />
+            </label>
+          ))}
+          <label className="checkbox-field">
             <input
-              aria-label={control.label}
-              type="number"
-              min={control.min}
-              max={control.max}
-              step={control.step}
-              value={adjustments[control.key]}
-              onChange={(event) =>
-                onAdjustmentsChange({ [control.key]: Number(event.target.value) })
-              }
+              aria-label="白黒を反転"
+              type="checkbox"
+              checked={adjustments.invert}
+              onChange={(event) => onAdjustmentsChange({ invert: event.target.checked })}
             />
+            白黒を反転
           </label>
-        ))}
-        <label className="checkbox-field">
-          <input
-            aria-label="白黒を反転"
-            type="checkbox"
-            checked={adjustments.invert}
-            onChange={(event) => onAdjustmentsChange({ invert: event.target.checked })}
-          />
-          白黒を反転
-        </label>
+        </div>
       </div>
-      <div className="preview-grid" data-testid="engraving-preview-grid">
-        <figure className="preview-card">
-          <figcaption className="status-title">元画像</figcaption>
-          {sourceImageUrl ? (
-            <div className="preview-image-frame">
-              <img
-                src={sourceImageUrl}
-                alt="元画像プレビュー"
-                className="preview-image"
-              />
-            </div>
-          ) : (
-            <p className="status-secondary">未選択</p>
-          )}
-        </figure>
-        <figure className="preview-card">
-          <figcaption className="status-title">彫刻用グレースケール</figcaption>
-          {engravingImageUrl ? (
-            <div className="preview-image-frame">
-              <img
-                src={engravingImageUrl}
-                alt="彫刻用グレースケールプレビュー"
-                className="preview-image"
-              />
-            </div>
-          ) : (
-            <p className="status-secondary">未生成</p>
-          )}
-        </figure>
-      </div>
-      <div className="status-box">
-        <p className="status-secondary">
-          {averageStrength != null
-            ? `平均彫刻強度: ${(averageStrength * 100).toFixed(1)}%`
-            : "PNG を読み込むと彫刻用プレビューを生成します。"}
-        </p>
+      <div className="panel-subsection">
+        <p className="status-title">比較プレビュー</p>
+        <div className="preview-grid" data-testid="engraving-preview-grid">
+          <figure className="preview-card">
+            <figcaption className="status-title">元画像</figcaption>
+            {sourceImageUrl ? (
+              <div className="preview-image-frame">
+                <img
+                  src={sourceImageUrl}
+                  alt="元画像プレビュー"
+                  className="preview-image"
+                />
+              </div>
+            ) : (
+              <p className="status-secondary">未選択</p>
+            )}
+          </figure>
+          <figure className="preview-card">
+            <figcaption className="status-title">彫刻用グレースケール</figcaption>
+            {engravingImageUrl ? (
+              <div className="preview-image-frame">
+                <img
+                  src={engravingImageUrl}
+                  alt="彫刻用グレースケールプレビュー"
+                  className="preview-image"
+                />
+              </div>
+            ) : (
+              <p className="status-secondary">未生成</p>
+            )}
+          </figure>
+        </div>
       </div>
       <button
         type="button"
