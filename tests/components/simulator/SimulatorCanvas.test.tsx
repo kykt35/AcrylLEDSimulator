@@ -65,9 +65,6 @@ describe("SimulatorCanvas", () => {
       "data-engraving-image-url",
       "data:image/png;base64,engraving"
     );
-    expect(screen.getByTestId("acrylic-stand-mesh")).toHaveAttribute(
-      "data-show-source-overlay",
-      "true"
-    );
+    expect(screen.getByTestId("acrylic-stand-mesh")).toHaveAttribute("data-show-source-overlay", "false");
   });
 });

@@ -9,6 +9,7 @@ import { exportCanvasImage } from "@/lib/export/exportCanvasImage";
 import { composePreviewImageFromDataUrl } from "@/lib/image/composePreviewImage";
 import { generateEngravingMapFromDataUrl } from "@/lib/image/generateEngravingMap";
 import { loadPngTexture } from "@/lib/image/loadPngTexture";
+import { clearEditorSnapshot, writeEditorSnapshot } from "@/lib/save/session";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
@@ -106,6 +107,7 @@ describe("SimulatorScreen", () => {
   });
 
   afterEach(() => {
+    clearEditorSnapshot();
     window.sessionStorage.clear();
   });
 
@@ -130,7 +132,7 @@ describe("SimulatorScreen", () => {
     expect(screen.getByText("simulator.png")).toBeInTheDocument();
     expect(screen.getByText("プレビューへ反映済みです。")).toBeInTheDocument();
     expect(screen.getAllByAltText("彫刻用グレースケールプレビュー")).toHaveLength(2);
-    expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "true");
+    expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "false");
     expect(screen.getByTestId("control-panel-summary")).toHaveTextContent("画像");
     expect(screen.getByRole("tab", { name: "画像" })).toHaveTextContent("simulator.png");
   });
@@ -163,7 +165,7 @@ describe("SimulatorScreen", () => {
     expect(screen.getByTestId("control-panel-export")).toHaveAttribute("hidden");
   });
 
-  it("can hide the source overlay in the simulator preview", async () => {
+  it("keeps the source overlay hidden by default and after resetting display settings", async () => {
     const user = userEvent.setup();
 
     render(<SimulatorScreen />);
@@ -174,15 +176,66 @@ describe("SimulatorScreen", () => {
     await user.upload(input, file);
 
     await waitFor(() => {
-      expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "true");
+      expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "false");
     });
 
     await user.click(screen.getByRole("tab", { name: "表示" }));
     expect(screen.getByTestId("control-panel-summary")).toHaveTextContent("背景、カメラ、オーバーレイ表示を切り替えます。");
     expect(screen.getByText("現在の表示設定")).toBeInTheDocument();
-    await user.click(screen.getByLabelText("元画像を重ねて表示"));
+    expect(screen.getByText("元画像表示オフ")).toBeInTheDocument();
+    expect(screen.getByLabelText("元画像を重ねて表示")).not.toBeChecked();
 
+    await user.click(screen.getByLabelText("元画像を重ねて表示"));
+    expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "true");
+
+    await user.click(screen.getByRole("button", { name: "表示設定をリセット" }));
     expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "false");
+    expect(screen.getByLabelText("元画像を重ねて表示")).not.toBeChecked();
+  });
+
+  it("restores the saved source overlay setting when resuming from a snapshot", async () => {
+    const user = userEvent.setup();
+
+    writeEditorSnapshot({
+      sourceImage: {
+        fileName: "saved.png",
+        src: "data:image/png;base64,saved"
+      },
+      engraving: {
+        src: "data:image/png;base64,saved-engraving",
+        adjustments: {
+          contrast: 1.35,
+          gamma: 0.9,
+          threshold: 0.18,
+          invert: false,
+          edgeWeight: 0.2
+        },
+        averageStrength: 0.3
+      },
+      simulation: {
+        ledColorId: "ice-blue",
+        brightness: 1.2,
+        backgroundId: "night",
+        cameraPresetId: "front",
+        showSourceOverlay: true,
+        imageLayout: {
+          contentFit: "contain",
+          scale: 1,
+          offsetX: 0,
+          offsetY: 0
+        }
+      }
+    });
+
+    render(<SimulatorScreen searchParams={{ resume: "1" }} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "true");
+    });
+
+    await user.click(screen.getByRole("tab", { name: "表示" }));
+    expect(screen.getByLabelText("元画像を重ねて表示")).toBeChecked();
+    expect(screen.getByText("元画像表示オン")).toBeInTheDocument();
   });
 
   it("updates image layout controls for the preview", async () => {

@@ -21,7 +21,7 @@ type SimulatorCanvasProps = {
 export function SimulatorCanvas({
   imageUrl,
   engravingImageUrl,
-  showSourceOverlay = true,
+  showSourceOverlay = false,
   glowColor = "#7fe7ff",
   brightness = 1,
   background = "#07111f",
