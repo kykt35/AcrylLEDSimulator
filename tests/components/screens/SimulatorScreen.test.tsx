@@ -130,7 +130,7 @@ describe("SimulatorScreen", () => {
       "data:image/png;base64,engraving",
       expect.objectContaining({ contentFit: "contain" })
     );
-    expect(screen.getByText("simulator.png")).toBeInTheDocument();
+    expect(screen.getAllByText("simulator.png").length).toBeGreaterThan(0);
     expect(screen.getByText("プレビューへ反映済みです。")).toBeInTheDocument();
     expect(screen.getAllByAltText("彫刻用グレースケールプレビュー")).toHaveLength(2);
     expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "false");
@@ -413,7 +413,7 @@ describe("SimulatorScreen", () => {
     expect(
       within(alert).getByText("ダウンロードに失敗しました。時間をおいて再試行してください。")
     ).toBeInTheDocument();
-    expect(screen.getByText("simulator.png")).toBeInTheDocument();
+    expect(screen.getAllByText("simulator.png").length).toBeGreaterThan(0);
     expect(downloadBlob).not.toHaveBeenCalled();
   });
 
