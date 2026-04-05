@@ -33,4 +33,21 @@ describe("DisplayControls", () => {
     expect(onSourceOverlayChange).toHaveBeenCalledWith(false);
     expect(onResetView).toHaveBeenCalled();
   });
+
+  it("shows overlay off state when source overlay is disabled", () => {
+    render(
+      <DisplayControls
+        activeBackgroundId="night"
+        activeCameraPreset="front"
+        showSourceOverlay={false}
+        onBackgroundChange={vi.fn()}
+        onCameraPresetChange={vi.fn()}
+        onSourceOverlayChange={vi.fn()}
+        onResetView={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText("元画像表示オフ")).toBeInTheDocument();
+    expect(screen.getByLabelText("元画像を重ねて表示")).not.toBeChecked();
+  });
 });

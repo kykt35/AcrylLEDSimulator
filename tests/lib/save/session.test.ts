@@ -43,9 +43,45 @@ describe("save session helpers", () => {
 
     expect(readEditorSnapshot()?.simulation.cameraPresetId).toBe("detail");
     expect(readEditorSnapshot()?.simulation.imageLayout.contentFit).toBe("cover");
+    expect(readEditorSnapshot()?.simulation.showSourceOverlay).toBe(true);
 
     clearEditorSnapshot();
     expect(readEditorSnapshot()).toBeNull();
+  });
+
+  it("preserves a false source overlay flag when reading the snapshot", () => {
+    writeEditorSnapshot({
+      sourceImage: {
+        fileName: "sample.png",
+        src: "data:image/png;base64,source"
+      },
+      engraving: {
+        src: "data:image/png;base64,engraving",
+        adjustments: {
+          contrast: 1.1,
+          gamma: 1,
+          threshold: 0.2,
+          invert: false,
+          edgeWeight: 0.25
+        },
+        averageStrength: 0.4
+      },
+      simulation: {
+        ledColorId: "lime",
+        brightness: 1.6,
+        backgroundId: "forest",
+        cameraPresetId: "detail",
+        showSourceOverlay: false,
+        imageLayout: {
+          contentFit: "contain",
+          scale: 1,
+          offsetX: 0,
+          offsetY: 0
+        }
+      }
+    });
+
+    expect(readEditorSnapshot()?.simulation.showSourceOverlay).toBe(false);
   });
 
   it("falls back to in-memory state when sessionStorage writes fail", () => {
