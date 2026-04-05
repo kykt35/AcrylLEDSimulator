@@ -134,7 +134,9 @@ describe("SimulatorScreen", () => {
     expect(screen.getByText("プレビューへ反映済みです。")).toBeInTheDocument();
     expect(screen.getAllByAltText("彫刻用グレースケールプレビュー")).toHaveLength(2);
     expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "false");
-    expect(screen.getByTestId("control-panel-summary")).toHaveTextContent("画像");
+    expect(within(screen.getByTestId("control-panel-image")).getByTestId("control-panel-summary")).toHaveTextContent(
+      "画像"
+    );
     expect(screen.getByRole("tab", { name: "画像" })).toHaveTextContent("simulator.png");
   });
 
@@ -151,8 +153,12 @@ describe("SimulatorScreen", () => {
     const exportTab = screen.getByRole("tab", { name: "書き出し" });
     expect(exportTab).toHaveFocus();
     expect(exportTab).toHaveAttribute("aria-selected", "true");
-    expect(screen.getByTestId("control-panel-summary")).toHaveTextContent("書き出し");
-    expect(screen.getByTestId("control-panel-summary")).toHaveTextContent("画像未選択");
+    expect(within(screen.getByTestId("control-panel-export")).getByTestId("control-panel-summary")).toHaveTextContent(
+      "書き出し"
+    );
+    expect(within(screen.getByTestId("control-panel-export")).getByTestId("control-panel-summary")).toHaveTextContent(
+      "画像未選択"
+    );
     expect(screen.getByTestId("control-panel-export")).not.toHaveAttribute("hidden");
     expect(screen.getByTestId("control-panel-image")).toHaveAttribute("hidden");
 
@@ -161,7 +167,9 @@ describe("SimulatorScreen", () => {
     const imageTab = screen.getByRole("tab", { name: "画像" });
     expect(imageTab).toHaveFocus();
     expect(imageTab).toHaveAttribute("aria-selected", "true");
-    expect(screen.getByTestId("control-panel-summary")).toHaveTextContent("入力画像の読み込み");
+    expect(within(screen.getByTestId("control-panel-image")).getByTestId("control-panel-summary")).toHaveTextContent(
+      "入力画像の読み込み"
+    );
     expect(screen.getByTestId("control-panel-image")).not.toHaveAttribute("hidden");
     expect(screen.getByTestId("control-panel-export")).toHaveAttribute("hidden");
   });
@@ -195,9 +203,11 @@ describe("SimulatorScreen", () => {
     });
 
     await user.click(screen.getByRole("tab", { name: "表示" }));
-    expect(screen.getByTestId("control-panel-summary")).toHaveTextContent("背景、カメラ、オーバーレイ表示を切り替えます。");
+    expect(
+      within(screen.getByTestId("control-panel-display")).getByTestId("control-panel-summary")
+    ).toHaveTextContent("背景、カメラ、オーバーレイ表示を切り替えます。");
     expect(screen.getByText("現在の表示設定")).toBeInTheDocument();
-    expect(screen.getByText("元画像表示オフ")).toBeInTheDocument();
+    expect(screen.getByText("現在の表示設定").parentElement).toHaveTextContent("元画像表示オフ");
     expect(screen.getByLabelText("元画像を重ねて表示")).not.toBeChecked();
 
     await user.click(screen.getByLabelText("元画像を重ねて表示"));
@@ -252,7 +262,7 @@ describe("SimulatorScreen", () => {
     expect(screen.getByLabelText("アクリル板サイズ")).toHaveValue("small");
     await user.click(screen.getByRole("tab", { name: "表示" }));
     expect(screen.getByLabelText("元画像を重ねて表示")).toBeChecked();
-    expect(screen.getByText("元画像表示オン")).toBeInTheDocument();
+    expect(screen.getByText("現在の表示設定").parentElement).toHaveTextContent("元画像表示オン");
   });
 
   it("updates image layout controls for the preview", async () => {

@@ -23,6 +23,7 @@ describe("AcrylicStandMesh", () => {
       <AcrylicStandMesh
         imageUrl="data:image/png;base64,abc"
         engravingImageUrl="data:image/png;base64,engraving"
+        showSourceOverlay={true}
       />
     );
 

@@ -47,7 +47,7 @@ describe("DisplayControls", () => {
       />
     );
 
-    expect(screen.getByText("元画像表示オフ")).toBeInTheDocument();
+    expect(screen.getByText("現在の表示設定").parentElement).toHaveTextContent("元画像表示オフ");
     expect(screen.getByLabelText("元画像を重ねて表示")).not.toBeChecked();
   });
 });
