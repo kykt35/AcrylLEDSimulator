@@ -2,23 +2,31 @@
 
 import React from "react";
 import { ImageUploader } from "@/components/upload/ImageUploader";
+import {
+  acrylicSizePresets,
+  type AcrylicSizePresetId
+} from "@/lib/simulator/acrylicSizePresets";
 import type { ImageLayout } from "@/lib/simulator/imageLayout";
 
 type ImageControlsProps = {
+  acrylicSizeId: AcrylicSizePresetId;
   fileName: string;
   statusLabel: string;
   errorMessage: string | null;
   imageLayout: ImageLayout;
+  onAcrylicSizeChange: (sizeId: AcrylicSizePresetId) => void;
   onFileSelected: (file: File) => void;
   onImageLayoutChange: (patch: Partial<ImageLayout>) => void;
   onResetImageLayout: () => void;
 };
 
 export function ImageControls({
+  acrylicSizeId,
   fileName,
   statusLabel,
   errorMessage,
   imageLayout,
+  onAcrylicSizeChange,
   onFileSelected,
   onImageLayoutChange,
   onResetImageLayout
@@ -34,6 +42,20 @@ export function ImageControls({
         </div>
       </div>
       <div className="panel-subsection">
+        <label className="control-field">
+          <span className="control-label">アクリル板サイズ</span>
+          <select
+            aria-label="アクリル板サイズ"
+            value={acrylicSizeId}
+            onChange={(event) => onAcrylicSizeChange(event.target.value as AcrylicSizePresetId)}
+          >
+            {acrylicSizePresets.map((preset) => (
+              <option key={preset.id} value={preset.id}>
+                {preset.label}
+              </option>
+            ))}
+          </select>
+        </label>
         <p className="status-title">画像ファイル</p>
         <ImageUploader onFileSelected={onFileSelected} />
         <div className="status-box">

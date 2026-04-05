@@ -10,6 +10,7 @@ import { composePreviewImageFromDataUrl } from "@/lib/image/composePreviewImage"
 import { generateEngravingMapFromDataUrl } from "@/lib/image/generateEngravingMap";
 import { loadPngTexture } from "@/lib/image/loadPngTexture";
 import { clearEditorSnapshot, writeEditorSnapshot } from "@/lib/save/session";
+import { defaultAcrylicSizePresetId } from "@/lib/simulator/acrylicSizePresets";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
@@ -165,6 +166,20 @@ describe("SimulatorScreen", () => {
     expect(screen.getByTestId("control-panel-export")).toHaveAttribute("hidden");
   });
 
+  it("updates the acrylic size selection", async () => {
+    const user = userEvent.setup();
+
+    render(<SimulatorScreen />);
+
+    expect(screen.getByLabelText("アクリル板サイズ")).toHaveValue(defaultAcrylicSizePresetId);
+    expect(screen.getByRole("tab", { name: "画像" })).toHaveTextContent("M (120 x 180 mm)");
+
+    await user.selectOptions(screen.getByLabelText("アクリル板サイズ"), "large");
+
+    expect(screen.getByLabelText("アクリル板サイズ")).toHaveValue("large");
+    expect(screen.getByRole("tab", { name: "画像" })).toHaveTextContent("L (150 x 200 mm)");
+  });
+
   it("keeps the source overlay hidden by default and after resetting display settings", async () => {
     const user = userEvent.setup();
 
@@ -217,6 +232,7 @@ describe("SimulatorScreen", () => {
         brightness: 1.2,
         backgroundId: "night",
         cameraPresetId: "front",
+        acrylicSizeId: "small",
         showSourceOverlay: true,
         imageLayout: {
           contentFit: "contain",
@@ -233,6 +249,7 @@ describe("SimulatorScreen", () => {
       expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "true");
     });
 
+    expect(screen.getByLabelText("アクリル板サイズ")).toHaveValue("small");
     await user.click(screen.getByRole("tab", { name: "表示" }));
     expect(screen.getByLabelText("元画像を重ねて表示")).toBeChecked();
     expect(screen.getByText("元画像表示オン")).toBeInTheDocument();
