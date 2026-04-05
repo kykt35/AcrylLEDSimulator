@@ -6,6 +6,7 @@ import {
 export type SimulationSnapshot = {
   ledColorId: string;
   brightness: number;
+  heightAttenuation?: number;
   backgroundId: string;
   cameraPresetId: string;
   acrylicSizeId: AcrylicSizePresetId;
@@ -65,6 +66,7 @@ function normalizeEditorSnapshot(snapshot: EditorSnapshot): EditorSnapshot {
     ...snapshot,
     simulation: {
       ...snapshot.simulation,
+      heightAttenuation: snapshot.simulation.heightAttenuation ?? 0.3,
       acrylicSizeId: snapshot.simulation.acrylicSizeId ?? defaultAcrylicSizePresetId
     }
   };

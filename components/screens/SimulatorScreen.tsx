@@ -147,6 +147,8 @@ const defaultEngravingState: EngravingState = {
   errorMessage: null
 };
 
+const defaultHeightAttenuation = 0.3;
+
 type SimulatorScreenProps = {
   searchParams?: Record<string, string | string[] | undefined>;
 };
@@ -236,6 +238,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
   );
   const [ledColorId, setLedColorId] = useState(lightingPresets[0].id);
   const [brightness, setBrightness] = useState(1.2);
+  const [heightAttenuation, setHeightAttenuation] = useState(defaultHeightAttenuation);
   const [backgroundId, setBackgroundId] = useState("night");
   const [cameraPresetId, setCameraPresetId] = useState("front");
   const [acrylicSizeId, setAcrylicSizeId] = useState<AcrylicSizePresetId>(defaultAcrylicSizePresetId);
@@ -267,6 +270,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
       simulation: {
         ledColorId,
         brightness,
+        heightAttenuation,
         backgroundId,
         cameraPresetId,
         acrylicSizeId,
@@ -277,6 +281,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
     [
       backgroundId,
       brightness,
+      heightAttenuation,
       cameraPresetId,
       acrylicSizeId,
       engraving.averageStrength,
@@ -479,6 +484,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
     setEngravingAdjustments(defaultEngravingAdjustments);
     setLedColorId(lightingPresets[0].id);
     setBrightness(1.2);
+    setHeightAttenuation(defaultHeightAttenuation);
     setBackgroundId("night");
     setCameraPresetId("front");
     setAcrylicSizeId(defaultAcrylicSizePresetId);
@@ -545,6 +551,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
     setEngravingAdjustments(snapshot.engraving.adjustments);
     setLedColorId(snapshot.simulation.ledColorId);
     setBrightness(snapshot.simulation.brightness);
+    setHeightAttenuation(snapshot.simulation.heightAttenuation ?? defaultHeightAttenuation);
     setBackgroundId(snapshot.simulation.backgroundId);
     setCameraPresetId(snapshot.simulation.cameraPresetId);
     setAcrylicSizeId(snapshot.simulation.acrylicSizeId ?? defaultAcrylicSizePresetId);
@@ -781,6 +788,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
             glowColor={activeLightingPreset.glowColor}
             background={activeBackgroundPreset.background}
             brightness={brightness}
+            heightAttenuation={heightAttenuation}
             cameraPreset={cameraPresetId}
             containerRef={previewRef}
           />
@@ -940,8 +948,10 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                 <LightingControls
                   activePresetId={ledColorId}
                   brightness={brightness}
+                  heightAttenuation={heightAttenuation}
                   onPresetChange={setLedColorId}
                   onBrightnessChange={setBrightness}
+                  onHeightAttenuationChange={setHeightAttenuation}
                 />
               </article>
             </div>
