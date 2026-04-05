@@ -324,19 +324,6 @@ button {
   color: rgba(4, 16, 30, 0.78);
 }
 
-/* タブの直下で切り替わる 1 枚のカード */
-.control-tab-card {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  border-radius: 20px;
-  border: 1px solid rgba(169, 216, 255, 0.14);
-  background: rgba(255, 255, 255, 0.05);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  overflow: hidden;
-}
-
 .control-panel-summary {
   display: grid;
   gap: 8px;
@@ -378,20 +365,29 @@ button {
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-gutter: stable;
-  padding: 20px;
+  display: grid;
+  align-content: start;
 }
 
 .control-tab-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  min-height: 0;
+}
+
+.control-panel-card {
+  display: grid;
+  gap: 0;
+  border-radius: 20px;
+  border: 1px solid rgba(169, 216, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  overflow: hidden;
 }
 
 /* カード内のコンテンツは外枠に統合（二重の panel-section 枠を外す） */
-.control-tab-card .panel-section {
+.control-panel-card .panel-section {
   border: none;
   background: transparent;
-  padding: 0;
+  padding: 20px;
 }
 
 /* 3D プレビュー: グリッド列内で横はみ出し・過大な高さを抑える */
@@ -730,12 +726,6 @@ button {
 
   .control-tablist {
     grid-template-columns: 1fr;
-  }
-
-  .control-tab-card {
-    flex: none;
-    min-height: 0;
-    overflow: visible;
   }
 
   .control-tab-panels {

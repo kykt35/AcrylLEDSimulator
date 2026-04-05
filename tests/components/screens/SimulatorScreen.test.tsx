@@ -150,6 +150,8 @@ describe("SimulatorScreen", () => {
     expect(exportTab).toHaveAttribute("aria-selected", "true");
     expect(screen.getByTestId("control-panel-summary")).toHaveTextContent("書き出し");
     expect(screen.getByTestId("control-panel-summary")).toHaveTextContent("画像未選択");
+    expect(screen.getByTestId("control-panel-export")).not.toHaveAttribute("hidden");
+    expect(screen.getByTestId("control-panel-image")).toHaveAttribute("hidden");
 
     await user.keyboard("{Home}");
 
@@ -157,6 +159,8 @@ describe("SimulatorScreen", () => {
     expect(imageTab).toHaveFocus();
     expect(imageTab).toHaveAttribute("aria-selected", "true");
     expect(screen.getByTestId("control-panel-summary")).toHaveTextContent("入力画像の読み込み");
+    expect(screen.getByTestId("control-panel-image")).not.toHaveAttribute("hidden");
+    expect(screen.getByTestId("control-panel-export")).toHaveAttribute("hidden");
   });
 
   it("can hide the source overlay in the simulator preview", async () => {
