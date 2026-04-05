@@ -3,9 +3,11 @@
 import React, { useEffect } from "react";
 import { OrbitControls } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
+import { type AcrylicSizePreset } from "@/lib/simulator/acrylicSizePresets";
 
 type CameraControllerProps = {
   preset: string;
+  sizePreset: AcrylicSizePreset;
 };
 
 const cameraPresets: Record<string, [number, number, number]> = {
@@ -14,14 +16,14 @@ const cameraPresets: Record<string, [number, number, number]> = {
   detail: [0.7, 0.25, 2.4]
 };
 
-export function CameraController({ preset }: CameraControllerProps) {
+export function CameraController({ preset, sizePreset }: CameraControllerProps) {
   const { camera } = useThree();
 
   useEffect(() => {
-    const position = cameraPresets[preset] ?? cameraPresets.front;
-    camera.position.set(...position);
+    const [x, y, z] = cameraPresets[preset] ?? cameraPresets.front;
+    camera.position.set(x, y, z * sizePreset.cameraDistanceMultiplier);
     camera.lookAt(0, -0.2, 0);
-  }, [camera, preset]);
+  }, [camera, preset, sizePreset.cameraDistanceMultiplier]);
 
   return <OrbitControls enablePan={false} minDistance={2.1} maxDistance={6.4} />;
 }

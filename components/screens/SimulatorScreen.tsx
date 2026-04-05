@@ -28,6 +28,11 @@ import {
   type EditorSnapshot
 } from "@/lib/save/session";
 import {
+  defaultAcrylicSizePresetId,
+  getAcrylicSizePreset,
+  type AcrylicSizePresetId
+} from "@/lib/simulator/acrylicSizePresets";
+import {
   clampImageLayout,
   defaultImageLayout,
   type ImageLayout
@@ -233,6 +238,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
   const [brightness, setBrightness] = useState(1.2);
   const [backgroundId, setBackgroundId] = useState("night");
   const [cameraPresetId, setCameraPresetId] = useState("front");
+  const [acrylicSizeId, setAcrylicSizeId] = useState<AcrylicSizePresetId>(defaultAcrylicSizePresetId);
   const [showSourceOverlay, setShowSourceOverlay] = useState(false);
   const [imageLayout, setImageLayout] = useState<ImageLayout>(defaultImageLayout);
   const [isSaveCompleteOpen, setIsSaveCompleteOpen] = useState(false);
@@ -245,6 +251,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
     () => cameraOptions.find((option) => option.id === cameraPresetId) ?? cameraOptions[0],
     [cameraPresetId]
   );
+  const activeAcrylicSizePreset = useMemo(() => getAcrylicSizePreset(acrylicSizeId), [acrylicSizeId]);
 
   const buildEditorSnapshot = useCallback(
     (): EditorSnapshot => ({
@@ -262,6 +269,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
         brightness,
         backgroundId,
         cameraPresetId,
+        acrylicSizeId,
         showSourceOverlay,
         imageLayout: clampImageLayout(imageLayout)
       }
@@ -270,6 +278,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
       backgroundId,
       brightness,
       cameraPresetId,
+      acrylicSizeId,
       engraving.averageStrength,
       engraving.src,
       engravingAdjustments,
@@ -301,7 +310,9 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
           case "image":
             return {
               ...tab,
-              statusLabel: sourceImage.src ? sourceImage.fileName : "未選択"
+              statusLabel: sourceImage.src
+                ? `${activeAcrylicSizePreset.label} / ${sourceImage.fileName}`
+                : activeAcrylicSizePreset.label
             };
           case "engraving":
             return {
@@ -339,6 +350,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
       }),
     [
       activeBackgroundPreset.label,
+      activeAcrylicSizePreset.label,
       activeCameraOption.label,
       activeLightingPreset.label,
       brightness,
@@ -469,6 +481,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
     setBrightness(1.2);
     setBackgroundId("night");
     setCameraPresetId("front");
+    setAcrylicSizeId(defaultAcrylicSizePresetId);
     setShowSourceOverlay(false);
     setImageLayout(defaultImageLayout);
     clearEditorSnapshot();
@@ -534,6 +547,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
     setBrightness(snapshot.simulation.brightness);
     setBackgroundId(snapshot.simulation.backgroundId);
     setCameraPresetId(snapshot.simulation.cameraPresetId);
+    setAcrylicSizeId(snapshot.simulation.acrylicSizeId ?? defaultAcrylicSizePresetId);
     setShowSourceOverlay(snapshot.simulation.showSourceOverlay ?? false);
     setImageLayout(clampImageLayout(snapshot.simulation.imageLayout ?? defaultImageLayout));
   }, [resetEditor, searchParams]);
@@ -762,6 +776,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
           <SimulatorCanvas
             imageUrl={previewSourceUrl}
             engravingImageUrl={previewEngravingUrl}
+            sizePreset={activeAcrylicSizePreset}
             showSourceOverlay={showSourceOverlay}
             glowColor={activeLightingPreset.glowColor}
             background={activeBackgroundPreset.background}
@@ -858,10 +873,12 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                   </p>
                 </div>
                 <ImageControls
+                  acrylicSizeId={acrylicSizeId}
                   fileName={sourceImage.fileName}
                   statusLabel={imageStatusLabel}
                   errorMessage={sourceImage.errorMessage}
                   imageLayout={imageLayout}
+                  onAcrylicSizeChange={setAcrylicSizeId}
                   onFileSelected={handleFileSelected}
                   onImageLayoutChange={handleImageLayoutChange}
                   onResetImageLayout={() => setImageLayout(defaultImageLayout)}
