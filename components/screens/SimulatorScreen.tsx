@@ -776,6 +776,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
           <SimulatorCanvas
             imageUrl={previewSourceUrl}
             engravingImageUrl={previewEngravingUrl}
+            sizePreset={activeAcrylicSizePreset}
             showSourceOverlay={showSourceOverlay}
             glowColor={activeLightingPreset.glowColor}
             background={activeBackgroundPreset.background}

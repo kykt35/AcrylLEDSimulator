@@ -1,6 +1,7 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import { SimulatorCanvas } from "@/components/simulator/SimulatorCanvas";
+import { getAcrylicSizePreset } from "@/lib/simulator/acrylicSizePresets";
 
 vi.mock("@react-three/fiber", () => ({
   Canvas: ({
@@ -22,23 +23,28 @@ vi.mock("@/components/simulator/AcrylicStandMesh", () => ({
   AcrylicStandMesh: ({
     imageUrl,
     engravingImageUrl,
-    showSourceOverlay
+    showSourceOverlay,
+    sizePreset
   }: {
     imageUrl?: string | null;
     engravingImageUrl?: string | null;
     showSourceOverlay?: boolean;
+    sizePreset?: { id: string };
   }) => (
     <div
       data-testid="acrylic-stand-mesh"
       data-image-url={imageUrl ?? ""}
       data-engraving-image-url={engravingImageUrl ?? ""}
       data-show-source-overlay={String(Boolean(showSourceOverlay))}
+      data-size-preset={sizePreset?.id ?? ""}
     />
   )
 }));
 
 vi.mock("@/components/simulator/LedBaseMesh", () => ({
-  LedBaseMesh: () => <div data-testid="led-base-mesh" />
+  LedBaseMesh: ({ sizePreset }: { sizePreset?: { id: string } }) => (
+    <div data-testid="led-base-mesh" data-size-preset={sizePreset?.id ?? ""} />
+  )
 }));
 
 vi.mock("@/components/simulator/SceneLighting", () => ({
@@ -50,11 +56,12 @@ vi.mock("@react-three/drei", () => ({
 }));
 
 describe("SimulatorCanvas", () => {
-  it("renders the canvas container", () => {
+  it("renders the canvas container and propagates the size preset", () => {
     render(
       <SimulatorCanvas
         imageUrl="data:image/png;base64,source"
         engravingImageUrl="data:image/png;base64,engraving"
+        sizePreset={getAcrylicSizePreset("large")}
       />
     );
 
@@ -66,5 +73,7 @@ describe("SimulatorCanvas", () => {
       "data:image/png;base64,engraving"
     );
     expect(screen.getByTestId("acrylic-stand-mesh")).toHaveAttribute("data-show-source-overlay", "false");
+    expect(screen.getByTestId("acrylic-stand-mesh")).toHaveAttribute("data-size-preset", "large");
+    expect(screen.getByTestId("led-base-mesh")).toHaveAttribute("data-size-preset", "large");
   });
 });

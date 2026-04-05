@@ -4,6 +4,7 @@ import React from "react";
 import { useTexture } from "@react-three/drei";
 import { EngravingGlowMaterial } from "@/components/simulator/EngravingGlowMaterial";
 import { getAcrylicMaterialPreset } from "@/lib/simulator/acrylicMaterial";
+import { getAcrylicSizePreset, type AcrylicSizePreset } from "@/lib/simulator/acrylicSizePresets";
 
 const TRANSPARENT_PIXEL =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIW2NkYGD4DwABBAEAjK36iwAAAABJRU5ErkJggg==";
@@ -11,6 +12,7 @@ const TRANSPARENT_PIXEL =
 type AcrylicStandMeshProps = {
   imageUrl?: string | null;
   engravingImageUrl?: string | null;
+  sizePreset?: AcrylicSizePreset;
   showSourceOverlay?: boolean;
   glowColor?: string;
   brightness?: number;
@@ -19,6 +21,7 @@ type AcrylicStandMeshProps = {
 export function AcrylicStandMesh({
   imageUrl,
   engravingImageUrl,
+  sizePreset = getAcrylicSizePreset("medium"),
   showSourceOverlay = false,
   glowColor = "#7fe7ff",
   brightness = 1
@@ -26,11 +29,12 @@ export function AcrylicStandMesh({
   const resolvedImageUrl = showSourceOverlay ? imageUrl : null;
   const preset = getAcrylicMaterialPreset(Boolean(resolvedImageUrl));
   const texture = useTexture(resolvedImageUrl || TRANSPARENT_PIXEL);
+  const engravingPlaneInset = 0.02;
 
   return (
     <group>
       <mesh position={[0, 0, 0]}>
-        <boxGeometry args={[1.6, 2.4, 0.08]} />
+        <boxGeometry args={[sizePreset.width, sizePreset.height, sizePreset.thickness]} />
         <meshStandardMaterial
           transparent
           map={texture}
@@ -42,8 +46,13 @@ export function AcrylicStandMesh({
           metalness={preset.metalness}
         />
       </mesh>
-      <mesh position={[0, 0, 0.042]}>
-        <planeGeometry args={[1.58, 2.38]} />
+      <mesh position={[0, 0, sizePreset.thickness / 2 + 0.002]}>
+        <planeGeometry
+          args={[
+            sizePreset.width - engravingPlaneInset,
+            sizePreset.height - engravingPlaneInset
+          ]}
+        />
         <EngravingGlowMaterial
           engravingImageUrl={engravingImageUrl}
           glowColor={glowColor}
