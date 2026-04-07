@@ -8,13 +8,16 @@ describe("LightingControls", () => {
     const user = userEvent.setup();
     const onPresetChange = vi.fn();
     const onBrightnessChange = vi.fn();
+    const onHeightAttenuationChange = vi.fn();
 
     render(
       <LightingControls
         activePresetId="ice-blue"
         brightness={1.2}
+        heightAttenuation={0.3}
         onPresetChange={onPresetChange}
         onBrightnessChange={onBrightnessChange}
+        onHeightAttenuationChange={onHeightAttenuationChange}
       />
     );
 
@@ -22,8 +25,12 @@ describe("LightingControls", () => {
     fireEvent.change(screen.getByLabelText("明るさ"), {
       target: { value: "1.8" }
     });
+    fireEvent.change(screen.getByLabelText("高さ方向の減衰"), {
+      target: { value: "0.45" }
+    });
 
     expect(onPresetChange).toHaveBeenCalledWith("sunset-pink");
     expect(onBrightnessChange).toHaveBeenCalledWith(1.8);
+    expect(onHeightAttenuationChange).toHaveBeenCalledWith(0.45);
   });
 });

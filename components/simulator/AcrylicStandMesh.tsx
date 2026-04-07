@@ -16,6 +16,7 @@ type AcrylicStandMeshProps = {
   showSourceOverlay?: boolean;
   glowColor?: string;
   brightness?: number;
+  heightAttenuation?: number;
 };
 
 export function AcrylicStandMesh({
@@ -24,7 +25,8 @@ export function AcrylicStandMesh({
   sizePreset = getAcrylicSizePreset("medium"),
   showSourceOverlay = false,
   glowColor = "#7fe7ff",
-  brightness = 1
+  brightness = 1,
+  heightAttenuation = 0.3
 }: AcrylicStandMeshProps) {
   const resolvedImageUrl = showSourceOverlay ? imageUrl : null;
   const preset = getAcrylicMaterialPreset(Boolean(resolvedImageUrl));
@@ -57,6 +59,7 @@ export function AcrylicStandMesh({
           engravingImageUrl={engravingImageUrl}
           glowColor={glowColor}
           brightness={brightness}
+          heightAttenuation={heightAttenuation}
         />
       </mesh>
     </group>

@@ -11,6 +11,7 @@ type EngravingGlowMaterialProps = {
   engravingImageUrl?: string | null;
   glowColor: string;
   brightness: number;
+  heightAttenuation?: number;
 };
 
 const vertexShader = `
@@ -26,13 +27,16 @@ const fragmentShader = `
   uniform sampler2D engravingMap;
   uniform vec3 glowColor;
   uniform float brightness;
+  uniform float heightAttenuation;
   varying vec2 vUv;
 
   void main() {
     vec4 engravingSample = texture2D(engravingMap, vUv);
     float engraving = engravingSample.r;
-    float edgeLighting = smoothstep(0.0, 0.4, 1.0 - vUv.y);
-    float distanceFalloff = mix(1.0, 0.5, vUv.y);
+    float edgeMin = max(0.0, 1.0 - heightAttenuation);
+    float distanceMin = max(0.0, 1.0 - heightAttenuation * 0.75);
+    float edgeLighting = mix(edgeMin, 1.0, smoothstep(0.0, 0.45, 1.0 - vUv.y));
+    float distanceFalloff = mix(1.0, distanceMin, vUv.y);
     float glow = engraving * edgeLighting * distanceFalloff * brightness;
 
     if (glow <= 0.001) {
@@ -46,21 +50,23 @@ const fragmentShader = `
 export function EngravingGlowMaterial({
   engravingImageUrl,
   glowColor,
-  brightness
+  brightness,
+  heightAttenuation = 0.3
 }: EngravingGlowMaterialProps) {
   const engravingTexture = useTexture(engravingImageUrl || TRANSPARENT_PIXEL);
   const uniforms = useMemo(
     () => ({
       engravingMap: { value: engravingTexture },
       glowColor: { value: new Color(glowColor) },
-      brightness: { value: brightness }
+      brightness: { value: brightness },
+      heightAttenuation: { value: heightAttenuation }
     }),
-    [brightness, engravingTexture, glowColor]
+    [brightness, engravingTexture, glowColor, heightAttenuation]
   );
 
   return (
     <shaderMaterial
-      key={`${engravingImageUrl ?? "empty"}-${glowColor}-${brightness}`}
+      key={`${engravingImageUrl ?? "empty"}-${glowColor}-${brightness}-${heightAttenuation}`}
       uniforms={uniforms}
       vertexShader={vertexShader}
       fragmentShader={fragmentShader}

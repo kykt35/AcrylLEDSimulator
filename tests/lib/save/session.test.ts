@@ -30,6 +30,7 @@ describe("save session helpers", () => {
       simulation: {
         ledColorId: "lime",
         brightness: 1.6,
+        heightAttenuation: 0.45,
         backgroundId: "forest",
         cameraPresetId: "detail",
         acrylicSizeId: "medium",
@@ -47,6 +48,7 @@ describe("save session helpers", () => {
     expect(readEditorSnapshot()?.simulation.imageLayout.contentFit).toBe("cover");
     expect(readEditorSnapshot()?.simulation.acrylicSizeId).toBe("medium");
     expect(readEditorSnapshot()?.simulation.showSourceOverlay).toBe(true);
+    expect(readEditorSnapshot()?.simulation.heightAttenuation).toBe(0.45);
 
     clearEditorSnapshot();
     expect(readEditorSnapshot()).toBeNull();
@@ -72,6 +74,7 @@ describe("save session helpers", () => {
       simulation: {
         ledColorId: "lime",
         brightness: 1.6,
+        heightAttenuation: 0.25,
         backgroundId: "forest",
         cameraPresetId: "detail",
         acrylicSizeId: "medium",
@@ -114,6 +117,7 @@ describe("save session helpers", () => {
       simulation: {
         ledColorId: "ice-blue",
         brightness: 1.2,
+        heightAttenuation: 0.35,
         backgroundId: "night",
         cameraPresetId: "front",
         acrylicSizeId: "small",
@@ -129,6 +133,7 @@ describe("save session helpers", () => {
 
     expect(readEditorSnapshot()?.sourceImage.fileName).toBe("sample.png");
     expect(readEditorSnapshot()?.simulation.acrylicSizeId).toBe("small");
+    expect(readEditorSnapshot()?.simulation.heightAttenuation).toBe(0.35);
 
     setItemSpy.mockRestore();
   });
@@ -169,5 +174,6 @@ describe("save session helpers", () => {
     );
 
     expect(readEditorSnapshot()?.simulation.acrylicSizeId).toBe(defaultAcrylicSizePresetId);
+    expect(readEditorSnapshot()?.simulation.heightAttenuation).toBe(0.3);
   });
 });

@@ -18,6 +18,7 @@ type SimulatorCanvasProps = {
   showSourceOverlay?: boolean;
   glowColor?: string;
   brightness?: number;
+  heightAttenuation?: number;
   background?: string;
   cameraPreset?: string;
   containerRef?: React.RefObject<HTMLDivElement | null>;
@@ -30,6 +31,7 @@ export function SimulatorCanvas({
   showSourceOverlay = false,
   glowColor = "#7fe7ff",
   brightness = 1,
+  heightAttenuation = 0.3,
   background = "#07111f",
   cameraPreset = "front",
   containerRef
@@ -48,6 +50,7 @@ export function SimulatorCanvas({
           showSourceOverlay={showSourceOverlay}
           glowColor={glowColor}
           brightness={brightness}
+          heightAttenuation={heightAttenuation}
         />
         <LedBaseMesh sizePreset={sizePreset} glowColor={glowColor} brightness={brightness} />
         <CameraController preset={cameraPreset} sizePreset={sizePreset} />

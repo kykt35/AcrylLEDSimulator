@@ -27,16 +27,19 @@ vi.mock("@/components/simulator/SimulatorCanvas", () => ({
   SimulatorCanvas: ({
     imageUrl,
     showSourceOverlay,
-    containerRef
+    containerRef,
+    heightAttenuation
   }: {
     imageUrl?: string | null;
     showSourceOverlay?: boolean;
     containerRef?: React.RefObject<HTMLDivElement | null>;
+    heightAttenuation?: number;
   }) => (
     <div
       ref={containerRef}
       data-testid="simulator-canvas"
       data-show-source-overlay={String(Boolean(showSourceOverlay))}
+      data-height-attenuation={heightAttenuation ?? ""}
     >
       {imageUrl ?? "empty"}
     </div>
@@ -186,6 +189,22 @@ describe("SimulatorScreen", () => {
 
     expect(screen.getByLabelText("アクリル板サイズ")).toHaveValue("large");
     expect(screen.getByRole("tab", { name: "画像" })).toHaveTextContent("L (150 x 200 mm)");
+  });
+
+  it("updates height attenuation from the lighting controls", async () => {
+    const user = userEvent.setup();
+
+    render(<SimulatorScreen />);
+
+    expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-height-attenuation", "0.3");
+
+    await user.click(screen.getByRole("tab", { name: "ライト" }));
+    fireEvent.change(screen.getByLabelText("高さ方向の減衰"), {
+      target: { value: "0.45" }
+    });
+
+    expect(screen.getByText("高さ方向の減衰 0.45")).toBeInTheDocument();
+    expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-height-attenuation", "0.45");
   });
 
   it("keeps the source overlay hidden by default and after resetting display settings", async () => {

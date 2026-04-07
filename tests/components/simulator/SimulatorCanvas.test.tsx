@@ -24,12 +24,14 @@ vi.mock("@/components/simulator/AcrylicStandMesh", () => ({
     imageUrl,
     engravingImageUrl,
     showSourceOverlay,
-    sizePreset
+    sizePreset,
+    heightAttenuation
   }: {
     imageUrl?: string | null;
     engravingImageUrl?: string | null;
     showSourceOverlay?: boolean;
     sizePreset?: { id: string };
+    heightAttenuation?: number;
   }) => (
     <div
       data-testid="acrylic-stand-mesh"
@@ -37,6 +39,7 @@ vi.mock("@/components/simulator/AcrylicStandMesh", () => ({
       data-engraving-image-url={engravingImageUrl ?? ""}
       data-show-source-overlay={String(Boolean(showSourceOverlay))}
       data-size-preset={sizePreset?.id ?? ""}
+      data-height-attenuation={heightAttenuation ?? ""}
     />
   )
 }));
@@ -62,6 +65,7 @@ describe("SimulatorCanvas", () => {
         imageUrl="data:image/png;base64,source"
         engravingImageUrl="data:image/png;base64,engraving"
         sizePreset={getAcrylicSizePreset("large")}
+        heightAttenuation={0.45}
       />
     );
 
@@ -74,6 +78,7 @@ describe("SimulatorCanvas", () => {
     );
     expect(screen.getByTestId("acrylic-stand-mesh")).toHaveAttribute("data-show-source-overlay", "false");
     expect(screen.getByTestId("acrylic-stand-mesh")).toHaveAttribute("data-size-preset", "large");
+    expect(screen.getByTestId("acrylic-stand-mesh")).toHaveAttribute("data-height-attenuation", "0.45");
     expect(screen.getByTestId("led-base-mesh")).toHaveAttribute("data-size-preset", "large");
   });
 });

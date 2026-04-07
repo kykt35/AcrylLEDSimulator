@@ -6,15 +6,19 @@ import { lightingPresets } from "@/lib/simulator/lightingPresets";
 type LightingControlsProps = {
   activePresetId: string;
   brightness: number;
+  heightAttenuation: number;
   onPresetChange: (presetId: string) => void;
   onBrightnessChange: (value: number) => void;
+  onHeightAttenuationChange: (value: number) => void;
 };
 
 export function LightingControls({
   activePresetId,
   brightness,
+  heightAttenuation,
   onPresetChange,
-  onBrightnessChange
+  onBrightnessChange,
+  onHeightAttenuationChange
 }: LightingControlsProps) {
   return (
     <section className="panel-section">
@@ -33,7 +37,9 @@ export function LightingControls({
           <p className="status-primary">
             {lightingPresets.find((preset) => preset.id === activePresetId)?.label ?? lightingPresets[0].label}
           </p>
-          <p className="status-secondary">明るさ {brightness.toFixed(1)}</p>
+          <p className="status-secondary">
+            明るさ {brightness.toFixed(1)} / 高さ減衰 {heightAttenuation.toFixed(2)}
+          </p>
         </div>
         <div className="control-group">
           <span className="control-label">LED 色プリセット</span>
@@ -64,6 +70,18 @@ export function LightingControls({
             value={brightness}
             onChange={(event) => onBrightnessChange(Number(event.target.value))}
             aria-label="明るさ"
+          />
+        </label>
+        <label className="control-group">
+          <span className="control-label">高さ方向の減衰 {heightAttenuation.toFixed(2)}</span>
+          <input
+            type="range"
+            min="0"
+            max="0.8"
+            step="0.05"
+            value={heightAttenuation}
+            onChange={(event) => onHeightAttenuationChange(Number(event.target.value))}
+            aria-label="高さ方向の減衰"
           />
         </label>
       </div>
