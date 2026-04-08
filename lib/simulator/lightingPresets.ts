@@ -19,6 +19,16 @@ export const lightingPresets: LightingPreset[] = [
     id: "lime",
     label: "Lime",
     glowColor: "#c6ff76"
+  },
+  {
+    id: "warm-white",
+    label: "Warm White",
+    glowColor: "#ffe6b7"
+  },
+  {
+    id: "cool-white",
+    label: "Cool White",
+    glowColor: "#dff4ff"
   }
 ];
 
