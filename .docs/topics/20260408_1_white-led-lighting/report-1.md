@@ -189,3 +189,16 @@ type LightingPreset = {
 実現方法として最も安全なのは、まず `lightingPresets` に `Warm White` と `Cool White` を追加し、既存フローで表示と保存復元がそのまま成立することを確認する進め方である。現状の構成はプリセット駆動になっているため、初回追加の実装コストは低い。
 
 そのうえで、白系が見えづらい、または白飛びすることが確認できた場合のみ、`LightingPreset` の責務を広げて「彫刻グロウ用の色」と「補助ライト用の色」を分離する。最初から構造拡張に入るより、この段階的対応の方が現在の MVP には適している。
+
+## Verification Notes
+
+### 実装後の確認結果
+
+- `Warm White` と `Cool White` を `lightingPresets` に追加した
+- `LightingControls` の選択イベントと `SimulatorScreen` の現在値表示をテストで確認した
+- `npm test` の全件実行で 44 tests passed を確認した
+
+### 未実施の確認
+
+- 実ブラウザ上での `night` 背景と明背景の見え方比較は、この CLI 環境では未実施
+- 白飛び、LED バーの視認性、背景とのコントラストは PR レビュー時または手元ブラウザでの最終確認対象とする
