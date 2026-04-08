@@ -207,6 +207,19 @@ describe("SimulatorScreen", () => {
     expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-height-attenuation", "0.45");
   });
 
+  it("updates the active lighting preset label when selecting a white preset", async () => {
+    const user = userEvent.setup();
+
+    render(<SimulatorScreen />);
+
+    await user.click(screen.getByRole("tab", { name: "ライト" }));
+    await user.click(screen.getByRole("button", { name: "Warm White" }));
+
+    const lightingStatus = screen.getByText("現在の発光設定").parentElement;
+
+    expect(lightingStatus).toHaveTextContent("Warm White");
+  });
+
   it("keeps the source overlay hidden by default and after resetting display settings", async () => {
     const user = userEvent.setup();
 

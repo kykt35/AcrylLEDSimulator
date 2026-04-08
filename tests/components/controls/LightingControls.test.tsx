@@ -33,4 +33,26 @@ describe("LightingControls", () => {
     expect(onBrightnessChange).toHaveBeenCalledWith(1.8);
     expect(onHeightAttenuationChange).toHaveBeenCalledWith(0.45);
   });
+
+  it("emits white preset selections", async () => {
+    const user = userEvent.setup();
+    const onPresetChange = vi.fn();
+
+    render(
+      <LightingControls
+        activePresetId="ice-blue"
+        brightness={1.2}
+        heightAttenuation={0.3}
+        onPresetChange={onPresetChange}
+        onBrightnessChange={vi.fn()}
+        onHeightAttenuationChange={vi.fn()}
+      />
+    );
+
+    await user.click(screen.getByRole("button", { name: "Warm White" }));
+    await user.click(screen.getByRole("button", { name: "Cool White" }));
+
+    expect(onPresetChange).toHaveBeenNthCalledWith(1, "warm-white");
+    expect(onPresetChange).toHaveBeenNthCalledWith(2, "cool-white");
+  });
 });
