@@ -13,6 +13,7 @@ type ImageControlsProps = {
   fileName: string;
   statusLabel: string;
   errorMessage: string | null;
+  previewSrc?: string | null;
   imageLayout: ImageLayout;
   onAcrylicSizeChange: (sizeId: AcrylicSizePresetId) => void;
   onFileSelected: (file: File) => void;
@@ -25,12 +26,58 @@ export function ImageControls({
   fileName,
   statusLabel,
   errorMessage,
+  previewSrc,
   imageLayout,
   onAcrylicSizeChange,
   onFileSelected,
   onImageLayoutChange,
   onResetImageLayout
 }: ImageControlsProps) {
+  const sliderControls = [
+    {
+      id: "scale",
+      label: "サイズ",
+      ariaLabel: "画像サイズ",
+      valueLabel: `${Math.round(imageLayout.scale * 100)}%`,
+      min: "40",
+      max: "160",
+      step: "5",
+      value: Math.round(imageLayout.scale * 100),
+      onChange: (nextValue: number) =>
+        onImageLayoutChange({
+          scale: nextValue / 100
+        })
+    },
+    {
+      id: "offsetX",
+      label: "横位置",
+      ariaLabel: "画像の横位置",
+      valueLabel: `${imageLayout.offsetX}`,
+      min: "-100",
+      max: "100",
+      step: "1",
+      value: imageLayout.offsetX,
+      onChange: (nextValue: number) =>
+        onImageLayoutChange({
+          offsetX: nextValue
+        })
+    },
+    {
+      id: "offsetY",
+      label: "縦位置",
+      ariaLabel: "画像の縦位置",
+      valueLabel: `${imageLayout.offsetY}`,
+      min: "-100",
+      max: "100",
+      step: "1",
+      value: imageLayout.offsetY,
+      onChange: (nextValue: number) =>
+        onImageLayoutChange({
+          offsetY: nextValue
+        })
+    }
+  ] as const;
+
   return (
     <section className="panel-section">
       <div className="panel-header">
@@ -42,22 +89,32 @@ export function ImageControls({
         </div>
       </div>
       <div className="panel-subsection">
-        <label className="control-field">
+        <div className="control-group">
           <span className="control-label">アクリル板サイズ</span>
-          <select
-            aria-label="アクリル板サイズ"
-            value={acrylicSizeId}
-            onChange={(event) => onAcrylicSizeChange(event.target.value as AcrylicSizePresetId)}
-          >
+          <div className="choice-row" role="radiogroup" aria-label="アクリル板サイズ">
             {acrylicSizePresets.map((preset) => (
-              <option key={preset.id} value={preset.id}>
-                {preset.label}
-              </option>
+              <button
+                key={preset.id}
+                type="button"
+                className="chip-button detailed"
+                role="radio"
+                aria-checked={acrylicSizeId === preset.id}
+                onClick={() => onAcrylicSizeChange(preset.id)}
+              >
+                <span>{preset.label}</span>
+              </button>
             ))}
-          </select>
-        </label>
+          </div>
+        </div>
         <p className="status-title">画像ファイル</p>
-        <ImageUploader onFileSelected={onFileSelected} />
+        <ImageUploader
+          onFileSelected={onFileSelected}
+          fileName={fileName}
+          statusMessage={statusLabel}
+          previewSrc={errorMessage ? null : previewSrc}
+          isLoading={statusLabel.includes("読み込み中")}
+          errorMessage={errorMessage}
+        />
         <div className="status-box">
           <p className="status-title">現在の入力</p>
           <p className="status-primary">{fileName}</p>
@@ -94,54 +151,23 @@ export function ImageControls({
           </div>
         </div>
         <div className="control-grid">
-          <label className="control-field">
-            <span className="control-label">サイズ {Math.round(imageLayout.scale * 100)}%</span>
-            <input
-              type="range"
-              min="40"
-              max="160"
-              step="5"
-              aria-label="画像サイズ"
-              value={Math.round(imageLayout.scale * 100)}
-              onChange={(event) =>
-                onImageLayoutChange({
-                  scale: Number(event.target.value) / 100
-                })
-              }
-            />
-          </label>
-          <label className="control-field">
-            <span className="control-label">横位置 {imageLayout.offsetX}</span>
-            <input
-              type="range"
-              min="-100"
-              max="100"
-              step="1"
-              aria-label="画像の横位置"
-              value={imageLayout.offsetX}
-              onChange={(event) =>
-                onImageLayoutChange({
-                  offsetX: Number(event.target.value)
-                })
-              }
-            />
-          </label>
-          <label className="control-field">
-            <span className="control-label">縦位置 {imageLayout.offsetY}</span>
-            <input
-              type="range"
-              min="-100"
-              max="100"
-              step="1"
-              aria-label="画像の縦位置"
-              value={imageLayout.offsetY}
-              onChange={(event) =>
-                onImageLayoutChange({
-                  offsetY: Number(event.target.value)
-                })
-              }
-            />
-          </label>
+          {sliderControls.map((control) => (
+            <label key={control.id} className="control-field range-field">
+              <span className="control-label with-badge">
+                <span>{control.label}</span>
+                <span className="value-badge">{control.valueLabel}</span>
+              </span>
+              <input
+                type="range"
+                min={control.min}
+                max={control.max}
+                step={control.step}
+                aria-label={control.ariaLabel}
+                value={control.value}
+                onChange={(event) => control.onChange(Number(event.target.value))}
+              />
+            </label>
+          ))}
         </div>
         <button type="button" className="secondary-button" onClick={onResetImageLayout}>
           画像調整をリセット

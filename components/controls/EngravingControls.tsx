@@ -56,10 +56,24 @@ export function EngravingControls({
         </div>
         <div className="control-grid">
           {numericControls.map((control) => (
-            <label key={control.key} className="control-field">
-              <span className="status-title">{control.label}</span>
+            <label key={control.key} className="control-field range-field">
+              <span className="control-label with-badge">
+                <span>{control.label}</span>
+                <span className="value-badge">{adjustments[control.key].toFixed(2)}</span>
+              </span>
               <input
                 aria-label={control.label}
+                type="range"
+                min={control.min}
+                max={control.max}
+                step={control.step}
+                value={adjustments[control.key]}
+                onChange={(event) =>
+                  onAdjustmentsChange({ [control.key]: Number(event.target.value) })
+                }
+              />
+              <input
+                aria-label={`${control.label} 数値入力`}
                 type="number"
                 min={control.min}
                 max={control.max}
@@ -71,14 +85,18 @@ export function EngravingControls({
               />
             </label>
           ))}
-          <label className="checkbox-field">
+          <label className="toggle-field">
             <input
               aria-label="白黒を反転"
               type="checkbox"
+              className="sr-only"
               checked={adjustments.invert}
               onChange={(event) => onAdjustmentsChange({ invert: event.target.checked })}
             />
-            白黒を反転
+            <span className={`toggle-switch${adjustments.invert ? " is-on" : ""}`} aria-hidden="true">
+              <span className="toggle-knob" />
+            </span>
+            <span>白黒を反転</span>
           </label>
         </div>
       </div>

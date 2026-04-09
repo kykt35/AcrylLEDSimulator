@@ -51,11 +51,15 @@ export function DisplayControls({
               <button
                 key={preset.id}
                 type="button"
-                className="chip-button"
+                className="chip-button detailed"
                 onClick={() => onBackgroundChange(preset.id)}
                 aria-pressed={activeBackgroundId === preset.id}
               >
-                {preset.label}
+                <span
+                  className="background-swatch"
+                  style={{ "--swatch-color": preset.background } as React.CSSProperties}
+                />
+                <span>{preset.label}</span>
               </button>
             ))}
           </div>
@@ -80,14 +84,18 @@ export function DisplayControls({
           </div>
         </div>
 
-        <label className="checkbox-field">
+        <label className="toggle-field">
           <input
             type="checkbox"
+            className="sr-only"
             aria-label="元画像を重ねて表示"
             checked={showSourceOverlay}
             onChange={(event) => onSourceOverlayChange(event.target.checked)}
           />
-          元画像を重ねて表示
+          <span className={`toggle-switch${showSourceOverlay ? " is-on" : ""}`} aria-hidden="true">
+            <span className="toggle-knob" />
+          </span>
+          <span>元画像を重ねて表示</span>
         </label>
 
         <button type="button" className="secondary-button" onClick={onResetView}>

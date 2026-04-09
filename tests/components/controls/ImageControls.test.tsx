@@ -14,6 +14,7 @@ describe("ImageControls", () => {
         fileName="sample.png"
         statusLabel="ready"
         errorMessage={null}
+        previewSrc="data:image/png;base64,preview"
         imageLayout={{
           contentFit: "contain",
           scale: 1,
@@ -27,10 +28,11 @@ describe("ImageControls", () => {
       />
     );
 
-    expect(screen.getByLabelText("アクリル板サイズ")).toHaveValue("medium");
-    expect(screen.getByRole("option", { name: "S (100 x 150 mm)" })).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "M (120 x 180 mm)" })).toHaveAttribute("aria-checked", "true");
+    expect(screen.getByRole("radio", { name: "S (100 x 150 mm)" })).toBeInTheDocument();
+    expect(screen.getByAltText("アップロード画像プレビュー")).toHaveAttribute("src", "data:image/png;base64,preview");
 
-    await user.selectOptions(screen.getByLabelText("アクリル板サイズ"), "large");
+    await user.click(screen.getByRole("radio", { name: "L (150 x 200 mm)" }));
 
     expect(onAcrylicSizeChange).toHaveBeenCalledWith("large");
   });
@@ -46,6 +48,7 @@ describe("ImageControls", () => {
         fileName="sample.png"
         statusLabel="ready"
         errorMessage={null}
+        previewSrc="data:image/png;base64,preview"
         imageLayout={{
           contentFit: "contain",
           scale: 1,
@@ -66,5 +69,6 @@ describe("ImageControls", () => {
     expect(onImageLayoutChange).toHaveBeenCalledWith({ contentFit: "cover" });
     expect(onImageLayoutChange).toHaveBeenCalledWith({ scale: 1.3 });
     expect(onResetImageLayout).toHaveBeenCalled();
+    expect(screen.getByText("100%")).toBeInTheDocument();
   });
 });
