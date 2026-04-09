@@ -252,6 +252,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
   const [isSaveCompleteOpen, setIsSaveCompleteOpen] = useState(false);
   const [exportFormat, setExportFormat] = useState<ExportImageFormat>("png");
   const [controlPanelTab, setControlPanelTab] = useState<ControlPanelTabId>("image");
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
 
   const isImageReady = hasImage(sourceImage.src);
   const isEngravingReady = engraving.status === "ready";
@@ -467,10 +468,16 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
       event.preventDefault();
       const nextTab = controlPanelTabs[nextIndex];
       setControlPanelTab(nextTab.id);
+      setIsMobileDrawerOpen(true);
       globalThis.document?.getElementById(`control-tab-${nextTab.id}`)?.focus();
     },
     [controlPanelTabs]
   );
+
+  const activateControlPanelTab = useCallback((tabId: ControlPanelTabId) => {
+    setControlPanelTab(tabId);
+    setIsMobileDrawerOpen(true);
+  }, []);
 
   const handleFileSelected = useCallback(async (file: File) => {
     dispatchSourceImage({ type: "load-start", fileName: file.name });
@@ -553,6 +560,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
     setAcrylicSizeId(defaultAcrylicSizePresetId);
     setShowSourceOverlay(false);
     setImageLayout(defaultImageLayout);
+    setIsMobileDrawerOpen(false);
     clearEditorSnapshot();
   }, []);
 
@@ -870,7 +878,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                 </div>
                 <h3>PNG をアップロードして始めましょう</h3>
                 <p>画像タブから透過 PNG を読み込むと、3D プレビューと彫刻データを同時に確認できます。</p>
-                <button type="button" className="primary-button" onClick={() => setControlPanelTab("image")}>
+                <button type="button" className="primary-button" onClick={() => activateControlPanelTab("image")}>
                   画像タブを開く
                 </button>
               </div>
@@ -891,34 +899,6 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
           {sourceImage.errorMessage ? (
             <ErrorNotice title="画像の読み込みに失敗しました" message={sourceImage.errorMessage} />
           ) : null}
-          {sourceImage.src ? (
-            <div className="preview-grid" data-testid="simulator-preview-grid">
-              <figure className="preview-card">
-                <figcaption className="status-title">入力画像</figcaption>
-                <div className="preview-image-frame">
-                  <img
-                    src={previewSourceUrl ?? undefined}
-                    alt="元画像プレビュー"
-                    className="preview-image"
-                  />
-                </div>
-              </figure>
-              <figure className="preview-card">
-                <figcaption className="status-title">彫刻用グレースケール</figcaption>
-                {engraving.src ? (
-                  <div className="preview-image-frame">
-                    <img
-                      src={previewEngravingUrl ?? undefined}
-                      alt="彫刻用グレースケールプレビュー"
-                      className="preview-image"
-                    />
-                  </div>
-                ) : (
-                  <p className="status-secondary">生成待ち</p>
-                )}
-              </figure>
-            </div>
-          ) : null}
           {engraving.status === "error" && engraving.errorMessage ? (
             <ErrorNotice title="彫刻用画像の生成に失敗しました" message={engraving.errorMessage} />
           ) : null}
@@ -927,7 +907,32 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
           ) : null}
         </section>
 
-        <aside className="control-panel">
+        <button
+          type="button"
+          className={`mobile-drawer-backdrop${isMobileDrawerOpen ? " is-visible" : ""}`}
+          aria-label="コントロールパネルを閉じる"
+          onClick={() => setIsMobileDrawerOpen(false)}
+        />
+
+        <aside
+          className={`control-panel${isMobileDrawerOpen ? " is-mobile-open" : ""}`}
+          data-mobile-open={isMobileDrawerOpen}
+        >
+          <div className="mobile-drawer-header">
+            <span className="mobile-drawer-handle" aria-hidden="true" />
+            <button
+              type="button"
+              className="mobile-drawer-toggle"
+              aria-expanded={isMobileDrawerOpen}
+              aria-controls="mobile-control-panel-content"
+              onClick={() => setIsMobileDrawerOpen((current) => !current)}
+            >
+              <span className="mobile-drawer-toggle-label">設定ドロワー</span>
+              <strong className="mobile-drawer-toggle-title">{activeControlPanelTab.label}</strong>
+              <span className="mobile-drawer-toggle-status">{activeControlPanelTab.statusLabel}</span>
+            </button>
+          </div>
+          <div id="mobile-control-panel-content" className="control-panel-content">
           <div className="control-tablist" role="tablist" aria-label="シミュレーター設定">
             {controlPanelTabs.map((tab) => (
               <button
@@ -940,21 +945,11 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                 aria-label={tab.label}
                 aria-selected={controlPanelTab === tab.id}
                 aria-controls={`control-panel-${tab.id}`}
-                aria-describedby={`control-tab-status-${tab.id}`}
                 tabIndex={controlPanelTab === tab.id ? 0 : -1}
-                onClick={() => setControlPanelTab(tab.id)}
+                onClick={() => activateControlPanelTab(tab.id)}
                 onKeyDown={(event) => handleControlTabKeyDown(event, tab.id)}
               >
-                <span className="control-tab-leading" aria-hidden="true">
-                  {tab.completionState === "complete" ? "✓" : tab.id === controlPanelTab ? "•" : `${CONTROL_PANEL_TABS.findIndex((item) => item.id === tab.id) + 1}`}
-                </span>
-                <span className="control-tab-label-group">
-                  <span className="control-tab-eyebrow">{tab.eyebrow}</span>
-                  <span className="control-tab-label">{tab.label}</span>
-                </span>
-                <span className="control-tab-status" id={`control-tab-status-${tab.id}`}>
-                  {tab.statusLabel}
-                </span>
+                <span className="control-tab-label">{tab.label}</span>
               </button>
             ))}
           </div>
@@ -1130,6 +1125,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                 />
               </article>
             </div>
+          </div>
           </div>
         </aside>
       </div>

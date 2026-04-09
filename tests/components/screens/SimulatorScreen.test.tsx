@@ -135,13 +135,13 @@ describe("SimulatorScreen", () => {
     );
     expect(screen.getAllByText("simulator.png").length).toBeGreaterThan(0);
     expect(screen.getAllByText("プレビューへ反映済みです。").length).toBeGreaterThan(0);
-    expect(screen.getAllByAltText("彫刻用グレースケールプレビュー")).toHaveLength(2);
+    expect(screen.getAllByAltText("彫刻用グレースケールプレビュー")).toHaveLength(1);
     expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "false");
     expect(within(screen.getByTestId("control-panel-image")).getByTestId("control-panel-summary")).toHaveTextContent(
       "画像"
     );
     expect(screen.getByRole("tab", { name: "画像" })).toHaveAttribute("data-state", "complete");
-    expect(screen.getByRole("tab", { name: "画像" })).toHaveTextContent("simulator.png");
+    expect(screen.getByRole("tab", { name: "画像" })).toHaveTextContent("画像");
   });
 
   it("updates the section summary and supports keyboard tab navigation", async () => {
@@ -178,18 +178,35 @@ describe("SimulatorScreen", () => {
     expect(screen.getByTestId("control-panel-export")).toHaveAttribute("hidden");
   });
 
+  it("opens the mobile drawer from the empty-state shortcut and supports manual toggling", async () => {
+    const user = userEvent.setup();
+
+    render(<SimulatorScreen />);
+
+    const drawerToggle = screen.getByRole("button", { name: /設定ドロワー/i });
+    expect(drawerToggle).toHaveAttribute("aria-expanded", "false");
+
+    await user.click(screen.getByRole("button", { name: "画像タブを開く" }));
+
+    expect(drawerToggle).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByRole("tab", { name: "画像" })).toHaveAttribute("aria-selected", "true");
+
+    await user.click(drawerToggle);
+    expect(drawerToggle).toHaveAttribute("aria-expanded", "false");
+  });
+
   it("updates the acrylic size selection", async () => {
     const user = userEvent.setup();
 
     render(<SimulatorScreen />);
 
     expect(screen.getByRole("radio", { name: "M (120 x 180 mm)" })).toHaveAttribute("aria-checked", "true");
-    expect(screen.getByRole("tab", { name: "画像" })).toHaveTextContent("M (120 x 180 mm)");
+    expect(screen.getByRole("tab", { name: "画像" })).toHaveTextContent("画像");
 
     await user.click(screen.getByRole("radio", { name: "L (150 x 200 mm)" }));
 
     expect(screen.getByRole("radio", { name: "L (150 x 200 mm)" })).toHaveAttribute("aria-checked", "true");
-    expect(screen.getByRole("tab", { name: "画像" })).toHaveTextContent("L (150 x 200 mm)");
+    expect(screen.getByRole("tab", { name: "画像" })).toHaveTextContent("画像");
   });
 
   it("updates height attenuation from the lighting controls", async () => {
@@ -473,7 +490,7 @@ describe("SimulatorScreen", () => {
 
     await user.upload(input, file);
     await waitFor(() => {
-      expect(screen.getAllByAltText("彫刻用グレースケールプレビュー")).toHaveLength(2);
+      expect(screen.getAllByAltText("彫刻用グレースケールプレビュー")).toHaveLength(1);
     });
 
     await user.click(screen.getByRole("tab", { name: "彫刻" }));

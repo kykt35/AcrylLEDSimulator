@@ -345,6 +345,52 @@ button {
   overflow: hidden;
 }
 
+.control-panel-content {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mobile-drawer-header,
+.mobile-drawer-backdrop {
+  display: none;
+}
+
+.mobile-drawer-header {
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.mobile-drawer-handle {
+  width: 48px;
+  height: 5px;
+  margin: 0 auto;
+  border-radius: 999px;
+  background: rgba(169, 216, 255, 0.26);
+}
+
+.mobile-drawer-toggle {
+  width: 100%;
+  display: grid;
+  gap: 4px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  text-align: left;
+}
+
+.mobile-drawer-toggle-label,
+.mobile-drawer-toggle-status {
+  color: var(--muted);
+}
+
+.mobile-drawer-toggle-title {
+  font-size: 1rem;
+}
+
 .control-tablist {
   display: grid;
   grid-auto-flow: column;
@@ -368,10 +414,10 @@ button {
   font: inherit;
   font-size: 0.88rem;
   cursor: pointer;
-  text-align: left;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 10px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition:
     background 0.15s ease,
     color 0.15s ease,
@@ -402,48 +448,9 @@ button {
   outline-offset: 2px;
 }
 
-.control-tab-leading {
-  width: 28px;
-  height: 28px;
-  display: inline-grid;
-  place-items: center;
-  border-radius: 999px;
-  border: 1px solid rgba(169, 216, 255, 0.22);
-  font-size: 0.8rem;
-  font-weight: 700;
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.control-tab-label-group {
-  display: grid;
-  gap: 2px;
-}
-
-.control-tab-eyebrow {
-  color: var(--muted);
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.control-tab[aria-selected="true"] .control-tab-eyebrow {
-  color: rgba(4, 16, 30, 0.68);
-}
-
 .control-tab-label {
   font-size: 0.98rem;
   font-weight: 700;
-}
-
-.control-tab-status {
-  font-size: 0.78rem;
-  line-height: 1.45;
-  color: var(--muted);
-}
-
-.control-tab[aria-selected="true"] .control-tab-status {
-  color: rgba(4, 16, 30, 0.78);
 }
 
 .control-panel-summary {
@@ -1204,8 +1211,48 @@ button {
   }
 
   .control-panel {
-    max-height: none;
-    overflow: visible;
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    z-index: 30;
+    max-height: min(78vh, 680px);
+    padding: 16px 16px 20px;
+    overflow: hidden;
+    border-radius: 28px;
+    box-shadow: 0 -18px 48px rgba(0, 0, 0, 0.34);
+    transform: translateY(calc(100% - 108px));
+    transition: transform 0.22s ease;
+  }
+
+  .control-panel.is-mobile-open {
+    transform: translateY(0);
+  }
+
+  .control-panel-content {
+    overflow: hidden;
+  }
+
+  .mobile-drawer-header {
+    display: flex;
+  }
+
+  .mobile-drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    border: none;
+    padding: 0;
+    background: rgba(3, 7, 13, 0.42);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s ease;
+  }
+
+  .mobile-drawer-backdrop.is-visible {
+    display: block;
+    opacity: 1;
+    pointer-events: auto;
   }
 
   .control-tablist {
@@ -1226,7 +1273,7 @@ button {
   }
 
   .control-tab-panels {
-    overflow: visible;
+    overflow-y: auto;
     min-height: 0;
   }
 
@@ -1250,6 +1297,10 @@ button {
 
   .success-toast {
     width: min(100vw - 24px, 420px);
+  }
+
+  .simulator-layout {
+    padding-bottom: min(70vh, 620px);
   }
 }
 
