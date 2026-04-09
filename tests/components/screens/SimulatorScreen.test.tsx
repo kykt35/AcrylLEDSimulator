@@ -134,7 +134,7 @@ describe("SimulatorScreen", () => {
       expect.objectContaining({ contentFit: "contain" })
     );
     expect(screen.getAllByText("simulator.png").length).toBeGreaterThan(0);
-    expect(screen.getByText("プレビューへ反映済みです。")).toBeInTheDocument();
+    expect(screen.getAllByText("プレビューへ反映済みです。").length).toBeGreaterThan(0);
     expect(screen.getAllByAltText("彫刻用グレースケールプレビュー")).toHaveLength(2);
     expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "false");
     expect(within(screen.getByTestId("control-panel-image")).getByTestId("control-panel-summary")).toHaveTextContent(

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useId, useMemo, useRef, useState } from "react";
+import React, { useEffect, useId, useMemo, useRef, useState } from "react";
 
 type ImageUploaderProps = {
   onFileSelected: (file: File) => void | Promise<void>;
@@ -26,6 +26,12 @@ export function ImageUploader({
   const [status, setStatus] = useState(statusMessage);
   const [isDragging, setIsDragging] = useState(false);
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!validationMessage) {
+      setStatus(statusMessage);
+    }
+  }, [statusMessage, validationMessage]);
 
   const helperText = useMemo(() => {
     if (validationMessage) {
