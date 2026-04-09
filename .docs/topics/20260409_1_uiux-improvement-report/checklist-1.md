@@ -22,7 +22,7 @@
 |---|---|---|---|---|---|---|
 | 1.1-1 | test | `ImageUploader` / `ImageControls` の期待挙動をテスト追加 | `test: cover drag and drop uploader states` | `c2e28a4` | done | ドロップ状態とPNGバリデーションを追加 |
 | 1.1-2 | impl | `ImageUploader` をドロップゾーンUIへ置き換え | `feat: replace native uploader with dropzone` | `c2e28a4` | done | 実装は基礎UI改善コミットへ集約 |
-| 1.1-3 | impl | ローディング・制約表示・サムネイルプレビューを接続 | `feat: add uploader feedback and preview` | `c2e28a4` | done | 読み込み中表示とプレビューを接続 |
+| 1.1-3 | impl | ローディング・制約表示・サムネイルプレビューを接続 | `feat: add uploader feedback and preview` | `c2e28a4`, `843b397` | done | 読み込み中表示とプレビューを接続し、リセット時の状態同期を修正 |
 | 1.1-4 | verify | `ImageUploader.test.tsx` と `ImageControls.test.tsx` を実行 | - | `npm test` | done | 全テスト成功 |
 
 ### Task 1.2: 画像タブの入力部品をテーマ準拠に統一する
@@ -102,6 +102,7 @@
 | 日時 | 変更内容 | 理由 | 承認者 |
 |---|---|---|---|
 | 2026-04-09 | 実装コミットを `c2e28a4` に集約 | `app/globals.css` と `SimulatorScreen` に跨る変更が多く、レビュー可能性を保ちながら差分を一貫させるため | Codex |
+| 2026-04-09 | `843b397` でアップローダー状態同期を追補 | コードレビューで、全体リセット後にアップローダー文言が残る可能性を修正したため | Codex |
 
 ## 最終確認
 - [x] 全タスクの状態を更新した
