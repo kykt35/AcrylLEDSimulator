@@ -140,6 +140,7 @@ describe("SimulatorScreen", () => {
     expect(within(screen.getByTestId("control-panel-image")).getByTestId("control-panel-summary")).toHaveTextContent(
       "画像"
     );
+    expect(screen.getByRole("tab", { name: "画像" })).toHaveAttribute("data-state", "complete");
     expect(screen.getByRole("tab", { name: "画像" })).toHaveTextContent("simulator.png");
   });
 
@@ -171,7 +172,7 @@ describe("SimulatorScreen", () => {
     expect(imageTab).toHaveFocus();
     expect(imageTab).toHaveAttribute("aria-selected", "true");
     expect(within(screen.getByTestId("control-panel-image")).getByTestId("control-panel-summary")).toHaveTextContent(
-      "入力画像の読み込み"
+      "未設定"
     );
     expect(screen.getByTestId("control-panel-image")).not.toHaveAttribute("hidden");
     expect(screen.getByTestId("control-panel-export")).toHaveAttribute("hidden");
@@ -182,12 +183,12 @@ describe("SimulatorScreen", () => {
 
     render(<SimulatorScreen />);
 
-    expect(screen.getByLabelText("アクリル板サイズ")).toHaveValue(defaultAcrylicSizePresetId);
+    expect(screen.getByRole("radio", { name: "M (120 x 180 mm)" })).toHaveAttribute("aria-checked", "true");
     expect(screen.getByRole("tab", { name: "画像" })).toHaveTextContent("M (120 x 180 mm)");
 
-    await user.selectOptions(screen.getByLabelText("アクリル板サイズ"), "large");
+    await user.click(screen.getByRole("radio", { name: "L (150 x 200 mm)" }));
 
-    expect(screen.getByLabelText("アクリル板サイズ")).toHaveValue("large");
+    expect(screen.getByRole("radio", { name: "L (150 x 200 mm)" })).toHaveAttribute("aria-checked", "true");
     expect(screen.getByRole("tab", { name: "画像" })).toHaveTextContent("L (150 x 200 mm)");
   });
 
@@ -196,6 +197,14 @@ describe("SimulatorScreen", () => {
 
     render(<SimulatorScreen />);
 
+    const input = screen.getByLabelText("PNG アップロード");
+    const file = new File(["png"], "simulator.png", { type: "image/png" });
+
+    await user.upload(input, file);
+    await waitFor(() => {
+      expect(screen.getByTestId("simulator-canvas")).toBeInTheDocument();
+    });
+
     expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-height-attenuation", "0.3");
 
     await user.click(screen.getByRole("tab", { name: "ライト" }));
@@ -203,7 +212,7 @@ describe("SimulatorScreen", () => {
       target: { value: "0.45" }
     });
 
-    expect(screen.getByText("高さ方向の減衰 0.45")).toBeInTheDocument();
+    expect(within(screen.getByTestId("control-panel-lighting")).getByText("0.45")).toBeInTheDocument();
     expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-height-attenuation", "0.45");
   });
 
@@ -235,9 +244,6 @@ describe("SimulatorScreen", () => {
     });
 
     await user.click(screen.getByRole("tab", { name: "表示" }));
-    expect(
-      within(screen.getByTestId("control-panel-display")).getByTestId("control-panel-summary")
-    ).toHaveTextContent("背景、カメラ、オーバーレイ表示を切り替えます。");
     expect(screen.getByText("現在の表示設定")).toBeInTheDocument();
     expect(screen.getByText("現在の表示設定").parentElement).toHaveTextContent("元画像表示オフ");
     expect(screen.getByLabelText("元画像を重ねて表示")).not.toBeChecked();
@@ -291,7 +297,7 @@ describe("SimulatorScreen", () => {
       expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "true");
     });
 
-    expect(screen.getByLabelText("アクリル板サイズ")).toHaveValue("small");
+    expect(screen.getByRole("radio", { name: "S (100 x 150 mm)" })).toHaveAttribute("aria-checked", "true");
     await user.click(screen.getByRole("tab", { name: "表示" }));
     expect(screen.getByLabelText("元画像を重ねて表示")).toBeChecked();
     expect(screen.getByText("現在の表示設定").parentElement).toHaveTextContent("元画像表示オン");
@@ -360,7 +366,14 @@ describe("SimulatorScreen", () => {
     expect(screen.getByRole("button", { name: "画像をダウンロードする" })).toBeDisabled();
   });
 
-  it("downloads the current preview as a png by default and opens the completion modal", async () => {
+  it("shows the guided empty state before an image is uploaded", () => {
+    render(<SimulatorScreen />);
+
+    expect(screen.getByTestId("preview-empty-state")).toHaveTextContent("PNG をアップロードして始めましょう");
+    expect(screen.getByRole("button", { name: "画像タブを開く" })).toBeInTheDocument();
+  });
+
+  it("downloads the current preview as a png by default and opens the completion toast", async () => {
     const user = userEvent.setup();
 
     render(<SimulatorScreen />);
@@ -386,6 +399,7 @@ describe("SimulatorScreen", () => {
 
     expect(exportCanvasImage).toHaveBeenCalledWith(expect.any(HTMLDivElement), "png");
     expect(downloadBlob).toHaveBeenCalledWith(expect.any(Blob), "simulator.png");
+    expect(screen.getByRole("status")).toHaveTextContent("PNG ファイルとして出力しました");
   });
 
   it("supports switching the download format to jpg", async () => {
@@ -463,8 +477,7 @@ describe("SimulatorScreen", () => {
     });
 
     await user.click(screen.getByRole("tab", { name: "彫刻" }));
-    await user.clear(screen.getByLabelText("しきい値"));
-    await user.type(screen.getByLabelText("しきい値"), "0.45");
+    fireEvent.change(screen.getByLabelText("しきい値 数値入力"), { target: { value: "0.45" } });
     await user.click(screen.getByRole("button", { name: "彫刻用 PNG をダウンロード" }));
 
     await waitFor(() => {

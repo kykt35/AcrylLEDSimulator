@@ -32,6 +32,7 @@ describe("DisplayControls", () => {
     expect(onCameraPresetChange).toHaveBeenCalledWith("tilt");
     expect(onSourceOverlayChange).toHaveBeenCalledWith(false);
     expect(onResetView).toHaveBeenCalled();
+    expect(screen.getByText("Rose Glow")).toBeInTheDocument();
   });
 
   it("shows overlay off state when source overlay is disabled", () => {

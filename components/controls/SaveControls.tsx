@@ -50,26 +50,20 @@ export function SaveControls({
           <p className="status-secondary">{helperMessage}</p>
         </div>
         <div className="control-group" role="radiogroup" aria-label="出力形式">
-          <label className="status-secondary">
-            <input
-              type="radio"
-              name="export-format"
-              value="png"
-              checked={exportFormat === "png"}
-              onChange={() => onFormatChange("png")}
-            />
-            PNG
-          </label>
-          <label className="status-secondary">
-            <input
-              type="radio"
-              name="export-format"
-              value="jpg"
-              checked={exportFormat === "jpg"}
-              onChange={() => onFormatChange("jpg")}
-            />
-            JPG
-          </label>
+          <div className="segmented-control">
+            {(["png", "jpg"] as const).map((format) => (
+              <button
+                key={format}
+                type="button"
+                role="radio"
+                aria-checked={exportFormat === format}
+                className={`segment-button${exportFormat === format ? " is-active" : ""}`}
+                onClick={() => onFormatChange(format)}
+              >
+                {format.toUpperCase()}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
       <button

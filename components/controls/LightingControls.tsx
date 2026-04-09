@@ -50,9 +50,10 @@ export function LightingControls({
                 type="button"
                 onClick={() => onPresetChange(preset.id)}
                 aria-pressed={activePresetId === preset.id}
-                className="chip-button"
+                className="chip-button detailed"
               >
-                {preset.label}
+                <span className="color-dot" style={{ "--swatch-color": preset.glowColor } as React.CSSProperties} />
+                <span>{preset.label}</span>
               </button>
             ))}
           </div>
@@ -60,8 +61,11 @@ export function LightingControls({
       </div>
 
       <div className="panel-subsection">
-        <label className="control-group">
-          <span className="control-label">明るさ {brightness.toFixed(1)}</span>
+        <label className="control-group range-field">
+          <span className="control-label with-badge">
+            <span>明るさ</span>
+            <span className="value-badge">{brightness.toFixed(1)}</span>
+          </span>
           <input
             type="range"
             min="0.6"
@@ -72,8 +76,11 @@ export function LightingControls({
             aria-label="明るさ"
           />
         </label>
-        <label className="control-group">
-          <span className="control-label">高さ方向の減衰 {heightAttenuation.toFixed(2)}</span>
+        <label className="control-group range-field">
+          <span className="control-label with-badge">
+            <span>高さ方向の減衰</span>
+            <span className="value-badge">{heightAttenuation.toFixed(2)}</span>
+          </span>
           <input
             type="range"
             min="0"

@@ -18,7 +18,7 @@ export default function HomePage() {
             完成イメージを確認できます。MVP では、入力から彫刻用 PNG とシミュレーション画像の出力までを 1 画面で完結させます。
           </p>
           <div className="hero-actions">
-            <Link href="/simulator" className="primary-link">
+            <Link href="/simulator" className="primary-link hero-cta">
               試してみる
             </Link>
             <NoticeModal triggerLabel="注意事項を見る" />
@@ -26,7 +26,18 @@ export default function HomePage() {
         </div>
 
         <div className="hero-card">
-          <p className="card-label">できること</p>
+          <p className="card-label">Visual Preview</p>
+          <div className="hero-visual" aria-hidden="true">
+            <div className="hero-visual-stage">
+              <div className="hero-visual-stand" />
+              <div className="hero-visual-glow" />
+            </div>
+            <div className="hero-visual-toolbar">
+              <span className="hero-mini-chip">Ice Blue</span>
+              <span className="hero-mini-chip">Night Studio</span>
+              <span className="hero-mini-chip">Front View</span>
+            </div>
+          </div>
           <ul className="feature-list">
             <li>透過 PNG を 3D プレビューへ即時反映</li>
             <li>彫刻用グレースケール画像を自動生成して調整</li>

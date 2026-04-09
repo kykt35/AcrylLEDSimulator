@@ -14,26 +14,21 @@ export function SaveCompleteModal({ isOpen, onClose, formatLabel }: SaveComplete
   }
 
   return (
-    <div className="modal-backdrop" role="presentation" onClick={onClose}>
-      <div
-        className="modal-card"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="save-complete-title"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <p className="panel-label">Download Ready</p>
-        <h2 id="save-complete-title" className="panel-title">
-          ダウンロードを開始しました
-        </h2>
-        <div className="modal-copy">
-          <p>現在の見え方を {formatLabel} ファイルとして出力しました。続けて調整する場合はこのまま編集を続けてください。</p>
+    <div className="toast-stack" aria-live="polite" aria-atomic="true">
+      <div className="success-toast" role="status">
+        <span className="success-toast-icon" aria-hidden="true">
+          ✓
+        </span>
+        <div className="success-toast-copy">
+          <p className="panel-label">Download Ready</p>
+          <h2 id="save-complete-title" className="panel-title">
+            ダウンロードを開始しました
+          </h2>
+          <p>現在の見え方を {formatLabel} ファイルとして出力しました。このまま続けて調整できます。</p>
         </div>
-        <div className="modal-actions">
-          <button type="button" className="primary-button" onClick={onClose}>
-            編集を続ける
-          </button>
-        </div>
+        <button type="button" className="ghost-link compact" onClick={onClose}>
+          閉じる
+        </button>
       </div>
     </div>
   );

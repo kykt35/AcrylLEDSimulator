@@ -27,6 +27,7 @@ describe("EngravingControls", () => {
     expect(onAdjustmentsChange).toHaveBeenCalledWith({ threshold: 0.45 });
     expect(onAdjustmentsChange).toHaveBeenCalledWith({ invert: true });
     expect(onDownload).toHaveBeenCalled();
+    expect(screen.getByText(defaultEngravingAdjustments.threshold.toFixed(2))).toBeInTheDocument();
   });
 
   it("shows both source and engraving previews", () => {

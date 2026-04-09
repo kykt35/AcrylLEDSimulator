@@ -32,6 +32,7 @@ describe("LightingControls", () => {
     expect(onPresetChange).toHaveBeenCalledWith("sunset-pink");
     expect(onBrightnessChange).toHaveBeenCalledWith(1.8);
     expect(onHeightAttenuationChange).toHaveBeenCalledWith(0.45);
+    expect(screen.getByText("1.2")).toBeInTheDocument();
   });
 
   it("emits white preset selections", async () => {
