@@ -20,6 +20,17 @@ const saveStatusLabels = {
   error: "ダウンロードに失敗しました。設定を保持したまま再試行できます。"
 } satisfies Record<SaveControlsProps["saveStatus"], string>;
 
+const savedAtFormatter = new Intl.DateTimeFormat("ja-JP", {
+  timeZone: "Asia/Tokyo",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: false
+});
+
 export function SaveControls({
   saveStatus,
   errorMessage,
@@ -76,7 +87,7 @@ export function SaveControls({
       </button>
       <div className="status-box">
         {savedAt ? (
-          <p className="status-secondary">最終ダウンロード: {new Date(savedAt).toLocaleString("ja-JP")}</p>
+          <p className="status-secondary">最終ダウンロード: {savedAtFormatter.format(new Date(savedAt))}</p>
         ) : null}
         {exportFormat === "jpg" ? (
           <p className="status-secondary">JPG では透明部分が背景色で書き出されます。</p>
