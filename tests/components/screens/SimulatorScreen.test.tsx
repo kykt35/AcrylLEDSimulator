@@ -178,21 +178,20 @@ describe("SimulatorScreen", () => {
     expect(screen.getByTestId("control-panel-export")).toHaveAttribute("hidden");
   });
 
-  it("opens the mobile drawer from the empty-state shortcut and supports manual toggling", async () => {
+  it("opens the mobile drawer from the menu button and supports manual toggling", async () => {
     const user = userEvent.setup();
 
     render(<SimulatorScreen />);
 
-    const drawerToggle = screen.getByRole("button", { name: /設定ドロワー/i });
-    expect(drawerToggle).toHaveAttribute("aria-expanded", "false");
+    const menuButton = screen.getByRole("button", { name: "設定" });
+    expect(menuButton).toHaveAttribute("aria-expanded", "false");
 
-    await user.click(screen.getByRole("button", { name: "画像タブを開く" }));
-
-    expect(drawerToggle).toHaveAttribute("aria-expanded", "true");
+    await user.click(menuButton);
+    expect(menuButton).toHaveAttribute("aria-expanded", "true");
     expect(screen.getByRole("tab", { name: "画像" })).toHaveAttribute("aria-selected", "true");
 
-    await user.click(drawerToggle);
-    expect(drawerToggle).toHaveAttribute("aria-expanded", "false");
+    await user.click(screen.getByRole("button", { name: "メニューを閉じる" }));
+    expect(menuButton).toHaveAttribute("aria-expanded", "false");
   });
 
   it("updates the acrylic size selection", async () => {
@@ -387,7 +386,7 @@ describe("SimulatorScreen", () => {
     render(<SimulatorScreen />);
 
     expect(screen.getByTestId("preview-empty-state")).toHaveTextContent("PNG をアップロードして始めましょう");
-    expect(screen.getByRole("button", { name: "画像タブを開く" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "設定" })).toBeInTheDocument();
   });
 
   it("downloads the current preview as a png by default and opens the completion toast", async () => {

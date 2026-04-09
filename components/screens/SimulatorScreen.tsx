@@ -823,6 +823,15 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
       <p className="sr-only" aria-live="polite" aria-atomic="true">
         {liveRegionMessage}
       </p>
+      <button
+        type="button"
+        className="mobile-menu-button"
+        aria-expanded={isMobileDrawerOpen}
+        aria-controls="mobile-control-panel-content"
+        onClick={() => setIsMobileDrawerOpen((current) => !current)}
+      >
+        設定
+      </button>
       <section className="simulator-header">
         <div>
           <p className="eyebrow">Simulator</p>
@@ -878,9 +887,6 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                 </div>
                 <h3>PNG をアップロードして始めましょう</h3>
                 <p>画像タブから透過 PNG を読み込むと、3D プレビューと彫刻データを同時に確認できます。</p>
-                <button type="button" className="primary-button" onClick={() => activateControlPanelTab("image")}>
-                  画像タブを開く
-                </button>
               </div>
             )}
             {isBusy ? (
@@ -919,17 +925,18 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
           data-mobile-open={isMobileDrawerOpen}
         >
           <div className="mobile-drawer-header">
-            <span className="mobile-drawer-handle" aria-hidden="true" />
+            <div>
+              <p className="panel-label">Controls</p>
+              <strong className="mobile-drawer-toggle-title">{activeControlPanelTab.label}</strong>
+              <p className="mobile-drawer-toggle-status">{activeControlPanelTab.statusLabel}</p>
+            </div>
             <button
               type="button"
-              className="mobile-drawer-toggle"
-              aria-expanded={isMobileDrawerOpen}
-              aria-controls="mobile-control-panel-content"
-              onClick={() => setIsMobileDrawerOpen((current) => !current)}
+              className="ghost-link compact"
+              aria-label="メニューを閉じる"
+              onClick={() => setIsMobileDrawerOpen(false)}
             >
-              <span className="mobile-drawer-toggle-label">設定ドロワー</span>
-              <strong className="mobile-drawer-toggle-title">{activeControlPanelTab.label}</strong>
-              <span className="mobile-drawer-toggle-status">{activeControlPanelTab.statusLabel}</span>
+              閉じる
             </button>
           </div>
           <div id="mobile-control-panel-content" className="control-panel-content">
