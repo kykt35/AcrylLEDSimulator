@@ -228,6 +228,8 @@ function getTabDescription(tabId: ControlPanelTabId) {
 export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
   const previewRef = useRef<HTMLDivElement>(null);
   const previewFileInputRef = useRef<HTMLInputElement>(null);
+  const previewPointerStartRef = useRef<{ x: number; y: number } | null>(null);
+  const previewPointerMovedRef = useRef(false);
   const [sourceImage, dispatchSourceImage] = useReducer(sourceImageReducer, defaultSourceImageState);
   const [save, dispatchSave] = useReducer(saveReducer, defaultSaveState);
   const [engraving, setEngraving] = useState<EngravingState>(defaultEngravingState);
@@ -527,8 +529,12 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
   }, []);
 
   const openPreviewFileDialog = useCallback(() => {
+    if (isBusy) {
+      return;
+    }
+
     previewFileInputRef.current?.click();
-  }, []);
+  }, [isBusy]);
 
   const handlePreviewFileInputChange = useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -584,6 +590,41 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
     },
     [openPreviewFileDialog]
   );
+
+  const handlePreviewPointerDownCapture = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
+    previewPointerStartRef.current = {
+      x: event.clientX,
+      y: event.clientY
+    };
+    previewPointerMovedRef.current = false;
+  }, []);
+
+  const handlePreviewPointerMoveCapture = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
+    if (!previewPointerStartRef.current) {
+      return;
+    }
+
+    const deltaX = Math.abs(event.clientX - previewPointerStartRef.current.x);
+    const deltaY = Math.abs(event.clientY - previewPointerStartRef.current.y);
+
+    if (deltaX > 4 || deltaY > 4) {
+      previewPointerMovedRef.current = true;
+    }
+  }, []);
+
+  const resetPreviewPointerTracking = useCallback(() => {
+    previewPointerStartRef.current = null;
+    previewPointerMovedRef.current = false;
+  }, []);
+
+  const handlePreviewSurfaceClick = useCallback(() => {
+    if (previewPointerMovedRef.current) {
+      resetPreviewPointerTracking();
+      return;
+    }
+
+    openPreviewFileDialog();
+  }, [openPreviewFileDialog, resetPreviewPointerTracking]);
 
   const handleResetView = useCallback(() => {
     setBackgroundId("night");
@@ -930,14 +971,19 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
           <div
             className={`preview-stage${isPreviewDragActive ? " is-drag-active" : ""}${isBusy ? " is-busy" : ""}`}
             role="button"
-            tabIndex={0}
+            tabIndex={isBusy ? -1 : 0}
             aria-label="3Dビューに画像をドラッグするか、クリックして PNG を選択"
+            aria-disabled={isBusy}
             data-testid="preview-upload-surface"
-            onClick={openPreviewFileDialog}
+            onClick={handlePreviewSurfaceClick}
             onKeyDown={handlePreviewSurfaceKeyDown}
             onDragOver={handlePreviewDragOver}
             onDragLeave={handlePreviewDragLeave}
             onDrop={handlePreviewDrop}
+            onPointerDownCapture={handlePreviewPointerDownCapture}
+            onPointerMoveCapture={handlePreviewPointerMoveCapture}
+            onPointerUpCapture={resetPreviewPointerTracking}
+            onPointerCancelCapture={resetPreviewPointerTracking}
           >
             <input
               ref={previewFileInputRef}
