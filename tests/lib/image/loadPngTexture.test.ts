@@ -1,4 +1,4 @@
-import { loadPngTexture, validatePngFile } from "@/lib/image/loadPngTexture";
+import { loadPngTexture, maxPngFileSizeInBytes, validatePngFile } from "@/lib/image/loadPngTexture";
 
 vi.mock("@/lib/image/generateEngravingMap", () => ({
   generateEngravingMapFromDataUrl: vi.fn().mockResolvedValue({
@@ -52,5 +52,14 @@ describe("loadPngTexture", () => {
     expect(validatePngFile(file)).toBeNull();
     expect(generateEngravingMapFromDataUrl).toHaveBeenCalledWith("data:image/png;base64,abc123");
     vi.unstubAllGlobals();
+  });
+
+  it("rejects png files larger than the upload limit", async () => {
+    const file = {
+      type: "image/png",
+      size: maxPngFileSizeInBytes + 1
+    } as File;
+
+    expect(validatePngFile(file)).toBe("8MB 以下の PNG ファイルを選択してください。");
   });
 });

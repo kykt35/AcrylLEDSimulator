@@ -14,7 +14,6 @@ describe("ImageControls", () => {
         fileName="sample.png"
         statusLabel="ready"
         errorMessage={null}
-        previewSrc="data:image/png;base64,preview"
         imageLayout={{
           contentFit: "contain",
           scale: 1,
@@ -22,7 +21,6 @@ describe("ImageControls", () => {
           offsetY: 0
         }}
         onAcrylicSizeChange={onAcrylicSizeChange}
-        onFileSelected={vi.fn()}
         onImageLayoutChange={vi.fn()}
         onResetImageLayout={vi.fn()}
       />
@@ -30,7 +28,8 @@ describe("ImageControls", () => {
 
     expect(screen.getByRole("radio", { name: "M (120 x 180 mm)" })).toHaveAttribute("aria-checked", "true");
     expect(screen.getByRole("radio", { name: "S (100 x 150 mm)" })).toBeInTheDocument();
-    expect(screen.getByAltText("アップロード画像プレビュー")).toHaveAttribute("src", "data:image/png;base64,preview");
+    expect(screen.getByText("画像の追加方法")).toBeInTheDocument();
+    expect(screen.getByText("3D ビューに画像をドラッグするか、クリックして PNG を選択してください。")).toBeInTheDocument();
 
     await user.click(screen.getByRole("radio", { name: "L (150 x 200 mm)" }));
 
@@ -48,7 +47,6 @@ describe("ImageControls", () => {
         fileName="sample.png"
         statusLabel="ready"
         errorMessage={null}
-        previewSrc="data:image/png;base64,preview"
         imageLayout={{
           contentFit: "contain",
           scale: 1,
@@ -56,7 +54,6 @@ describe("ImageControls", () => {
           offsetY: 0
         }}
         onAcrylicSizeChange={vi.fn()}
-        onFileSelected={vi.fn()}
         onImageLayoutChange={onImageLayoutChange}
         onResetImageLayout={onResetImageLayout}
       />

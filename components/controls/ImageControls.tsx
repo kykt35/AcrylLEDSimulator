@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { ImageUploader } from "@/components/upload/ImageUploader";
 import {
   acrylicSizePresets,
   type AcrylicSizePresetId
@@ -13,10 +12,8 @@ type ImageControlsProps = {
   fileName: string;
   statusLabel: string;
   errorMessage: string | null;
-  previewSrc?: string | null;
   imageLayout: ImageLayout;
   onAcrylicSizeChange: (sizeId: AcrylicSizePresetId) => void;
-  onFileSelected: (file: File) => void;
   onImageLayoutChange: (patch: Partial<ImageLayout>) => void;
   onResetImageLayout: () => void;
 };
@@ -26,10 +23,8 @@ export function ImageControls({
   fileName,
   statusLabel,
   errorMessage,
-  previewSrc,
   imageLayout,
   onAcrylicSizeChange,
-  onFileSelected,
   onImageLayoutChange,
   onResetImageLayout
 }: ImageControlsProps) {
@@ -82,10 +77,11 @@ export function ImageControls({
     <section className="panel-section">
       <div className="panel-header">
         <p className="panel-label">画像設定</p>
-        <h2 className="panel-title">PNG をアップロード</h2>
+        <h2 className="panel-title">画像の配置を調整</h2>
         <div className="helper-list">
           <p>透過 PNG を推奨します</p>
           <p>読み込み後に彫刻用グレースケール画像を自動生成します</p>
+          <p>画像の追加と差し替えは 3D ビュー上のドラッグまたはクリックで行います</p>
         </div>
       </div>
       <div className="panel-subsection">
@@ -106,19 +102,14 @@ export function ImageControls({
             ))}
           </div>
         </div>
-        <p className="status-title">画像ファイル</p>
-        <ImageUploader
-          onFileSelected={onFileSelected}
-          fileName={fileName}
-          statusMessage={statusLabel}
-          previewSrc={errorMessage ? null : previewSrc}
-          isLoading={statusLabel.includes("読み込み中")}
-          errorMessage={errorMessage}
-        />
         <div className="status-box">
           <p className="status-title">現在の入力</p>
           <p className="status-primary">{fileName}</p>
           <p className="status-secondary">{errorMessage ?? statusLabel}</p>
+        </div>
+        <div className="status-box">
+          <p className="status-title">画像の追加方法</p>
+          <p className="status-secondary">3D ビューに画像をドラッグするか、クリックして PNG を選択してください。</p>
         </div>
       </div>
       <div className="panel-subsection">
