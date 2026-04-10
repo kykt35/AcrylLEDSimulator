@@ -227,6 +227,7 @@ function getTabDescription(tabId: ControlPanelTabId) {
 
 export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
   const previewRef = useRef<HTMLDivElement>(null);
+  const previewFileInputRef = useRef<HTMLInputElement>(null);
   const [sourceImage, dispatchSourceImage] = useReducer(sourceImageReducer, defaultSourceImageState);
   const [save, dispatchSave] = useReducer(saveReducer, defaultSaveState);
   const [engraving, setEngraving] = useState<EngravingState>(defaultEngravingState);
@@ -253,6 +254,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
   const [exportFormat, setExportFormat] = useState<ExportImageFormat>("png");
   const [controlPanelTab, setControlPanelTab] = useState<ControlPanelTabId>("image");
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+  const [isPreviewDragActive, setIsPreviewDragActive] = useState(false);
 
   const isImageReady = hasImage(sourceImage.src);
   const isEngravingReady = engraving.status === "ready";
@@ -523,6 +525,65 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
       setEngraving(defaultEngravingState);
     }
   }, []);
+
+  const openPreviewFileDialog = useCallback(() => {
+    previewFileInputRef.current?.click();
+  }, []);
+
+  const handlePreviewFileInputChange = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+
+      if (file) {
+        await handleFileSelected(file);
+      }
+
+      event.target.value = "";
+    },
+    [handleFileSelected]
+  );
+
+  const handlePreviewDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = "copy";
+    }
+    setIsPreviewDragActive(true);
+  }, []);
+
+  const handlePreviewDragLeave = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+
+    if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+      setIsPreviewDragActive(false);
+    }
+  }, []);
+
+  const handlePreviewDrop = useCallback(
+    async (event: React.DragEvent<HTMLDivElement>) => {
+      event.preventDefault();
+      setIsPreviewDragActive(false);
+
+      const file = event.dataTransfer.files?.[0];
+
+      if (file) {
+        await handleFileSelected(file);
+      }
+    },
+    [handleFileSelected]
+  );
+
+  const handlePreviewSurfaceKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLDivElement>) => {
+      if (event.key !== "Enter" && event.key !== " ") {
+        return;
+      }
+
+      event.preventDefault();
+      openPreviewFileDialog();
+    },
+    [openPreviewFileDialog]
+  );
 
   const handleResetView = useCallback(() => {
     setBackgroundId("night");
@@ -866,29 +927,60 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                   : imageStatusLabel}
             </p>
           </div>
-          <div className="preview-stage">
+          <div
+            className={`preview-stage${isPreviewDragActive ? " is-drag-active" : ""}${isBusy ? " is-busy" : ""}`}
+            role="button"
+            tabIndex={0}
+            aria-label="3Dビューに画像をドラッグするか、クリックして PNG を選択"
+            data-testid="preview-upload-surface"
+            onClick={openPreviewFileDialog}
+            onKeyDown={handlePreviewSurfaceKeyDown}
+            onDragOver={handlePreviewDragOver}
+            onDragLeave={handlePreviewDragLeave}
+            onDrop={handlePreviewDrop}
+          >
+            <input
+              ref={previewFileInputRef}
+              className="sr-only"
+              type="file"
+              accept="image/png"
+              aria-label="3Dビュー画像アップロード"
+              onChange={handlePreviewFileInputChange}
+            />
             {sourceImage.src ? (
-              <SimulatorCanvas
-                imageUrl={previewSourceUrl}
-                engravingImageUrl={previewEngravingUrl}
-                sizePreset={activeAcrylicSizePreset}
-                showSourceOverlay={showSourceOverlay}
-                glowColor={activeLightingPreset.glowColor}
-                background={activeBackgroundPreset.background}
-                brightness={brightness}
-                heightAttenuation={heightAttenuation}
-                cameraPreset={cameraPresetId}
-                containerRef={previewRef}
-              />
+              <>
+                <SimulatorCanvas
+                  imageUrl={previewSourceUrl}
+                  engravingImageUrl={previewEngravingUrl}
+                  sizePreset={activeAcrylicSizePreset}
+                  showSourceOverlay={showSourceOverlay}
+                  glowColor={activeLightingPreset.glowColor}
+                  background={activeBackgroundPreset.background}
+                  brightness={brightness}
+                  heightAttenuation={heightAttenuation}
+                  cameraPreset={cameraPresetId}
+                  containerRef={previewRef}
+                />
+                <div className="preview-upload-hint" aria-hidden="true">
+                  <strong>画像を差し替える</strong>
+                  <span>3Dビューにドラッグ、またはクリックして PNG を選択</span>
+                </div>
+              </>
             ) : (
               <div className="preview-empty-state" data-testid="preview-empty-state">
                 <div className="preview-empty-icon" aria-hidden="true">
                   PNG
                 </div>
-                <h3>PNG をアップロードして始めましょう</h3>
-                <p>画像タブから透過 PNG を読み込むと、3D プレビューと彫刻データを同時に確認できます。</p>
+                <h3>3Dビューへ PNG を追加して始めましょう</h3>
+                <p>このエリアに画像をドラッグするか、クリックして透過 PNG を選択すると 3D プレビューへ反映します。</p>
               </div>
             )}
+            {isPreviewDragActive ? (
+              <div className="preview-drop-overlay" aria-hidden="true">
+                <strong>ここにドロップして画像を差し替え</strong>
+                <span>PNG のみ対応</span>
+              </div>
+            ) : null}
             {isBusy ? (
               <div className="preview-loading-overlay" role="status" aria-live="polite">
                 <span className="loading-spinner" aria-hidden="true" />

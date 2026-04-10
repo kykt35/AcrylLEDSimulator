@@ -120,7 +120,7 @@ describe("SimulatorScreen", () => {
 
     render(<SimulatorScreen />);
 
-    const input = screen.getByLabelText("PNG アップロード");
+    const input = screen.getByLabelText("3Dビュー画像アップロード");
     const file = new File(["png"], "simulator.png", { type: "image/png" });
 
     await user.upload(input, file);
@@ -142,6 +142,37 @@ describe("SimulatorScreen", () => {
     );
     expect(screen.getByRole("tab", { name: "画像" })).toHaveAttribute("data-state", "complete");
     expect(screen.getByRole("tab", { name: "画像" })).toHaveTextContent("画像");
+  });
+
+  it("supports click and drag interactions on the preview upload surface", async () => {
+    const user = userEvent.setup();
+
+    render(<SimulatorScreen />);
+
+    const uploadSurface = screen.getByTestId("preview-upload-surface");
+    expect(uploadSurface).toHaveAttribute(
+      "aria-label",
+      "3Dビューに画像をドラッグするか、クリックして PNG を選択"
+    );
+
+    fireEvent.dragOver(uploadSurface, {
+      dataTransfer: {
+        dropEffect: "none"
+      }
+    });
+    expect(uploadSurface).toHaveClass("is-drag-active");
+    expect(screen.getByText("ここにドロップして画像を差し替え")).toBeInTheDocument();
+
+    const input = screen.getByLabelText("3Dビュー画像アップロード");
+    const file = new File(["png"], "simulator.png", { type: "image/png" });
+
+    await user.upload(input, file);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("simulator-canvas")).toHaveTextContent("data:image/png;base64,simulator-preview");
+    });
+
+    expect(screen.getByText("画像を差し替える")).toBeInTheDocument();
   });
 
   it("updates the section summary and supports keyboard tab navigation", async () => {
@@ -213,7 +244,7 @@ describe("SimulatorScreen", () => {
 
     render(<SimulatorScreen />);
 
-    const input = screen.getByLabelText("PNG アップロード");
+    const input = screen.getByLabelText("3Dビュー画像アップロード");
     const file = new File(["png"], "simulator.png", { type: "image/png" });
 
     await user.upload(input, file);
@@ -250,7 +281,7 @@ describe("SimulatorScreen", () => {
 
     render(<SimulatorScreen />);
 
-    const input = screen.getByLabelText("PNG アップロード");
+    const input = screen.getByLabelText("3Dビュー画像アップロード");
     const file = new File(["png"], "simulator.png", { type: "image/png" });
 
     await user.upload(input, file);
@@ -324,7 +355,7 @@ describe("SimulatorScreen", () => {
 
     render(<SimulatorScreen />);
 
-    const input = screen.getByLabelText("PNG アップロード");
+    const input = screen.getByLabelText("3Dビュー画像アップロード");
     const file = new File(["png"], "simulator.png", { type: "image/png" });
 
     await user.upload(input, file);
@@ -371,7 +402,7 @@ describe("SimulatorScreen", () => {
 
     render(<SimulatorScreen />);
 
-    const input = screen.getByLabelText("PNG アップロード");
+    const input = screen.getByLabelText("3Dビュー画像アップロード");
     const file = new File(["png"], "broken.png", { type: "image/png" });
 
     await user.upload(input, file);
@@ -385,7 +416,7 @@ describe("SimulatorScreen", () => {
   it("shows the guided empty state before an image is uploaded", () => {
     render(<SimulatorScreen />);
 
-    expect(screen.getByTestId("preview-empty-state")).toHaveTextContent("PNG をアップロードして始めましょう");
+    expect(screen.getByTestId("preview-empty-state")).toHaveTextContent("3Dビューへ PNG を追加して始めましょう");
     expect(screen.getByRole("button", { name: "設定" })).toBeInTheDocument();
   });
 
@@ -394,7 +425,7 @@ describe("SimulatorScreen", () => {
 
     render(<SimulatorScreen />);
 
-    const input = screen.getByLabelText("PNG アップロード");
+    const input = screen.getByLabelText("3Dビュー画像アップロード");
     const file = new File(["png"], "simulator.png", { type: "image/png" });
 
     await user.upload(input, file);
@@ -425,7 +456,7 @@ describe("SimulatorScreen", () => {
 
     render(<SimulatorScreen />);
 
-    const input = screen.getByLabelText("PNG アップロード");
+    const input = screen.getByLabelText("3Dビュー画像アップロード");
     const file = new File(["png"], "simulator.png", { type: "image/png" });
 
     await user.upload(input, file);
@@ -456,7 +487,7 @@ describe("SimulatorScreen", () => {
 
     render(<SimulatorScreen />);
 
-    const input = screen.getByLabelText("PNG アップロード");
+    const input = screen.getByLabelText("3Dビュー画像アップロード");
     const file = new File(["png"], "simulator.png", { type: "image/png" });
 
     await user.upload(input, file);
@@ -484,7 +515,7 @@ describe("SimulatorScreen", () => {
 
     render(<SimulatorScreen />);
 
-    const input = screen.getByLabelText("PNG アップロード");
+    const input = screen.getByLabelText("3Dビュー画像アップロード");
     const file = new File(["png"], "simulator.png", { type: "image/png" });
 
     await user.upload(input, file);
