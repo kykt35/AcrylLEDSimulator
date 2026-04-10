@@ -1081,10 +1081,8 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                   fileName={sourceImage.fileName}
                   statusLabel={imageStatusLabel}
                   errorMessage={sourceImage.errorMessage}
-                  previewSrc={previewSourceUrl}
                   imageLayout={imageLayout}
                   onAcrylicSizeChange={setAcrylicSizeId}
-                  onFileSelected={handleFileSelected}
                   onImageLayoutChange={handleImageLayoutChange}
                   onResetImageLayout={() => setImageLayout(defaultImageLayout)}
                 />

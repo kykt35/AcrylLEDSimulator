@@ -1,8 +1,14 @@
 import { generateEngravingMapFromDataUrl, type EngravingMapResult } from "@/lib/image/generateEngravingMap";
 
+export const maxPngFileSizeInBytes = 8 * 1024 * 1024;
+
 export function validatePngFile(file: File): string | null {
   if (file.type !== "image/png") {
     return "PNGファイルを選択してください。";
+  }
+
+  if (file.size > maxPngFileSizeInBytes) {
+    return "8MB 以下の PNG ファイルを選択してください。";
   }
 
   return null;
