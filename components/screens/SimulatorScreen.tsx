@@ -255,7 +255,6 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
   const [isSaveCompleteOpen, setIsSaveCompleteOpen] = useState(false);
   const [exportFormat, setExportFormat] = useState<ExportImageFormat>("png");
   const [controlPanelTab, setControlPanelTab] = useState<ControlPanelTabId>("image");
-  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [isPreviewDragActive, setIsPreviewDragActive] = useState(false);
 
   const isImageReady = hasImage(sourceImage.src);
@@ -472,7 +471,6 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
       event.preventDefault();
       const nextTab = controlPanelTabs[nextIndex];
       setControlPanelTab(nextTab.id);
-      setIsMobileDrawerOpen(true);
       globalThis.document?.getElementById(`control-tab-${nextTab.id}`)?.focus();
     },
     [controlPanelTabs]
@@ -480,7 +478,6 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
 
   const activateControlPanelTab = useCallback((tabId: ControlPanelTabId) => {
     setControlPanelTab(tabId);
-    setIsMobileDrawerOpen(true);
   }, []);
 
   const handleFileSelected = useCallback(async (file: File) => {
@@ -662,7 +659,6 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
     setAcrylicSizeId(defaultAcrylicSizePresetId);
     setShowSourceOverlay(false);
     setImageLayout(defaultImageLayout);
-    setIsMobileDrawerOpen(false);
     clearEditorSnapshot();
   }, []);
 
@@ -925,29 +921,16 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
       <p className="sr-only" aria-live="polite" aria-atomic="true">
         {liveRegionMessage}
       </p>
-      <button
-        type="button"
-        className="mobile-menu-button"
-        aria-expanded={isMobileDrawerOpen}
-        aria-controls="mobile-control-panel-content"
-        onClick={() => setIsMobileDrawerOpen((current) => !current)}
-      >
-        設定
-      </button>
       <section className="simulator-header">
         <div>
-          <p className="eyebrow">Simulator</p>
           <h1 className="page-title">LEDアクスタ シミュレーター</h1>
           <p className="page-description">
             画像の読み込み、見え方の調整、ダウンロードまでを 1 画面で進めます。
           </p>
         </div>
         <div className="header-actions">
-          <button type="button" className="secondary-button compact" onClick={resetEditor}>
-            全体をリセット
-          </button>
-          <Link href="/" className="secondary-link">
-            トップへ戻る
+          <Link href="/about" className="secondary-link">
+            このアプリについて
           </Link>
           <NoticeModal triggerLabel="注意事項" buttonClassName="ghost-link" />
         </div>
@@ -960,13 +943,18 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
               <p className="panel-label">3D Preview</p>
               <h2 className="panel-title">3D プレビュー</h2>
             </div>
-            <p className="preview-status" aria-live="polite">
-              {sourceImage.status === "error"
-                ? sourceImage.errorMessage
-                : sourceImage.status === "ready"
-                  ? "現在の設定がプレビューに反映されています。"
-                  : imageStatusLabel}
-            </p>
+            <div className="preview-header-actions">
+              <p className="preview-status" aria-live="polite">
+                {sourceImage.status === "error"
+                  ? sourceImage.errorMessage
+                  : sourceImage.status === "ready"
+                    ? "現在の設定がプレビューに反映されています。"
+                    : imageStatusLabel}
+              </p>
+              <button type="button" className="secondary-button compact" onClick={resetEditor}>
+                全体をリセット
+              </button>
+            </div>
           </div>
           <div
             className={`preview-stage${isPreviewDragActive ? " is-drag-active" : ""}${isBusy ? " is-busy" : ""}`}
@@ -1051,54 +1039,29 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
           ) : null}
         </section>
 
-        <button
-          type="button"
-          className={`mobile-drawer-backdrop${isMobileDrawerOpen ? " is-visible" : ""}`}
-          aria-label="コントロールパネルを閉じる"
-          onClick={() => setIsMobileDrawerOpen(false)}
-        />
-
-        <aside
-          className={`control-panel${isMobileDrawerOpen ? " is-mobile-open" : ""}`}
-          data-mobile-open={isMobileDrawerOpen}
-        >
-          <div className="mobile-drawer-header">
-            <div>
-              <p className="panel-label">Controls</p>
-              <strong className="mobile-drawer-toggle-title">{activeControlPanelTab.label}</strong>
-              <p className="mobile-drawer-toggle-status">{activeControlPanelTab.statusLabel}</p>
+        <aside className="control-panel" aria-label="シミュレーター設定">
+          <div id="control-panel-content" className="control-panel-content">
+            <div className="control-tablist" role="tablist" aria-label="シミュレーター設定">
+              {controlPanelTabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  id={`control-tab-${tab.id}`}
+                  role="tab"
+                  className="control-tab"
+                  data-state={tab.completionState}
+                  aria-label={tab.label}
+                  aria-selected={controlPanelTab === tab.id}
+                  aria-controls={`control-panel-${tab.id}`}
+                  tabIndex={controlPanelTab === tab.id ? 0 : -1}
+                  onClick={() => activateControlPanelTab(tab.id)}
+                  onKeyDown={(event) => handleControlTabKeyDown(event, tab.id)}
+                >
+                  <span className="control-tab-label">{tab.label}</span>
+                </button>
+              ))}
             </div>
-            <button
-              type="button"
-              className="ghost-link compact"
-              aria-label="メニューを閉じる"
-              onClick={() => setIsMobileDrawerOpen(false)}
-            >
-              閉じる
-            </button>
-          </div>
-          <div id="mobile-control-panel-content" className="control-panel-content">
-          <div className="control-tablist" role="tablist" aria-label="シミュレーター設定">
-            {controlPanelTabs.map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                id={`control-tab-${tab.id}`}
-                role="tab"
-                className="control-tab"
-                data-state={tab.completionState}
-                aria-label={tab.label}
-                aria-selected={controlPanelTab === tab.id}
-                aria-controls={`control-panel-${tab.id}`}
-                tabIndex={controlPanelTab === tab.id ? 0 : -1}
-                onClick={() => activateControlPanelTab(tab.id)}
-                onKeyDown={(event) => handleControlTabKeyDown(event, tab.id)}
-              >
-                <span className="control-tab-label">{tab.label}</span>
-              </button>
-            ))}
-          </div>
-          <div className="control-tab-panels">
+            <div className="control-tab-panels">
             <div
               id="control-panel-image"
               role="tabpanel"
