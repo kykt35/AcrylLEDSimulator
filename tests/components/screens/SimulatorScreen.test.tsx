@@ -209,20 +209,18 @@ describe("SimulatorScreen", () => {
     expect(screen.getByTestId("control-panel-export")).toHaveAttribute("hidden");
   });
 
-  it("opens the mobile drawer from the menu button and supports manual toggling", async () => {
+  it("keeps the control panel visible without the mobile drawer", async () => {
     const user = userEvent.setup();
 
     render(<SimulatorScreen />);
 
-    const menuButton = screen.getByRole("button", { name: "設定" });
-    expect(menuButton).toHaveAttribute("aria-expanded", "false");
-
-    await user.click(menuButton);
-    expect(menuButton).toHaveAttribute("aria-expanded", "true");
+    expect(screen.queryByRole("button", { name: "設定" })).not.toBeInTheDocument();
+    expect(screen.getByRole("complementary", { name: "シミュレーター設定" })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "画像" })).toHaveAttribute("aria-selected", "true");
 
-    await user.click(screen.getByRole("button", { name: "メニューを閉じる" }));
-    expect(menuButton).toHaveAttribute("aria-expanded", "false");
+    await user.click(screen.getByRole("tab", { name: "ライト" }));
+    expect(screen.getByRole("tab", { name: "ライト" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByTestId("control-panel-lighting")).not.toHaveAttribute("hidden");
   });
 
   it("updates the acrylic size selection", async () => {
@@ -417,7 +415,7 @@ describe("SimulatorScreen", () => {
     render(<SimulatorScreen />);
 
     expect(screen.getByTestId("preview-empty-state")).toHaveTextContent("3Dビューへ PNG を追加して始めましょう");
-    expect(screen.getByRole("button", { name: "設定" })).toBeInTheDocument();
+    expect(screen.getByRole("complementary", { name: "シミュレーター設定" })).toBeInTheDocument();
   });
 
   it("downloads the current preview as a png by default and opens the completion toast", async () => {
