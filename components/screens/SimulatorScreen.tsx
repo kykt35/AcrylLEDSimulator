@@ -936,6 +936,21 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
         </div>
       </section>
 
+      <ol className="start-guide" aria-label="シミュレーションの流れ">
+        <li>
+          <span className="start-guide-step">1. PNG追加</span>
+          <span>3Dビューへ透過PNGを入れる</span>
+        </li>
+        <li>
+          <span className="start-guide-step">2. 調整</span>
+          <span>彫刻、ライト、表示を確認する</span>
+        </li>
+        <li>
+          <span className="start-guide-step">3. 書き出し</span>
+          <span>現在の見え方を保存する</span>
+        </li>
+      </ol>
+
       <div className="simulator-layout">
         <section className="preview-shell">
           <div className="preview-header">
@@ -1061,6 +1076,21 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                 </button>
               ))}
             </div>
+            {isImageReady ? (
+              <div className="control-panel-shortcut" data-testid="control-panel-export-shortcut">
+                <div>
+                  <p className="status-title">書き出し可能</p>
+                  <p className="status-secondary">現在のプレビューを保存できます。</p>
+                </div>
+                <button
+                  type="button"
+                  className="secondary-button compact"
+                  onClick={() => activateControlPanelTab("export")}
+                >
+                  すぐに書き出しへ進む
+                </button>
+              </div>
+            ) : null}
             <div className="control-tab-panels">
             <div
               id="control-panel-image"
@@ -1088,6 +1118,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                 <ImageControls
                   acrylicSizeId={acrylicSizeId}
                   fileName={sourceImage.fileName}
+                  hasImage={isImageReady}
                   statusLabel={imageStatusLabel}
                   errorMessage={sourceImage.errorMessage}
                   imageLayout={imageLayout}
@@ -1095,6 +1126,16 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                   onImageLayoutChange={handleImageLayoutChange}
                   onResetImageLayout={() => setImageLayout(defaultImageLayout)}
                 />
+                <div className="step-action">
+                  <button
+                    type="button"
+                    className="primary-button"
+                    disabled={!isImageReady}
+                    onClick={() => activateControlPanelTab("engraving")}
+                  >
+                    {isImageReady ? "彫刻を調整する" : "PNGを追加すると次へ進めます"}
+                  </button>
+                </div>
               </article>
             </div>
             <div
@@ -1128,6 +1169,16 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                   onAdjustmentsChange={handleEngravingAdjustmentsChange}
                   onDownload={handleDownloadEngraving}
                 />
+                <div className="step-action">
+                  <button
+                    type="button"
+                    className="primary-button"
+                    disabled={!isImageReady}
+                    onClick={() => activateControlPanelTab("lighting")}
+                  >
+                    {isImageReady ? "ライトを調整する" : "PNGを追加すると次へ進めます"}
+                  </button>
+                </div>
               </article>
             </div>
             <div
@@ -1161,6 +1212,16 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                   onBrightnessChange={setBrightness}
                   onHeightAttenuationChange={setHeightAttenuation}
                 />
+                <div className="step-action">
+                  <button
+                    type="button"
+                    className="primary-button"
+                    disabled={!isImageReady}
+                    onClick={() => activateControlPanelTab("display")}
+                  >
+                    {isImageReady ? "表示を確認する" : "PNGを追加すると次へ進めます"}
+                  </button>
+                </div>
               </article>
             </div>
             <div
@@ -1195,6 +1256,16 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                   onSourceOverlayChange={setShowSourceOverlay}
                   onResetView={handleResetView}
                 />
+                <div className="step-action">
+                  <button
+                    type="button"
+                    className="primary-button"
+                    disabled={!isImageReady}
+                    onClick={() => activateControlPanelTab("export")}
+                  >
+                    {isImageReady ? "書き出しへ進む" : "PNGを追加すると次へ進めます"}
+                  </button>
+                </div>
               </article>
             </div>
             <div

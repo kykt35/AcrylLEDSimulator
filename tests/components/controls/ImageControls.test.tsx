@@ -12,6 +12,7 @@ describe("ImageControls", () => {
       <ImageControls
         acrylicSizeId="medium"
         fileName="sample.png"
+        hasImage={true}
         statusLabel="ready"
         errorMessage={null}
         imageLayout={{
@@ -36,6 +37,33 @@ describe("ImageControls", () => {
     expect(onAcrylicSizeChange).toHaveBeenCalledWith("large");
   });
 
+  it("keeps layout controls hidden until an image is uploaded", () => {
+    render(
+      <ImageControls
+        acrylicSizeId="medium"
+        fileName="未選択"
+        hasImage={false}
+        statusLabel="PNG をアップロードすると 3D プレビューへ反映されます。"
+        errorMessage={null}
+        imageLayout={{
+          contentFit: "contain",
+          scale: 1,
+          offsetX: 0,
+          offsetY: 0
+        }}
+        onAcrylicSizeChange={vi.fn()}
+        onImageLayoutChange={vi.fn()}
+        onResetImageLayout={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText("PNGを追加すると配置調整ができます。")).toBeInTheDocument();
+    expect(screen.queryByText("コンテントフィット")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("画像サイズ")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("画像の横位置")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("画像の縦位置")).not.toBeInTheDocument();
+  });
+
   it("forwards layout changes and reset actions", async () => {
     const user = userEvent.setup();
     const onImageLayoutChange = vi.fn();
@@ -45,6 +73,7 @@ describe("ImageControls", () => {
       <ImageControls
         acrylicSizeId="medium"
         fileName="sample.png"
+        hasImage={true}
         statusLabel="ready"
         errorMessage={null}
         imageLayout={{
@@ -59,7 +88,7 @@ describe("ImageControls", () => {
       />
     );
 
-    await user.click(screen.getByRole("button", { name: "Cover" }));
+    await user.click(screen.getByRole("button", { name: "余白なく広げる" }));
     fireEvent.change(screen.getByLabelText("画像サイズ"), { target: { value: "130" } });
     await user.click(screen.getByRole("button", { name: "画像調整をリセット" }));
 

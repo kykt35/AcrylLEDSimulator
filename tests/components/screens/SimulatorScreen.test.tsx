@@ -209,6 +209,51 @@ describe("SimulatorScreen", () => {
     expect(screen.getByTestId("control-panel-export")).toHaveAttribute("hidden");
   });
 
+  it("moves through the guided control steps after an image is uploaded", async () => {
+    const user = userEvent.setup();
+
+    render(<SimulatorScreen />);
+
+    const input = screen.getByLabelText("3Dビュー画像アップロード");
+    const file = new File(["png"], "simulator.png", { type: "image/png" });
+
+    await user.upload(input, file);
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "彫刻を調整する" })).toBeEnabled();
+    });
+
+    await user.click(screen.getByRole("button", { name: "彫刻を調整する" }));
+    expect(screen.getByRole("tab", { name: "彫刻" })).toHaveAttribute("aria-selected", "true");
+
+    await user.click(screen.getByRole("button", { name: "ライトを調整する" }));
+    expect(screen.getByRole("tab", { name: "ライト" })).toHaveAttribute("aria-selected", "true");
+
+    await user.click(screen.getByRole("button", { name: "表示を確認する" }));
+    expect(screen.getByRole("tab", { name: "表示" })).toHaveAttribute("aria-selected", "true");
+
+    await user.click(screen.getByRole("button", { name: "書き出しへ進む" }));
+    expect(screen.getByRole("tab", { name: "書き出し" })).toHaveAttribute("aria-selected", "true");
+  });
+
+  it("surfaces an export shortcut after an image is uploaded", async () => {
+    const user = userEvent.setup();
+
+    render(<SimulatorScreen />);
+
+    expect(screen.queryByRole("button", { name: "すぐに書き出しへ進む" })).not.toBeInTheDocument();
+
+    const input = screen.getByLabelText("3Dビュー画像アップロード");
+    const file = new File(["png"], "simulator.png", { type: "image/png" });
+
+    await user.upload(input, file);
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "すぐに書き出しへ進む" })).toBeEnabled();
+    });
+
+    await user.click(screen.getByRole("button", { name: "すぐに書き出しへ進む" }));
+    expect(screen.getByRole("tab", { name: "書き出し" })).toHaveAttribute("aria-selected", "true");
+  });
+
   it("keeps the control panel visible without the mobile drawer", async () => {
     const user = userEvent.setup();
 
@@ -368,7 +413,7 @@ describe("SimulatorScreen", () => {
       );
     });
 
-    await user.click(screen.getByRole("button", { name: "Cover" }));
+    await user.click(screen.getByRole("button", { name: "余白なく広げる" }));
     fireEvent.change(screen.getByLabelText("画像サイズ"), { target: { value: "130" } });
     fireEvent.change(screen.getByLabelText("画像の横位置"), { target: { value: "25" } });
 
@@ -414,8 +459,14 @@ describe("SimulatorScreen", () => {
   it("shows the guided empty state before an image is uploaded", () => {
     render(<SimulatorScreen />);
 
+    expect(screen.getByText("1. PNG追加")).toBeInTheDocument();
+    expect(screen.getByText("2. 調整")).toBeInTheDocument();
+    expect(screen.getByText("3. 書き出し")).toBeInTheDocument();
     expect(screen.getByTestId("preview-empty-state")).toHaveTextContent("3Dビューへ PNG を追加して始めましょう");
     expect(screen.getByRole("complementary", { name: "シミュレーター設定" })).toBeInTheDocument();
+    expect(screen.getByText("PNGを追加すると配置調整ができます。")).toBeInTheDocument();
+    expect(screen.queryByLabelText("画像サイズ")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "PNGを追加すると次へ進めます" })).toBeDisabled();
   });
 
   it("downloads the current preview as a png by default and opens the completion toast", async () => {
