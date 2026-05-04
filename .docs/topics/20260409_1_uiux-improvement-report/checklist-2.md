@@ -38,11 +38,11 @@
 
 | ID | 種別 | 内容 | 対応コミット(予定) | 実績コミット | 状態 | メモ |
 |---|---|---|---|---|---|---|
-| 3-1 | test | モバイルタブ表示/補助導線のテストを追加/更新 | `test(ui): cover mobile control tab affordance` |  | planned |  |
-| 3-2 | impl | 960px以下でタブを2段グリッド表示に変更 | `feat(ui): improve mobile control tab layout` |  | planned | 横スクロール依存を下げる |
-| 3-3 | impl | 画像読み込み後の書き出し補助CTA/ステータスを追加 | `feat(ui): surface export action after upload` |  | planned |  |
-| 3-4 | impl | デスクトップのパネル内部スクロール視覚ヒントを追加 | `feat(ui): add control panel scroll affordance` |  | planned |  |
-| 3-5 | verify | 関連テストとブラウザ目視確認を実行 | - |  | planned | デスクトップ/モバイル相当 |
+| 3-1 | test | モバイルタブ表示/補助導線のテストを追加/更新 | `test(ui): cover mobile control tab affordance` | `76ef210`, `a99e28d` | done | 補助CTA名の衝突を避けるため `すぐに書き出しへ進む` に調整 |
+| 3-2 | impl | 960px以下でタブを2段グリッド表示に変更 | `feat(ui): improve mobile control tab layout` | `5284635` | changed | 書き出し補助CTA/スクロールヒントと同一コミットで実装 |
+| 3-3 | impl | 画像読み込み後の書き出し補助CTA/ステータスを追加 | `feat(ui): surface export action after upload` | `5284635` | changed | モバイルタブ改善と同一コミットで実装 |
+| 3-4 | impl | デスクトップのパネル内部スクロール視覚ヒントを追加 | `feat(ui): add control panel scroll affordance` | `5284635` | changed | モバイルタブ改善と同一コミットで実装 |
+| 3-5 | verify | 関連テストとブラウザ目視確認を実行 | - |  | done | `npm test -- tests/components/screens/SimulatorScreen.test.tsx` で 18 passed。目視確認はTask 4で実施予定 |
 
 ### Task 4: 入口ガイドと最終UX確認
 
@@ -60,6 +60,7 @@
 |---|---|---|---|
 | 2026-05-04 | `report-1.md` をもとに `plan-2.md` / `checklist-2.md` を作成 | 現状UI分析から実装可能なPR単位へ分解するため | user request |
 | 2026-05-04 | Task 2 のCTA配置をControl内部からtabpanel末尾へ変更 | タブ切替責務を `SimulatorScreen` に集約し、Controlの責務拡大を避けるため | implementation decision |
+| 2026-05-04 | Task 3 のモバイルタブ、書き出し補助CTA、スクロールヒントを1コミットで実装 | CSSと補助CTAの見た目が密接に関連するため | implementation decision |
 
 ## 最終確認
 
