@@ -28,11 +28,11 @@
 
 | ID | 種別 | 内容 | 対応コミット(予定) | 実績コミット | 状態 | メモ |
 |---|---|---|---|---|---|---|
-| 2-1 | test | 次ステップCTAでタブ遷移するテストを追加 | `test(ui): cover step navigation between control tabs` |  | planned |  |
-| 2-2 | impl | `SimulatorScreen` に次タブ遷移ハンドラを追加 | `feat(ui): add control step navigation handlers` |  | planned | ロジックは親に集約 |
-| 2-3 | impl | 各Controlに次ステップCTAを追加 | `feat(ui): add next step calls to action` |  | planned | 画像->彫刻->ライト->表示->書き出し |
-| 2-4 | impl | 画像未選択時のCTA待機/disabled状態を実装 | `feat(ui): gate step actions before upload` |  | planned | 保存ボタン既存disabled維持 |
-| 2-5 | verify | SimulatorScreen 関連テストを実行 | - |  | planned |  |
+| 2-1 | test | 次ステップCTAでタブ遷移するテストを追加 | `test(ui): cover step navigation between control tabs` | `dde9233` | done |  |
+| 2-2 | impl | `SimulatorScreen` に次タブ遷移ハンドラを追加 | `feat(ui): add control step navigation handlers` | `e95fc58` | changed | 既存 `activateControlPanelTab` を流用したため専用ハンドラ追加は不要 |
+| 2-3 | impl | 各Controlに次ステップCTAを追加 | `feat(ui): add next step calls to action` | `e95fc58` | changed | Control内部ではなく各tabpanel末尾に配置し、タブ切替責務を親に集約 |
+| 2-4 | impl | 画像未選択時のCTA待機/disabled状態を実装 | `feat(ui): gate step actions before upload` | `e95fc58` | changed | CTA追加と同一コミットでdisabled状態を実装。保存ボタン既存disabled維持 |
+| 2-5 | verify | SimulatorScreen 関連テストを実行 | - |  | done | `npm test -- tests/components/screens/SimulatorScreen.test.tsx` で 17 passed |
 
 ### Task 3: モバイル操作パネルと書き出し視認性改善
 
@@ -59,6 +59,7 @@
 | 日時 | 変更内容 | 理由 | 承認者 |
 |---|---|---|---|
 | 2026-05-04 | `report-1.md` をもとに `plan-2.md` / `checklist-2.md` を作成 | 現状UI分析から実装可能なPR単位へ分解するため | user request |
+| 2026-05-04 | Task 2 のCTA配置をControl内部からtabpanel末尾へ変更 | タブ切替責務を `SimulatorScreen` に集約し、Controlの責務拡大を避けるため | implementation decision |
 
 ## 最終確認
 
