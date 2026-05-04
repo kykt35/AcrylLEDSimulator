@@ -1061,6 +1061,21 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                 </button>
               ))}
             </div>
+            {isImageReady ? (
+              <div className="control-panel-shortcut" data-testid="control-panel-export-shortcut">
+                <div>
+                  <p className="status-title">書き出し可能</p>
+                  <p className="status-secondary">現在のプレビューを保存できます。</p>
+                </div>
+                <button
+                  type="button"
+                  className="secondary-button compact"
+                  onClick={() => activateControlPanelTab("export")}
+                >
+                  すぐに書き出しへ進む
+                </button>
+              </div>
+            ) : null}
             <div className="control-tab-panels">
             <div
               id="control-panel-image"
