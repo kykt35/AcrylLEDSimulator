@@ -19,10 +19,10 @@
 
 | ID | 種別 | 内容 | 対応コミット(予定) | 実績コミット | 状態 | メモ |
 |---|---|---|---|---|---|---|
-| 1-1 | test | `ImageControls` の画像未選択状態テストを作成/更新 | `test(ui): cover image controls empty state` |  | planned |  |
-| 1-2 | impl | 画像未選択時の配置調整UIを非表示または待機表示に変更 | `feat(ui): simplify image controls before upload` |  | planned |  |
-| 1-3 | impl | `Contain / Cover / Fill` を日本語ラベルへ変更 | `feat(ui): localize image fit labels` |  | planned | 内部値は維持 |
-| 1-4 | verify | ImageControls / SimulatorScreen 関連テストを実行 | - |  | planned |  |
+| 1-1 | test | `ImageControls` の画像未選択状態テストを作成/更新 | `test(ui): cover image controls empty state` | `b278d29` | done |  |
+| 1-2 | impl | 画像未選択時の配置調整UIを非表示または待機表示に変更 | `feat(ui): simplify image controls before upload` | `92f83e0` | done |  |
+| 1-3 | impl | `Contain / Cover / Fill` を日本語ラベルへ変更 | `feat(ui): localize image fit labels` | `1775988` | done | 内部値は維持 |
+| 1-4 | verify | ImageControls / SimulatorScreen 関連テストを実行 | - |  | done | `npm test -- tests/components/controls/ImageControls.test.tsx tests/components/screens/SimulatorScreen.test.tsx` で 19 passed |
 
 ### Task 2: タブ間の次ステップ導線追加
 
