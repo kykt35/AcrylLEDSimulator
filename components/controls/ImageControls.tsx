@@ -124,9 +124,9 @@ export function ImageControls({
             <span className="control-label">コンテントフィット</span>
             <div className="choice-row">
               {[
-                { id: "contain", label: "Contain" },
-                { id: "cover", label: "Cover" },
-                { id: "fill", label: "Fill" }
+                { id: "contain", label: "全体を収める" },
+                { id: "cover", label: "余白なく広げる" },
+                { id: "fill", label: "枠いっぱいに伸ばす" }
               ].map((option) => (
                 <button
                   key={option.id}
