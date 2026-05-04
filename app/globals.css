@@ -491,6 +491,11 @@ button {
   padding: 20px;
 }
 
+.step-action {
+  display: grid;
+  padding: 0 20px 20px;
+}
+
 /* 3D プレビュー: グリッド列内で横はみ出し・過大な高さを抑える */
 .simulator-canvas-host {
   width: 100%;
