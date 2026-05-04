@@ -235,6 +235,25 @@ describe("SimulatorScreen", () => {
     expect(screen.getByRole("tab", { name: "書き出し" })).toHaveAttribute("aria-selected", "true");
   });
 
+  it("surfaces an export shortcut after an image is uploaded", async () => {
+    const user = userEvent.setup();
+
+    render(<SimulatorScreen />);
+
+    expect(screen.queryByRole("button", { name: "書き出しへ進む" })).not.toBeInTheDocument();
+
+    const input = screen.getByLabelText("3Dビュー画像アップロード");
+    const file = new File(["png"], "simulator.png", { type: "image/png" });
+
+    await user.upload(input, file);
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "書き出しへ進む" })).toBeEnabled();
+    });
+
+    await user.click(screen.getByRole("button", { name: "書き出しへ進む" }));
+    expect(screen.getByRole("tab", { name: "書き出し" })).toHaveAttribute("aria-selected", "true");
+  });
+
   it("keeps the control panel visible without the mobile drawer", async () => {
     const user = userEvent.setup();
 
