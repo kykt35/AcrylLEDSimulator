@@ -368,7 +368,7 @@ describe("SimulatorScreen", () => {
       );
     });
 
-    await user.click(screen.getByRole("button", { name: "Cover" }));
+    await user.click(screen.getByRole("button", { name: "余白なく広げる" }));
     fireEvent.change(screen.getByLabelText("画像サイズ"), { target: { value: "130" } });
     fireEvent.change(screen.getByLabelText("画像の横位置"), { target: { value: "25" } });
 
@@ -416,6 +416,8 @@ describe("SimulatorScreen", () => {
 
     expect(screen.getByTestId("preview-empty-state")).toHaveTextContent("3Dビューへ PNG を追加して始めましょう");
     expect(screen.getByRole("complementary", { name: "シミュレーター設定" })).toBeInTheDocument();
+    expect(screen.getByText("PNGを追加すると配置調整ができます。")).toBeInTheDocument();
+    expect(screen.queryByLabelText("画像サイズ")).not.toBeInTheDocument();
   });
 
   it("downloads the current preview as a png by default and opens the completion toast", async () => {
