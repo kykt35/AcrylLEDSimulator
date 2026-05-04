@@ -48,11 +48,11 @@
 
 | ID | 種別 | 内容 | 対応コミット(予定) | 実績コミット | 状態 | メモ |
 |---|---|---|---|---|---|---|
-| 4-1 | test | シミュレーター開始ガイドの表示テストを追加 | `test(ui): cover simulator start guide` |  | planned |  |
-| 4-2 | impl | ヘッダー下に短い開始ガイドを追加 | `feat(ui): add simulator start guide` |  | planned | プレビュー主役を維持 |
-| 4-3 | docs | `/about` の説明/CTA文言を必要最小限で整合 | `docs(ui): align about copy with simulator entry` |  | planned | ルーティング変更はしない |
-| 4-4 | verify | 主要テストを実行 | - |  | planned | `npm test` または対象テスト |
-| 4-5 | verify | 実ブラウザでデスクトップ/モバイル相当のUX確認 | - |  | planned | 結果をメモに記録 |
+| 4-1 | test | シミュレーター開始ガイドの表示テストを追加 | `test(ui): cover simulator start guide` | `b5208e5` | done |  |
+| 4-2 | impl | ヘッダー下に短い開始ガイドを追加 | `feat(ui): add simulator start guide` | `e04665d` | done | プレビュー主役を維持 |
+| 4-3 | docs | `/about` の説明/CTA文言を必要最小限で整合 | `docs(ui): align about copy with simulator entry` |  | skipped | 既存 `/about` のCTA/説明は現状の `/` 直行構成と矛盾していないため変更不要 |
+| 4-4 | verify | 主要テストを実行 | - |  | done | `npm test -- tests/components/screens/SimulatorScreen.test.tsx tests/components/controls/ImageControls.test.tsx tests/app/page.test.tsx` で 24 passed |
+| 4-5 | verify | 実ブラウザでデスクトップ/モバイル相当のUX確認 | - |  | done | `http://localhost:3001/` で開始ガイド、2段タブ、未選択時UIに重なりがないことを確認 |
 
 ## 計画差分ログ
 
@@ -61,6 +61,7 @@
 | 2026-05-04 | `report-1.md` をもとに `plan-2.md` / `checklist-2.md` を作成 | 現状UI分析から実装可能なPR単位へ分解するため | user request |
 | 2026-05-04 | Task 2 のCTA配置をControl内部からtabpanel末尾へ変更 | タブ切替責務を `SimulatorScreen` に集約し、Controlの責務拡大を避けるため | implementation decision |
 | 2026-05-04 | Task 3 のモバイルタブ、書き出し補助CTA、スクロールヒントを1コミットで実装 | CSSと補助CTAの見た目が密接に関連するため | implementation decision |
+| 2026-05-04 | Task 4 の `/about` 文言調整をskip | 現状文言が `/` 直行構成と矛盾せず、不要な変更を避けるため | implementation decision |
 
 ## 最終確認
 
