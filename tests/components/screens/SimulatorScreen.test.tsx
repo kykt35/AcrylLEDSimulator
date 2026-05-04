@@ -459,6 +459,9 @@ describe("SimulatorScreen", () => {
   it("shows the guided empty state before an image is uploaded", () => {
     render(<SimulatorScreen />);
 
+    expect(screen.getByText("1. PNG追加")).toBeInTheDocument();
+    expect(screen.getByText("2. 調整")).toBeInTheDocument();
+    expect(screen.getByText("3. 書き出し")).toBeInTheDocument();
     expect(screen.getByTestId("preview-empty-state")).toHaveTextContent("3Dビューへ PNG を追加して始めましょう");
     expect(screen.getByRole("complementary", { name: "シミュレーター設定" })).toBeInTheDocument();
     expect(screen.getByText("PNGを追加すると配置調整ができます。")).toBeInTheDocument();
