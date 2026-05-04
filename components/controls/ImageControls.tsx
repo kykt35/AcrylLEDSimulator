@@ -10,6 +10,7 @@ import type { ImageLayout } from "@/lib/simulator/imageLayout";
 type ImageControlsProps = {
   acrylicSizeId: AcrylicSizePresetId;
   fileName: string;
+  hasImage: boolean;
   statusLabel: string;
   errorMessage: string | null;
   imageLayout: ImageLayout;
@@ -21,6 +22,7 @@ type ImageControlsProps = {
 export function ImageControls({
   acrylicSizeId,
   fileName,
+  hasImage,
   statusLabel,
   errorMessage,
   imageLayout,
@@ -112,58 +114,67 @@ export function ImageControls({
           <p className="status-secondary">3D ビューに画像をドラッグするか、クリックして PNG を選択してください。</p>
         </div>
       </div>
-      <div className="panel-subsection">
-        <div>
-          <p className="status-title">プレビュー画像の調整</p>
-          <p className="status-secondary">配置、サイズ、表示方法をここで切り替えられます。</p>
-        </div>
-        <div className="control-group">
-          <span className="control-label">コンテントフィット</span>
-          <div className="choice-row">
-            {[
-              { id: "contain", label: "Contain" },
-              { id: "cover", label: "Cover" },
-              { id: "fill", label: "Fill" }
-            ].map((option) => (
-              <button
-                key={option.id}
-                type="button"
-                className="chip-button"
-                onClick={() =>
-                  onImageLayoutChange({
-                    contentFit: option.id as ImageLayout["contentFit"]
-                  })
-                }
-                aria-pressed={imageLayout.contentFit === option.id}
-              >
-                {option.label}
-              </button>
+      {hasImage ? (
+        <div className="panel-subsection">
+          <div>
+            <p className="status-title">プレビュー画像の調整</p>
+            <p className="status-secondary">配置、サイズ、表示方法をここで切り替えられます。</p>
+          </div>
+          <div className="control-group">
+            <span className="control-label">コンテントフィット</span>
+            <div className="choice-row">
+              {[
+                { id: "contain", label: "Contain" },
+                { id: "cover", label: "Cover" },
+                { id: "fill", label: "Fill" }
+              ].map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  className="chip-button"
+                  onClick={() =>
+                    onImageLayoutChange({
+                      contentFit: option.id as ImageLayout["contentFit"]
+                    })
+                  }
+                  aria-pressed={imageLayout.contentFit === option.id}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="control-grid">
+            {sliderControls.map((control) => (
+              <label key={control.id} className="control-field range-field">
+                <span className="control-label with-badge">
+                  <span>{control.label}</span>
+                  <span className="value-badge">{control.valueLabel}</span>
+                </span>
+                <input
+                  type="range"
+                  min={control.min}
+                  max={control.max}
+                  step={control.step}
+                  aria-label={control.ariaLabel}
+                  value={control.value}
+                  onChange={(event) => control.onChange(Number(event.target.value))}
+                />
+              </label>
             ))}
           </div>
+          <button type="button" className="secondary-button" onClick={onResetImageLayout}>
+            画像調整をリセット
+          </button>
         </div>
-        <div className="control-grid">
-          {sliderControls.map((control) => (
-            <label key={control.id} className="control-field range-field">
-              <span className="control-label with-badge">
-                <span>{control.label}</span>
-                <span className="value-badge">{control.valueLabel}</span>
-              </span>
-              <input
-                type="range"
-                min={control.min}
-                max={control.max}
-                step={control.step}
-                aria-label={control.ariaLabel}
-                value={control.value}
-                onChange={(event) => control.onChange(Number(event.target.value))}
-              />
-            </label>
-          ))}
+      ) : (
+        <div className="panel-subsection">
+          <div className="status-box">
+            <p className="status-title">プレビュー画像の調整</p>
+            <p className="status-secondary">PNGを追加すると配置調整ができます。</p>
+          </div>
         </div>
-        <button type="button" className="secondary-button" onClick={onResetImageLayout}>
-          画像調整をリセット
-        </button>
-      </div>
+      )}
     </section>
   );
 }

@@ -1088,6 +1088,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                 <ImageControls
                   acrylicSizeId={acrylicSizeId}
                   fileName={sourceImage.fileName}
+                  hasImage={isImageReady}
                   statusLabel={imageStatusLabel}
                   errorMessage={sourceImage.errorMessage}
                   imageLayout={imageLayout}
