@@ -936,6 +936,21 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
         </div>
       </section>
 
+      <ol className="start-guide" aria-label="シミュレーションの流れ">
+        <li>
+          <span className="start-guide-step">1. PNG追加</span>
+          <span>3Dビューへ透過PNGを入れる</span>
+        </li>
+        <li>
+          <span className="start-guide-step">2. 調整</span>
+          <span>彫刻、ライト、表示を確認する</span>
+        </li>
+        <li>
+          <span className="start-guide-step">3. 書き出し</span>
+          <span>現在の見え方を保存する</span>
+        </li>
+      </ol>
+
       <div className="simulator-layout">
         <section className="preview-shell">
           <div className="preview-header">

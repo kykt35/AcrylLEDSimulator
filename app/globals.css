@@ -101,6 +101,32 @@ button {
   align-items: flex-end;
 }
 
+.start-guide {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0 0 20px;
+  padding: 0;
+  list-style: none;
+}
+
+.start-guide li {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(169, 216, 255, 0.14);
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.start-guide-step {
+  color: var(--text);
+  font-weight: 700;
+}
+
 .hero-title,
 .page-title,
 .section-heading h2 {
@@ -1255,6 +1281,10 @@ button {
     align-items: flex-start;
     flex-direction: column;
     min-height: auto;
+  }
+
+  .start-guide {
+    grid-template-columns: 1fr;
   }
 
   .preview-header {
