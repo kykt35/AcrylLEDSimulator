@@ -83,7 +83,7 @@ export function ImageControls({
         <div className="helper-list">
           <p>透過 PNG を推奨します</p>
           <p>読み込み後に彫刻用グレースケール画像を自動生成します</p>
-          <p>画像の追加と差し替えは 3D ビュー上のドラッグまたはクリックで行います</p>
+          <p>{hasImage ? "画像の差し替えは 3D ビュー上へのドラッグで行います" : "画像の追加は 3D ビュー上のドラッグまたはクリックで行います"}</p>
         </div>
       </div>
       <div className="panel-subsection">
@@ -111,7 +111,11 @@ export function ImageControls({
         </div>
         <div className="status-box">
           <p className="status-title">画像の追加方法</p>
-          <p className="status-secondary">3D ビューに画像をドラッグするか、クリックして PNG を選択してください。</p>
+          <p className="status-secondary">
+            {hasImage
+              ? "PNG を差し替える場合は、3D ビューに画像をドラッグしてください。"
+              : "3D ビューに画像をドラッグするか、クリックして PNG を選択してください。"}
+          </p>
         </div>
       </div>
       {hasImage ? (

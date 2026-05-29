@@ -526,12 +526,12 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
   }, []);
 
   const openPreviewFileDialog = useCallback(() => {
-    if (isBusy) {
+    if (isBusy || sourceImage.src) {
       return;
     }
 
     previewFileInputRef.current?.click();
-  }, [isBusy]);
+  }, [isBusy, sourceImage.src]);
 
   const handlePreviewFileInputChange = useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -614,14 +614,21 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
     previewPointerMovedRef.current = false;
   }, []);
 
-  const handlePreviewSurfaceClick = useCallback(() => {
-    if (previewPointerMovedRef.current) {
-      resetPreviewPointerTracking();
-      return;
-    }
+  const handlePreviewSurfaceClick = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      if (event.target === previewFileInputRef.current) {
+        return;
+      }
 
-    openPreviewFileDialog();
-  }, [openPreviewFileDialog, resetPreviewPointerTracking]);
+      if (previewPointerMovedRef.current) {
+        resetPreviewPointerTracking();
+        return;
+      }
+
+      openPreviewFileDialog();
+    },
+    [openPreviewFileDialog, resetPreviewPointerTracking]
+  );
 
   const handleResetView = useCallback(() => {
     setBackgroundId("night");
@@ -915,6 +922,16 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
 
   const previewSourceUrl = previewImage.src ?? sourceImage.src;
   const previewEngravingUrl = previewEngravingImage.src ?? engraving.src;
+  const isPreviewSurfaceClickable = !sourceImage.src && !isBusy;
+  const previewSurfaceLabel = sourceImage.src
+    ? "3Dビューのプレビュー。PNGを差し替えるには画像をドラッグしてください。"
+    : "3Dビューに画像をドラッグするか、クリックして PNG を選択";
+  const previewHeaderStatus =
+    sourceImage.status === "error"
+      ? sourceImage.errorMessage
+      : sourceImage.status === "ready"
+        ? "現在の設定がプレビューに反映されています。"
+        : null;
 
   return (
     <main className="shell">
@@ -929,27 +946,15 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
           </p>
         </div>
         <div className="header-actions">
+          <Link href="/usage" className="secondary-link">
+            使い方
+          </Link>
           <Link href="/about" className="secondary-link">
             このアプリについて
           </Link>
           <NoticeModal triggerLabel="注意事項" buttonClassName="ghost-link" />
         </div>
       </section>
-
-      <ol className="start-guide" aria-label="シミュレーションの流れ">
-        <li>
-          <span className="start-guide-step">1. PNG追加</span>
-          <span>3Dビューへ透過PNGを入れる</span>
-        </li>
-        <li>
-          <span className="start-guide-step">2. 調整</span>
-          <span>彫刻、ライト、表示を確認する</span>
-        </li>
-        <li>
-          <span className="start-guide-step">3. 書き出し</span>
-          <span>現在の見え方を保存する</span>
-        </li>
-      </ol>
 
       <div className="simulator-layout">
         <section className="preview-shell">
@@ -959,24 +964,22 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
               <h2 className="panel-title">3D プレビュー</h2>
             </div>
             <div className="preview-header-actions">
-              <p className="preview-status" aria-live="polite">
-                {sourceImage.status === "error"
-                  ? sourceImage.errorMessage
-                  : sourceImage.status === "ready"
-                    ? "現在の設定がプレビューに反映されています。"
-                    : imageStatusLabel}
-              </p>
+              {previewHeaderStatus ? (
+                <p className="preview-status" aria-live="polite">
+                  {previewHeaderStatus}
+                </p>
+              ) : null}
               <button type="button" className="secondary-button compact" onClick={resetEditor}>
                 全体をリセット
               </button>
             </div>
           </div>
           <div
-            className={`preview-stage${isPreviewDragActive ? " is-drag-active" : ""}${isBusy ? " is-busy" : ""}`}
-            role="button"
-            tabIndex={isBusy ? -1 : 0}
-            aria-label="3Dビューに画像をドラッグするか、クリックして PNG を選択"
-            aria-disabled={isBusy}
+            className={`preview-stage${isPreviewSurfaceClickable ? " is-clickable" : ""}${isPreviewDragActive ? " is-drag-active" : ""}${isBusy ? " is-busy" : ""}`}
+            role={isPreviewSurfaceClickable ? "button" : undefined}
+            tabIndex={isPreviewSurfaceClickable ? 0 : -1}
+            aria-label={previewSurfaceLabel}
+            aria-disabled={isPreviewSurfaceClickable ? false : undefined}
             data-testid="preview-upload-surface"
             onClick={handlePreviewSurfaceClick}
             onKeyDown={handlePreviewSurfaceKeyDown}
@@ -1012,7 +1015,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                 />
                 <div className="preview-upload-hint" aria-hidden="true">
                   <strong>画像を差し替える</strong>
-                  <span>3Dビューにドラッグ、またはクリックして PNG を選択</span>
+                  <span>3Dビューに PNG をドラッグして差し替え</span>
                 </div>
               </>
             ) : (

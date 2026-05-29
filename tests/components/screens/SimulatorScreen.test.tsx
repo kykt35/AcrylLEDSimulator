@@ -154,6 +154,14 @@ describe("SimulatorScreen", () => {
       "aria-label",
       "3Dビューに画像をドラッグするか、クリックして PNG を選択"
     );
+    expect(uploadSurface).toHaveAttribute("role", "button");
+    expect(uploadSurface).toHaveAttribute("tabindex", "0");
+
+    const input = screen.getByLabelText("3Dビュー画像アップロード") as HTMLInputElement;
+    const inputClickSpy = vi.spyOn(input, "click");
+
+    fireEvent.click(uploadSurface);
+    expect(inputClickSpy).toHaveBeenCalledTimes(1);
 
     fireEvent.dragOver(uploadSurface, {
       dataTransfer: {
@@ -163,7 +171,6 @@ describe("SimulatorScreen", () => {
     expect(uploadSurface).toHaveClass("is-drag-active");
     expect(screen.getByText("ここにドロップして画像を差し替え")).toBeInTheDocument();
 
-    const input = screen.getByLabelText("3Dビュー画像アップロード");
     const file = new File(["png"], "simulator.png", { type: "image/png" });
 
     await user.upload(input, file);
@@ -173,6 +180,21 @@ describe("SimulatorScreen", () => {
     });
 
     expect(screen.getByText("画像を差し替える")).toBeInTheDocument();
+    expect(screen.getByText("3Dビューに PNG をドラッグして差し替え")).toBeInTheDocument();
+
+    const updatedUploadSurface = screen.getByTestId("preview-upload-surface");
+    expect(updatedUploadSurface).not.toHaveAttribute("role");
+    expect(updatedUploadSurface).toHaveAttribute("tabindex", "-1");
+    expect(updatedUploadSurface).toHaveAttribute(
+      "aria-label",
+      "3Dビューのプレビュー。PNGを差し替えるには画像をドラッグしてください。"
+    );
+
+    inputClickSpy.mockClear();
+    fireEvent.click(updatedUploadSurface);
+    fireEvent.keyDown(updatedUploadSurface, { key: "Enter" });
+    fireEvent.keyDown(updatedUploadSurface, { key: " " });
+    expect(inputClickSpy).not.toHaveBeenCalled();
   });
 
   it("updates the section summary and supports keyboard tab navigation", async () => {
@@ -459,9 +481,10 @@ describe("SimulatorScreen", () => {
   it("shows the guided empty state before an image is uploaded", () => {
     render(<SimulatorScreen />);
 
-    expect(screen.getByText("1. PNG追加")).toBeInTheDocument();
-    expect(screen.getByText("2. 調整")).toBeInTheDocument();
-    expect(screen.getByText("3. 書き出し")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "使い方" })).toHaveAttribute("href", "/usage");
+    expect(screen.queryByText("1. PNG追加")).not.toBeInTheDocument();
+    expect(screen.queryByText("2. 調整")).not.toBeInTheDocument();
+    expect(screen.queryByText("3. 書き出し")).not.toBeInTheDocument();
     expect(screen.getByTestId("preview-empty-state")).toHaveTextContent("3Dビューへ PNG を追加して始めましょう");
     expect(screen.getByRole("complementary", { name: "シミュレーター設定" })).toBeInTheDocument();
     expect(screen.getByText("PNGを追加すると配置調整ができます。")).toBeInTheDocument();

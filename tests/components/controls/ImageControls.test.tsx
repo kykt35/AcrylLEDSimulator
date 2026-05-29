@@ -30,7 +30,7 @@ describe("ImageControls", () => {
     expect(screen.getByRole("radio", { name: "M (120 x 180 mm)" })).toHaveAttribute("aria-checked", "true");
     expect(screen.getByRole("radio", { name: "S (100 x 150 mm)" })).toBeInTheDocument();
     expect(screen.getByText("画像の追加方法")).toBeInTheDocument();
-    expect(screen.getByText("3D ビューに画像をドラッグするか、クリックして PNG を選択してください。")).toBeInTheDocument();
+    expect(screen.getByText("PNG を差し替える場合は、3D ビューに画像をドラッグしてください。")).toBeInTheDocument();
 
     await user.click(screen.getByRole("radio", { name: "L (150 x 200 mm)" }));
 
@@ -58,6 +58,7 @@ describe("ImageControls", () => {
     );
 
     expect(screen.getByText("PNGを追加すると配置調整ができます。")).toBeInTheDocument();
+    expect(screen.getByText("3D ビューに画像をドラッグするか、クリックして PNG を選択してください。")).toBeInTheDocument();
     expect(screen.queryByText("コンテントフィット")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("画像サイズ")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("画像の横位置")).not.toBeInTheDocument();
