@@ -4,8 +4,8 @@
 
 ## Scripts
 
-- `npm run dev`: 開発サーバーを起動
-- `npm test`: Vitest を実行
+- `pnpm dev`: 開発サーバーを起動
+- `pnpm test`: Vitest を実行
 
 ## Phase 1 Scope
 
