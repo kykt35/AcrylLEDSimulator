@@ -172,7 +172,7 @@ describe("SimulatorScreen", () => {
       expect(screen.getByTestId("simulator-canvas")).toHaveTextContent("data:image/png;base64,simulator-preview");
     });
 
-    expect(screen.getByText("画像を差し替える")).toBeInTheDocument();
+    expect(screen.queryByText("画像を差し替える")).not.toBeInTheDocument();
   });
 
   it("updates the section summary and supports keyboard tab navigation", async () => {
