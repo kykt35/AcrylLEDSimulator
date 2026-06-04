@@ -1007,10 +1007,6 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                   cameraPreset={cameraPresetId}
                   containerRef={previewRef}
                 />
-                <div className="preview-upload-hint" aria-hidden="true">
-                  <strong>画像を差し替える</strong>
-                  <span>3Dビューにドラッグ、またはクリックして PNG を選択</span>
-                </div>
               </>
             ) : (
               <div className="preview-empty-state" data-testid="preview-empty-state">

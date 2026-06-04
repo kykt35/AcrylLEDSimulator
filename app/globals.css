@@ -901,24 +901,8 @@ button {
   pointer-events: none;
 }
 
-.preview-drop-overlay span,
-.preview-upload-hint span {
+.preview-drop-overlay span {
   color: var(--muted);
-}
-
-.preview-upload-hint {
-  position: absolute;
-  right: 16px;
-  bottom: 16px;
-  display: grid;
-  gap: 4px;
-  max-width: min(320px, calc(100% - 32px));
-  padding: 12px 14px;
-  border-radius: 16px;
-  background: rgba(3, 7, 13, 0.7);
-  border: 1px solid rgba(169, 216, 255, 0.14);
-  backdrop-filter: blur(8px);
-  pointer-events: none;
 }
 
 .loading-spinner {
