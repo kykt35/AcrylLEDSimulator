@@ -26,12 +26,12 @@
 
 | ID | 種別 | 内容 | 対応コミット(予定) | 実績コミット | 状態 | メモ |
 |---|---|---|---|---|---|---|
-| 2-1 | docs | `specs/product`, `specs/ux`, `specs/architecture` を作成する | `docs: create specs hierarchy` |  | planned |  |
-| 2-2 | docs | PRD、マイルストーン、受け入れ条件を `specs/product/` へ移行する | `docs: move product specs` |  | planned |  |
-| 2-3 | docs | ユーザーフロー、画面仕様、UIデザインを `specs/ux/` へ移行する | `docs: move ux specs` |  | planned |  |
-| 2-4 | docs | 技術スタック、コンポーネント、状態、データ、API、エラー仕様を `specs/architecture/` へ移行する | `docs: move architecture specs` |  | planned |  |
-| 2-5 | docs | 旧 `docs/` を移行案内だけにするか空にし、二重管理を解消する | `docs: remove duplicated legacy specs` |  | planned |  |
-| 2-6 | verify | 旧 `docs/` パス参照を検索し、残存参照を確認する | - |  | planned |  |
+| 2-1 | docs | `specs/product`, `specs/ux`, `specs/architecture` を作成する | `docs: create specs hierarchy` | `docs: move existing specs into specs hierarchy` | done |  |
+| 2-2 | docs | PRD、マイルストーン、受け入れ条件を `specs/product/` へ移行する | `docs: move product specs` | `docs: move existing specs into specs hierarchy` | done |  |
+| 2-3 | docs | ユーザーフロー、画面仕様、UIデザインを `specs/ux/` へ移行する | `docs: move ux specs` | `docs: move existing specs into specs hierarchy` | done |  |
+| 2-4 | docs | 技術スタック、コンポーネント、状態、データ、API、エラー仕様を `specs/architecture/` へ移行する | `docs: move architecture specs` | `docs: move existing specs into specs hierarchy` | done |  |
+| 2-5 | docs | 旧 `docs/` を移行案内だけにするか空にし、二重管理を解消する | `docs: remove duplicated legacy specs` | `docs: move existing specs into specs hierarchy` | done | `docs/README.md` のみ残す |
+| 2-6 | verify | 旧 `docs/` パス参照を検索し、残存参照を確認する | - | `docs: move existing specs into specs hierarchy` | done | 対象旧パスの参照なし |
 
 ### Task 3: 現行機能の詳細仕様作成
 
