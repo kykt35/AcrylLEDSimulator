@@ -53,7 +53,7 @@
 | 4-3 | docs | `.agents/implementation-change-rules.md` に仕様更新判断ルールを追加する | `docs: add implementation change rules` | `docs: add specification update workflow` | done |  |
 | 4-4 | docs | `.agents/skills/spec-update/SKILL.md` に仕様更新手順を追加する | `docs: add spec update skill` | `docs: add specification update workflow` | done |  |
 | 4-5 | docs | `.github/pull_request_template.md` に仕様更新確認欄を追加する | `docs: add pr spec checklist` | `docs: add specification update workflow` | done |  |
-| 4-6 | verify | `README.md`, `AGENTS.md`, `.agents`, `.github`, `specs`, `.docs` のリンクと旧参照を確認する | - | `docs: add specification update workflow` | done | 配置、旧パス、Markdownリンクを確認 |
+| 4-6 | verify | `README.md`, `AGENTS.md`, `.agents`, `.github`, `specs`, `.docs` のリンクと旧参照を確認する | - | `docs: add specification update workflow`, `docs: clarify specs workflow verification` | done | 新規/移行仕様リンクと旧仕様パス解消を確認。過去 `.docs` の絶対パスリンクは対象外 |
 | 4-7 | verify | ドキュメントのみの変更としてアプリテスト省略可否をPR本文に記録する | - | `docs: add specification update workflow` | done | アプリ実装変更なしのため `pnpm test` は省略 |
 
 ## 計画差分ログ
