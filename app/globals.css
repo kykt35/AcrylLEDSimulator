@@ -407,8 +407,7 @@ button {
   border-inline: none;
 }
 
-.preview-shell,
-.control-panel {
+.preview-shell {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 24px;
@@ -519,8 +518,9 @@ button {
   max-height: 100%;
   overflow: hidden;
   border-radius: 0 24px 24px 0;
+  border: none;
   backdrop-filter: none;
-  background: rgba(255, 255, 255, 0.35);
+  background: rgba(79, 79, 79, 0.35);
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
   animation: drawer-slide-in 0.18s ease-out;
 }
@@ -531,7 +531,7 @@ button {
   min-height: 0;
   flex-direction: column;
   gap: 0;
-  margin-block: 16px;
+  padding-block: 16px;
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-gutter: stable;
@@ -544,15 +544,6 @@ button {
   min-height: 0;
   display: grid;
   align-content: start;
-}
-
-.control-panel-content::after {
-  content: "";
-  display: block;
-  height: 12px;
-  margin-top: -12px;
-  pointer-events: none;
-  background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.6));
 }
 
 .control-tab-panel {
