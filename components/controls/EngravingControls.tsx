@@ -1,14 +1,20 @@
 "use client";
 
-import React from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import type { EngravingAdjustments } from "@/lib/image/engravingFilters";
+
+export type EngravingDownloadOptions = {
+  invert: boolean;
+};
 
 type EngravingControlsProps = {
   adjustments: EngravingAdjustments;
+  isEngravingMode: boolean;
   sourceImageUrl: string | null;
   engravingImageUrl: string | null;
+  onEngravingModeChange: (enabled: boolean) => void;
   onAdjustmentsChange: (patch: Partial<EngravingAdjustments>) => void;
-  onDownload: () => void | Promise<void>;
+  onDownload: (options: EngravingDownloadOptions) => void | Promise<void>;
 };
 
 type NumericAdjustmentControl = {
@@ -42,13 +48,70 @@ const guideToneOptions = [
 
 export function EngravingControls({
   adjustments,
+  isEngravingMode,
   sourceImageUrl,
   engravingImageUrl,
+  onEngravingModeChange,
   onAdjustmentsChange,
   onDownload
 }: EngravingControlsProps) {
+  const [invertDownload, setInvertDownload] = useState(false);
+  const pendingScrollTopRef = useRef<number | null>(null);
+
+  const capturePanelScrollTop = () => {
+    const scrollContainer = document.getElementById("control-panel-content");
+    pendingScrollTopRef.current = scrollContainer?.scrollTop ?? 0;
+  };
+
+  const handleInvertDownloadChange = (checked: boolean) => {
+    capturePanelScrollTop();
+    setInvertDownload(checked);
+  };
+
+  const handleEngravingModeChange = (enabled: boolean) => {
+    capturePanelScrollTop();
+    onEngravingModeChange(enabled);
+  };
+
+  useLayoutEffect(() => {
+    if (pendingScrollTopRef.current === null) {
+      return;
+    }
+
+    const scrollContainer = document.getElementById("control-panel-content");
+    const scrollTop = pendingScrollTopRef.current;
+    pendingScrollTopRef.current = null;
+
+    if (!scrollContainer) {
+      return;
+    }
+
+    scrollContainer.scrollTop = scrollTop;
+    requestAnimationFrame(() => {
+      scrollContainer.scrollTop = scrollTop;
+    });
+  }, [invertDownload, isEngravingMode]);
+
   return (
     <section className="panel-section">
+      <div className="panel-subsection">
+        <label
+          className="toggle-field"
+          onMouseDown={(event) => event.preventDefault()}
+        >
+          <input
+            type="checkbox"
+            className="sr-only"
+            aria-label="彫刻モード"
+            checked={isEngravingMode}
+            onChange={(event) => handleEngravingModeChange(event.target.checked)}
+          />
+          <span className={`toggle-switch${isEngravingMode ? " is-on" : ""}`} aria-hidden="true">
+            <span className="toggle-knob" />
+          </span>
+          <span>彫刻モード</span>
+        </label>
+      </div>
       <div className="panel-subsection">
         <div className="control-grid">
           <div className="control-group full-width">
@@ -124,7 +187,7 @@ export function EngravingControls({
           <figure className="preview-card">
             <figcaption className="status-title">彫刻用画像</figcaption>
             {engravingImageUrl ? (
-              <div className="preview-image-frame">
+              <div className={`preview-image-frame${invertDownload ? " is-inverted" : ""}`}>
                 <img
                   src={engravingImageUrl}
                   alt="彫刻用グレースケールプレビュー"
@@ -137,11 +200,27 @@ export function EngravingControls({
           </figure>
         </div>
       </div>
+      <div className="panel-subsection">
+        <button
+          type="button"
+          role="switch"
+          aria-checked={invertDownload}
+          aria-label="白黒反転"
+          className="toggle-field"
+          onMouseDown={(event) => event.preventDefault()}
+          onClick={() => handleInvertDownloadChange(!invertDownload)}
+        >
+          <span className={`toggle-switch${invertDownload ? " is-on" : ""}`} aria-hidden="true">
+            <span className="toggle-knob" />
+          </span>
+          <span>白黒反転</span>
+        </button>
+      </div>
       <button
         type="button"
         className="secondary-button"
         disabled={!engravingImageUrl}
-        onClick={onDownload}
+        onClick={() => onDownload({ invert: invertDownload })}
       >
         彫刻用 PNG をダウンロード
       </button>

@@ -13,7 +13,7 @@ type AcrylicStandMeshProps = {
   imageUrl?: string | null;
   engravingImageUrl?: string | null;
   sizePreset?: AcrylicSizePreset;
-  showSourceOverlay?: boolean;
+  isEngravingMode?: boolean;
   glowColor?: string;
   brightness?: number;
   heightAttenuation?: number;
@@ -23,12 +23,12 @@ export function AcrylicStandMesh({
   imageUrl,
   engravingImageUrl,
   sizePreset = getAcrylicSizePreset("medium"),
-  showSourceOverlay = false,
+  isEngravingMode = false,
   glowColor = "#7fe7ff",
   brightness = 1,
   heightAttenuation = 0.3
 }: AcrylicStandMeshProps) {
-  const resolvedImageUrl = showSourceOverlay ? imageUrl : null;
+  const resolvedImageUrl = isEngravingMode ? null : imageUrl;
   const preset = getAcrylicMaterialPreset(Boolean(resolvedImageUrl));
   const texture = useTexture(resolvedImageUrl || TRANSPARENT_PIXEL);
   const engravingPlaneInset = 0.02;
@@ -48,20 +48,22 @@ export function AcrylicStandMesh({
           metalness={preset.metalness}
         />
       </mesh>
-      <mesh position={[0, 0, sizePreset.thickness / 2 + 0.002]}>
-        <planeGeometry
-          args={[
-            sizePreset.width - engravingPlaneInset,
-            sizePreset.height - engravingPlaneInset
-          ]}
-        />
-        <EngravingGlowMaterial
-          engravingImageUrl={engravingImageUrl}
-          glowColor={glowColor}
-          brightness={brightness}
-          heightAttenuation={heightAttenuation}
-        />
-      </mesh>
+      {isEngravingMode ? (
+        <mesh position={[0, 0, sizePreset.thickness / 2 + 0.002]}>
+          <planeGeometry
+            args={[
+              sizePreset.width - engravingPlaneInset,
+              sizePreset.height - engravingPlaneInset
+            ]}
+          />
+          <EngravingGlowMaterial
+            engravingImageUrl={engravingImageUrl}
+            glowColor={glowColor}
+            brightness={brightness}
+            heightAttenuation={heightAttenuation}
+          />
+        </mesh>
+      ) : null}
     </group>
   );
 }

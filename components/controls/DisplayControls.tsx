@@ -6,20 +6,16 @@ import { backgroundPresets, cameraOptions } from "@/lib/simulator/displayPresets
 type DisplayControlsProps = {
   activeBackgroundId: string;
   activeCameraPreset: string;
-  showSourceOverlay: boolean;
   onBackgroundChange: (backgroundId: string) => void;
   onCameraPresetChange: (presetId: string) => void;
-  onSourceOverlayChange: (show: boolean) => void;
   onResetView: () => void;
 };
 
 export function DisplayControls({
   activeBackgroundId,
   activeCameraPreset,
-  showSourceOverlay,
   onBackgroundChange,
   onCameraPresetChange,
-  onSourceOverlayChange,
   onResetView
 }: DisplayControlsProps) {
   return (
@@ -64,20 +60,6 @@ export function DisplayControls({
             ))}
           </div>
         </div>
-
-        <label className="toggle-field">
-          <input
-            type="checkbox"
-            className="sr-only"
-            aria-label="元画像を重ねて表示"
-            checked={showSourceOverlay}
-            onChange={(event) => onSourceOverlayChange(event.target.checked)}
-          />
-          <span className={`toggle-switch${showSourceOverlay ? " is-on" : ""}`} aria-hidden="true">
-            <span className="toggle-knob" />
-          </span>
-          <span>元画像を重ねて表示</span>
-        </label>
 
         <button type="button" className="secondary-button" onClick={onResetView}>
           カメラ設定をリセット

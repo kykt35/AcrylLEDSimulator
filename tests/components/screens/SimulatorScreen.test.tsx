@@ -26,12 +26,12 @@ vi.mock("@/lib/image/composePreviewImage", () => ({
 vi.mock("@/components/simulator/SimulatorCanvas", () => ({
   SimulatorCanvas: ({
     imageUrl,
-    showSourceOverlay,
+    isEngravingMode,
     containerRef,
     heightAttenuation
   }: {
     imageUrl?: string | null;
-    showSourceOverlay?: boolean;
+    isEngravingMode?: boolean;
     containerRef?: React.RefObject<HTMLDivElement | null>;
     heightAttenuation?: number;
   }) => (
@@ -39,7 +39,7 @@ vi.mock("@/components/simulator/SimulatorCanvas", () => ({
       ref={containerRef}
       className="simulator-canvas-host"
       data-testid="simulator-canvas"
-      data-show-source-overlay={String(Boolean(showSourceOverlay))}
+      data-is-engraving-mode={String(Boolean(isEngravingMode))}
       data-height-attenuation={heightAttenuation ?? ""}
     >
       <canvas />
@@ -156,8 +156,11 @@ describe("SimulatorScreen", () => {
       expect.objectContaining({ contentFit: "contain" })
     );
     expect(screen.getByText("simulator.png の読み込みが完了しました。")).toBeInTheDocument();
+    expect(screen.queryByAltText("彫刻用グレースケールプレビュー")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("tab", { name: "彫刻" }));
     expect(screen.getAllByAltText("彫刻用グレースケールプレビュー")).toHaveLength(1);
-    expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "false");
+    expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-is-engraving-mode", "false");
     expect(screen.getByRole("tab", { name: "配置" })).toHaveAttribute("data-state", "complete");
     expect(screen.getByRole("tab", { name: "配置" })).toHaveTextContent("配置");
     expect(screen.getByTestId("export-crop-overlay-toggle")).toBeInTheDocument();
@@ -216,16 +219,16 @@ describe("SimulatorScreen", () => {
     const imageTab = screen.getByRole("tab", { name: "配置" });
     expect(imageTab).toHaveFocus();
     expect(imageTab).toHaveAttribute("aria-selected", "true");
-    expect(screen.getByTestId("control-panel-image")).not.toHaveAttribute("hidden");
-    expect(screen.getByTestId("control-panel-export")).toHaveAttribute("hidden");
+    expect(screen.getByTestId("control-panel-image")).toBeInTheDocument();
+    expect(screen.queryByTestId("control-panel-export")).not.toBeInTheDocument();
 
     await user.keyboard("{Home}");
 
     const lightingTab = screen.getByRole("tab", { name: "ライト" });
     expect(lightingTab).toHaveFocus();
     expect(lightingTab).toHaveAttribute("aria-selected", "true");
-    expect(screen.getByTestId("control-panel-lighting")).not.toHaveAttribute("hidden");
-    expect(screen.getByTestId("control-panel-image")).toHaveAttribute("hidden");
+    expect(screen.getByTestId("control-panel-lighting")).toBeInTheDocument();
+    expect(screen.queryByTestId("control-panel-image")).not.toBeInTheDocument();
   });
 
   it("switches control tabs after an image is uploaded", async () => {
@@ -282,7 +285,7 @@ describe("SimulatorScreen", () => {
 
     await user.click(screen.getByRole("tab", { name: "ライト" }));
     expect(screen.getByRole("tab", { name: "ライト" })).toHaveAttribute("aria-selected", "true");
-    expect(screen.getByTestId("control-panel-lighting")).not.toHaveAttribute("hidden");
+    expect(screen.getByTestId("control-panel-lighting")).toBeInTheDocument();
 
     await user.keyboard("{Escape}");
     expect(screen.queryByRole("complementary", { name: "シミュレーター設定" })).not.toBeInTheDocument();
@@ -351,7 +354,7 @@ describe("SimulatorScreen", () => {
     expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-height-attenuation", "0.45");
   });
 
-  it("keeps the source overlay hidden by default and after resetting display settings", async () => {
+  it("shows the source image by default and switches to engraving mode from the engraving panel", async () => {
     const user = userEvent.setup();
 
     render(<SimulatorScreen />);
@@ -362,22 +365,22 @@ describe("SimulatorScreen", () => {
     await user.upload(input, file);
 
     await waitFor(() => {
-      expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "false");
+      expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-is-engraving-mode", "false");
     });
 
     await openControlDrawer(user);
+    await user.click(screen.getByRole("tab", { name: "彫刻" }));
+    expect(screen.getByLabelText("彫刻モード")).not.toBeChecked();
+
+    await user.click(screen.getByLabelText("彫刻モード"));
+    expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-is-engraving-mode", "true");
+
     await user.click(screen.getByRole("tab", { name: "カメラ" }));
-    expect(screen.getByLabelText("元画像を重ねて表示")).not.toBeChecked();
-
-    await user.click(screen.getByLabelText("元画像を重ねて表示"));
-    expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "true");
-
     await user.click(screen.getByRole("button", { name: "カメラ設定をリセット" }));
-    expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "false");
-    expect(screen.getByLabelText("元画像を重ねて表示")).not.toBeChecked();
+    expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-is-engraving-mode", "true");
   });
 
-  it("restores the saved source overlay setting when resuming from a snapshot", async () => {
+  it("restores the saved display mode when resuming from a snapshot", async () => {
     const user = userEvent.setup();
 
     writeEditorSnapshot({
@@ -403,7 +406,7 @@ describe("SimulatorScreen", () => {
         backgroundId: "night",
         cameraPresetId: "front",
         acrylicSizeId: "small",
-        showSourceOverlay: true,
+        showSourceOverlay: false,
         imageLayout: {
           contentFit: "contain",
           scale: 1,
@@ -416,13 +419,13 @@ describe("SimulatorScreen", () => {
     render(<SimulatorScreen searchParams={{ resume: "1" }} />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "true");
+      expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-is-engraving-mode", "true");
     });
 
     await openControlDrawer(user);
     expect(screen.getByRole("radio", { name: "S (100 x 150 mm)" })).toHaveAttribute("aria-checked", "true");
-    await user.click(screen.getByRole("tab", { name: "カメラ" }));
-    expect(screen.getByLabelText("元画像を重ねて表示")).toBeChecked();
+    await user.click(screen.getByRole("tab", { name: "彫刻" }));
+    expect(screen.getByLabelText("彫刻モード")).toBeChecked();
   });
 
   it("updates image layout controls for the preview", async () => {
@@ -655,15 +658,15 @@ describe("SimulatorScreen", () => {
 
     await user.upload(input, file);
     await openControlDrawer(user);
+    await user.click(screen.getByRole("tab", { name: "彫刻" }));
     await waitFor(() => {
       expect(screen.getAllByAltText("彫刻用グレースケールプレビュー")).toHaveLength(1);
     });
-
-    await user.click(screen.getByRole("tab", { name: "彫刻" }));
     expect(screen.getByRole("radio", { name: "白を導光" })).toHaveAttribute("aria-checked", "true");
     await user.click(screen.getByRole("radio", { name: "黒を導光" }));
     fireEvent.change(screen.getByLabelText("しきい値 数値入力"), { target: { value: "0.45" } });
     fireEvent.change(screen.getByLabelText("階調数 数値入力"), { target: { value: "4" } });
+    await user.click(screen.getByLabelText("白黒反転"));
     await user.click(screen.getByRole("button", { name: "彫刻用 PNG をダウンロード" }));
 
     await waitFor(() => {
@@ -673,10 +676,31 @@ describe("SimulatorScreen", () => {
       );
       expect(exportEngravingImage).toHaveBeenCalledWith(
         "data:image/png;base64,engraving",
-        "simulator-engraving.png"
+        "simulator-engraving.png",
+        { invert: true }
       );
     });
 
     expect(downloadBlob).toHaveBeenCalledWith(expect.any(Blob), "simulator-engraving.png");
+  });
+
+  it("keeps engraving panel controls visible after toggling download invert", async () => {
+    const user = userEvent.setup();
+
+    render(<SimulatorScreen />);
+
+    const input = screen.getByLabelText("3Dビュー画像アップロード");
+    const file = new File(["png"], "simulator.png", { type: "image/png" });
+
+    await user.upload(input, file);
+    await openControlDrawer(user);
+    await user.click(screen.getByRole("tab", { name: "彫刻" }));
+
+    await user.click(screen.getByLabelText("白黒反転"));
+    await user.click(screen.getByLabelText("白黒反転"));
+
+    expect(screen.getByTestId("control-panel-engraving")).toBeInTheDocument();
+    expect(screen.getByLabelText("しきい値")).toBeInTheDocument();
+    expect(screen.getByTestId("engraving-preview-grid")).toBeInTheDocument();
   });
 });

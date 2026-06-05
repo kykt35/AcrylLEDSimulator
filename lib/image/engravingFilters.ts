@@ -94,6 +94,14 @@ export function applyEngravingAdjustments(
   return result;
 }
 
+export function invertGrayscalePixels(pixels: Uint8ClampedArray): void {
+  for (let index = 0; index < pixels.length; index += 4) {
+    pixels[index] = 255 - pixels[index];
+    pixels[index + 1] = 255 - pixels[index + 1];
+    pixels[index + 2] = 255 - pixels[index + 2];
+  }
+}
+
 export function createPreviewPixels(strengthMap: Float32Array): Uint8ClampedArray {
   const pixels = new Uint8ClampedArray(strengthMap.length * 4);
 
