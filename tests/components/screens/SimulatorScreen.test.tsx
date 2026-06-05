@@ -100,7 +100,7 @@ describe("SimulatorScreen", () => {
   };
 
   const openControlDrawer = async (user: ReturnType<typeof userEvent.setup>) => {
-    await user.click(screen.getByRole("tab", { name: "画像" }));
+    await user.click(screen.getByRole("tab", { name: "配置" }));
     return screen.getByRole("complementary", { name: "シミュレーター設定" });
   };
 
@@ -158,8 +158,8 @@ describe("SimulatorScreen", () => {
     expect(screen.getByText("simulator.png の読み込みが完了しました。")).toBeInTheDocument();
     expect(screen.getAllByAltText("彫刻用グレースケールプレビュー")).toHaveLength(1);
     expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "false");
-    expect(screen.getByRole("tab", { name: "画像" })).toHaveAttribute("data-state", "complete");
-    expect(screen.getByRole("tab", { name: "画像" })).toHaveTextContent("画像");
+    expect(screen.getByRole("tab", { name: "配置" })).toHaveAttribute("data-state", "complete");
+    expect(screen.getByRole("tab", { name: "配置" })).toHaveTextContent("配置");
     expect(screen.getByTestId("export-crop-overlay-toggle")).toBeInTheDocument();
   });
 
@@ -221,7 +221,7 @@ describe("SimulatorScreen", () => {
 
     await user.keyboard("{Home}");
 
-    const imageTab = screen.getByRole("tab", { name: "画像" });
+    const imageTab = screen.getByRole("tab", { name: "配置" });
     expect(imageTab).toHaveFocus();
     expect(imageTab).toHaveAttribute("aria-selected", "true");
     expect(screen.getByTestId("control-panel-image")).not.toHaveAttribute("hidden");
@@ -257,12 +257,12 @@ describe("SimulatorScreen", () => {
 
     render(<SimulatorScreen />);
 
-    expect(screen.queryByRole("tab", { name: "画像" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("tab", { name: "配置" })).not.toBeInTheDocument();
     expect(screen.queryByRole("complementary", { name: "シミュレーター設定" })).not.toBeInTheDocument();
 
     await uploadSampleImage(user);
 
-    const imageTab = screen.getByRole("tab", { name: "画像" });
+    const imageTab = screen.getByRole("tab", { name: "配置" });
 
     expect(imageTab).toHaveAttribute("aria-expanded", "false");
     expect(imageTab).toHaveAttribute("aria-selected", "false");
@@ -272,7 +272,7 @@ describe("SimulatorScreen", () => {
 
     expect(imageTab).toHaveAttribute("aria-expanded", "true");
     expect(screen.getByRole("complementary", { name: "シミュレーター設定" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "画像" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tab", { name: "配置" })).toHaveAttribute("aria-selected", "true");
 
     await user.click(imageTab);
 
@@ -307,7 +307,7 @@ describe("SimulatorScreen", () => {
     await user.click(screen.getByTestId("simulator-canvas"));
 
     expect(screen.queryByRole("complementary", { name: "シミュレーター設定" })).not.toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "画像" })).toHaveAttribute("aria-expanded", "false");
+    expect(screen.getByRole("tab", { name: "配置" })).toHaveAttribute("aria-expanded", "false");
   });
 
   it("updates the acrylic size selection", async () => {
@@ -318,12 +318,12 @@ describe("SimulatorScreen", () => {
     await openControlDrawer(user);
 
     expect(screen.getByRole("radio", { name: "M (120 x 180 mm)" })).toHaveAttribute("aria-checked", "true");
-    expect(screen.getByRole("tab", { name: "画像" })).toHaveTextContent("画像");
+    expect(screen.getByRole("tab", { name: "配置" })).toHaveTextContent("配置");
 
     await user.click(screen.getByRole("radio", { name: "L (150 x 200 mm)" }));
 
     expect(screen.getByRole("radio", { name: "L (150 x 200 mm)" })).toHaveAttribute("aria-checked", "true");
-    expect(screen.getByRole("tab", { name: "画像" })).toHaveTextContent("画像");
+    expect(screen.getByRole("tab", { name: "配置" })).toHaveTextContent("配置");
   });
 
   it("updates height attenuation from the lighting controls", async () => {
@@ -496,7 +496,7 @@ describe("SimulatorScreen", () => {
     expect(screen.queryByText("2. 調整")).not.toBeInTheDocument();
     expect(screen.queryByText("3. 書き出し")).not.toBeInTheDocument();
     expect(screen.getByTestId("preview-empty-state")).toHaveTextContent("PNGファイルを追加して始めましょう");
-    expect(screen.queryByRole("tab", { name: "画像" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("tab", { name: "配置" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "リセット" })).not.toBeInTheDocument();
     expect(screen.queryByRole("complementary", { name: "シミュレーター設定" })).not.toBeInTheDocument();
   });

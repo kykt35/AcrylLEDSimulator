@@ -64,9 +64,9 @@ type ControlPanelTabViewModel = ControlPanelTabDefinition & {
 const CONTROL_PANEL_TABS: readonly ControlPanelTabDefinition[] = [
   {
     id: "image",
-    label: "画像",
+    label: "配置",
     eyebrow: "Source",
-    description: "入力画像の読み込みとプレビュー範囲を調整します。"
+    description: "アクリル板サイズと画像の収まり・位置を調整します。"
   },
   {
     id: "engraving",
