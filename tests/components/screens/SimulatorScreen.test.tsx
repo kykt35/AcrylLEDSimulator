@@ -5,7 +5,7 @@ import userEvent from "@testing-library/user-event";
 import { SimulatorScreen } from "@/components/screens/SimulatorScreen";
 import { downloadBlob } from "@/lib/download/downloadBlob";
 import { exportEngravingImage } from "@/lib/export/exportEngravingImage";
-import { exportCanvasImage } from "@/lib/export/exportCanvasImage";
+import { exportCanvasImage, getCanvasPreviewDataUrl } from "@/lib/export/exportCanvasImage";
 import { composePreviewImageFromDataUrl } from "@/lib/image/composePreviewImage";
 import { generateEngravingMapFromDataUrl } from "@/lib/image/generateEngravingMap";
 import { loadPngTexture } from "@/lib/image/loadPngTexture";
@@ -37,17 +37,22 @@ vi.mock("@/components/simulator/SimulatorCanvas", () => ({
   }) => (
     <div
       ref={containerRef}
+      className="simulator-canvas-host"
       data-testid="simulator-canvas"
       data-show-source-overlay={String(Boolean(showSourceOverlay))}
       data-height-attenuation={heightAttenuation ?? ""}
     >
+      <canvas />
       {imageUrl ?? "empty"}
     </div>
   )
 }));
 
 vi.mock("@/lib/export/exportCanvasImage", () => ({
-  exportCanvasImage: vi.fn(async () => new Blob(["png"], { type: "image/png" }))
+  exportCanvasImage: vi.fn(async () => new Blob(["png"], { type: "image/png" })),
+  getCanvasPreviewDataUrl: vi.fn((_root, _format, cropRegion) =>
+    cropRegion ? "data:image/png;base64,cropped-preview" : "data:image/png;base64,export-preview"
+  )
 }));
 
 vi.mock("@/lib/export/exportEngravingImage", () => ({
@@ -140,15 +145,12 @@ describe("SimulatorScreen", () => {
       "data:image/png;base64,engraving",
       expect.objectContaining({ contentFit: "contain" })
     );
-    expect(screen.getAllByText("simulator.png").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("プレビューへ反映済みです。").length).toBeGreaterThan(0);
+    expect(screen.getByText("simulator.png の読み込みが完了しました。")).toBeInTheDocument();
     expect(screen.getAllByAltText("彫刻用グレースケールプレビュー")).toHaveLength(1);
     expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "false");
-    expect(within(screen.getByTestId("control-panel-image")).getByTestId("control-panel-summary")).toHaveTextContent(
-      "画像"
-    );
     expect(screen.getByRole("tab", { name: "画像" })).toHaveAttribute("data-state", "complete");
     expect(screen.getByRole("tab", { name: "画像" })).toHaveTextContent("画像");
+    expect(screen.getByTestId("export-crop-overlay-toggle")).toBeInTheDocument();
   });
 
   it("supports click and drag interactions on the preview upload surface", async () => {
@@ -203,12 +205,6 @@ describe("SimulatorScreen", () => {
     const exportTab = screen.getByRole("tab", { name: "書き出し" });
     expect(exportTab).toHaveFocus();
     expect(exportTab).toHaveAttribute("aria-selected", "true");
-    expect(within(screen.getByTestId("control-panel-export")).getByTestId("control-panel-summary")).toHaveTextContent(
-      "書き出し"
-    );
-    expect(within(screen.getByTestId("control-panel-export")).getByTestId("control-panel-summary")).toHaveTextContent(
-      "画像未選択"
-    );
     expect(screen.getByTestId("control-panel-export")).not.toHaveAttribute("hidden");
     expect(screen.getByTestId("control-panel-image")).toHaveAttribute("hidden");
 
@@ -217,14 +213,11 @@ describe("SimulatorScreen", () => {
     const imageTab = screen.getByRole("tab", { name: "画像" });
     expect(imageTab).toHaveFocus();
     expect(imageTab).toHaveAttribute("aria-selected", "true");
-    expect(within(screen.getByTestId("control-panel-image")).getByTestId("control-panel-summary")).toHaveTextContent(
-      "未設定"
-    );
     expect(screen.getByTestId("control-panel-image")).not.toHaveAttribute("hidden");
     expect(screen.getByTestId("control-panel-export")).toHaveAttribute("hidden");
   });
 
-  it("moves through the guided control steps after an image is uploaded", async () => {
+  it("switches control tabs after an image is uploaded", async () => {
     const user = userEvent.setup();
 
     render(<SimulatorScreen />);
@@ -235,41 +228,16 @@ describe("SimulatorScreen", () => {
     await user.upload(input, file);
     await openControlDrawer(user);
 
-    await waitFor(() => {
-      expect(screen.getByRole("button", { name: "彫刻を調整する" })).toBeEnabled();
-    });
-
-    await user.click(screen.getByRole("button", { name: "彫刻を調整する" }));
+    await user.click(screen.getByRole("tab", { name: "彫刻" }));
     expect(screen.getByRole("tab", { name: "彫刻" })).toHaveAttribute("aria-selected", "true");
 
-    await user.click(screen.getByRole("button", { name: "ライトを調整する" }));
+    await user.click(screen.getByRole("tab", { name: "ライト" }));
     expect(screen.getByRole("tab", { name: "ライト" })).toHaveAttribute("aria-selected", "true");
 
-    await user.click(screen.getByRole("button", { name: "表示を確認する" }));
+    await user.click(screen.getByRole("tab", { name: "表示" }));
     expect(screen.getByRole("tab", { name: "表示" })).toHaveAttribute("aria-selected", "true");
 
-    await user.click(screen.getByRole("button", { name: "書き出しへ進む" }));
-    expect(screen.getByRole("tab", { name: "書き出し" })).toHaveAttribute("aria-selected", "true");
-  });
-
-  it("surfaces an export shortcut after an image is uploaded", async () => {
-    const user = userEvent.setup();
-
-    render(<SimulatorScreen />);
-
-    expect(screen.queryByRole("button", { name: "すぐに書き出しへ進む" })).not.toBeInTheDocument();
-
-    const input = screen.getByLabelText("3Dビュー画像アップロード");
-    const file = new File(["png"], "simulator.png", { type: "image/png" });
-
-    await user.upload(input, file);
-    await openControlDrawer(user);
-
-    await waitFor(() => {
-      expect(screen.getByRole("button", { name: "すぐに書き出しへ進む" })).toBeEnabled();
-    });
-
-    await user.click(screen.getByRole("button", { name: "すぐに書き出しへ進む" }));
+    await user.click(screen.getByRole("tab", { name: "書き出し" }));
     expect(screen.getByRole("tab", { name: "書き出し" })).toHaveAttribute("aria-selected", "true");
   });
 
@@ -281,6 +249,7 @@ describe("SimulatorScreen", () => {
     const imageTab = screen.getByRole("tab", { name: "画像" });
 
     expect(imageTab).toHaveAttribute("aria-expanded", "false");
+    expect(imageTab).toHaveAttribute("aria-selected", "false");
     expect(screen.queryByRole("complementary", { name: "シミュレーター設定" })).not.toBeInTheDocument();
 
     await user.click(imageTab);
@@ -289,12 +258,40 @@ describe("SimulatorScreen", () => {
     expect(screen.getByRole("complementary", { name: "シミュレーター設定" })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "画像" })).toHaveAttribute("aria-selected", "true");
 
+    await user.click(imageTab);
+
+    expect(imageTab).toHaveAttribute("aria-expanded", "false");
+    expect(imageTab).toHaveAttribute("aria-selected", "false");
+    expect(screen.queryByRole("complementary", { name: "シミュレーター設定" })).not.toBeInTheDocument();
+
     await user.click(screen.getByRole("tab", { name: "ライト" }));
     expect(screen.getByRole("tab", { name: "ライト" })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByTestId("control-panel-lighting")).not.toHaveAttribute("hidden");
 
     await user.keyboard("{Escape}");
     expect(screen.queryByRole("complementary", { name: "シミュレーター設定" })).not.toBeInTheDocument();
+  });
+
+  it("closes the control drawer when clicking the 3d preview", async () => {
+    const user = userEvent.setup();
+
+    render(<SimulatorScreen />);
+
+    const input = screen.getByLabelText("3Dビュー画像アップロード");
+    const file = new File(["png"], "simulator.png", { type: "image/png" });
+
+    await user.upload(input, file);
+    await waitFor(() => {
+      expect(screen.getByTestId("simulator-canvas")).toBeInTheDocument();
+    });
+
+    await openControlDrawer(user);
+    expect(screen.getByRole("complementary", { name: "シミュレーター設定" })).toBeInTheDocument();
+
+    await user.click(screen.getByTestId("simulator-canvas"));
+
+    expect(screen.queryByRole("complementary", { name: "シミュレーター設定" })).not.toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "画像" })).toHaveAttribute("aria-expanded", "false");
   });
 
   it("updates the acrylic size selection", async () => {
@@ -337,20 +334,6 @@ describe("SimulatorScreen", () => {
     expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-height-attenuation", "0.45");
   });
 
-  it("updates the active lighting preset label when selecting a white preset", async () => {
-    const user = userEvent.setup();
-
-    render(<SimulatorScreen />);
-    await openControlDrawer(user);
-
-    await user.click(screen.getByRole("tab", { name: "ライト" }));
-    await user.click(screen.getByRole("button", { name: "Warm White" }));
-
-    const lightingStatus = screen.getByText("現在の発光設定").parentElement;
-
-    expect(lightingStatus).toHaveTextContent("Warm White");
-  });
-
   it("keeps the source overlay hidden by default and after resetting display settings", async () => {
     const user = userEvent.setup();
 
@@ -367,8 +350,6 @@ describe("SimulatorScreen", () => {
 
     await openControlDrawer(user);
     await user.click(screen.getByRole("tab", { name: "表示" }));
-    expect(screen.getByText("現在の表示設定")).toBeInTheDocument();
-    expect(screen.getByText("現在の表示設定").parentElement).toHaveTextContent("元画像表示オフ");
     expect(screen.getByLabelText("元画像を重ねて表示")).not.toBeChecked();
 
     await user.click(screen.getByLabelText("元画像を重ねて表示"));
@@ -424,7 +405,6 @@ describe("SimulatorScreen", () => {
     expect(screen.getByRole("radio", { name: "S (100 x 150 mm)" })).toHaveAttribute("aria-checked", "true");
     await user.click(screen.getByRole("tab", { name: "表示" }));
     expect(screen.getByLabelText("元画像を重ねて表示")).toBeChecked();
-    expect(screen.getByText("現在の表示設定").parentElement).toHaveTextContent("元画像表示オン");
   });
 
   it("updates image layout controls for the preview", async () => {
@@ -501,8 +481,6 @@ describe("SimulatorScreen", () => {
     expect(screen.queryByText("3. 書き出し")).not.toBeInTheDocument();
     expect(screen.getByTestId("preview-empty-state")).toHaveTextContent("3Dビューへ PNG を追加して始めましょう");
     expect(screen.queryByRole("complementary", { name: "シミュレーター設定" })).not.toBeInTheDocument();
-    expect(screen.queryByText("PNGを追加すると配置調整ができます。")).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "PNGを追加すると次へ進めます" })).not.toBeInTheDocument();
   });
 
   it("shows the empty image controls after the settings drawer is opened", async () => {
@@ -512,9 +490,59 @@ describe("SimulatorScreen", () => {
 
     await openControlDrawer(user);
 
-    expect(screen.getByText("PNGを追加すると配置調整ができます。")).toBeInTheDocument();
     expect(screen.queryByLabelText("画像サイズ")).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "PNGを追加すると次へ進めます" })).toBeDisabled();
+    expect(screen.getByRole("radiogroup", { name: "アクリル板サイズ" })).toBeInTheDocument();
+  });
+
+  it("shows the export crop overlay on the 3D view when the export tab is open", async () => {
+    const user = userEvent.setup();
+
+    render(<SimulatorScreen />);
+
+    const input = screen.getByLabelText("3Dビュー画像アップロード");
+    const file = new File(["png"], "simulator.png", { type: "image/png" });
+
+    await user.upload(input, file);
+    await openControlDrawer(user);
+    await user.click(screen.getByRole("tab", { name: "書き出し" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("export-crop-overlay")).toBeInTheDocument();
+      expect(screen.getByTestId("export-preview-image")).toBeInTheDocument();
+      expect(screen.getByTestId("export-crop-overlay-toggle")).toBeChecked();
+    });
+
+    expect(screen.getByTestId("export-preview-image")).toHaveAttribute(
+      "src",
+      "data:image/png;base64,cropped-preview"
+    );
+    expect(getCanvasPreviewDataUrl).toHaveBeenCalledWith(
+      expect.any(HTMLDivElement),
+      "png",
+      expect.objectContaining({ width: 1, height: 1 })
+    );
+  });
+
+  it("hides the export crop overlay when the toggle is turned off", async () => {
+    const user = userEvent.setup();
+
+    render(<SimulatorScreen />);
+
+    const input = screen.getByLabelText("3Dビュー画像アップロード");
+    const file = new File(["png"], "simulator.png", { type: "image/png" });
+
+    await user.upload(input, file);
+    await openControlDrawer(user);
+    await user.click(screen.getByRole("tab", { name: "書き出し" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("export-crop-overlay")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByTestId("export-crop-overlay-toggle"));
+
+    expect(screen.queryByTestId("export-crop-overlay")).not.toBeInTheDocument();
+    expect(screen.getByTestId("export-crop-overlay-toggle")).not.toBeChecked();
   });
 
   it("downloads the current preview as a png by default and opens the completion toast", async () => {
@@ -541,7 +569,11 @@ describe("SimulatorScreen", () => {
       expect(screen.getByText("ダウンロードを開始しました")).toBeInTheDocument();
     });
 
-    expect(exportCanvasImage).toHaveBeenCalledWith(expect.any(HTMLDivElement), "png");
+    expect(exportCanvasImage).toHaveBeenCalledWith(
+      expect.any(HTMLDivElement),
+      "png",
+      expect.objectContaining({ width: 1, height: 1 })
+    );
     expect(downloadBlob).toHaveBeenCalledWith(expect.any(Blob), "simulator.png");
     expect(screen.getByRole("status")).toHaveTextContent("PNG ファイルとして出力しました");
   });
@@ -565,8 +597,6 @@ describe("SimulatorScreen", () => {
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "画像をダウンロードする" })).toBeEnabled();
     });
-    expect(screen.getByText("ダウンロード状態")).toBeInTheDocument();
-
     await user.click(screen.getByRole("radio", { name: "JPG" }));
     await user.click(screen.getByRole("button", { name: "画像をダウンロードする" }));
 
@@ -603,7 +633,7 @@ describe("SimulatorScreen", () => {
     expect(
       within(alert).getByText("ダウンロードに失敗しました。時間をおいて再試行してください。")
     ).toBeInTheDocument();
-    expect(screen.getAllByText("simulator.png").length).toBeGreaterThan(0);
+    expect(screen.getByTestId("simulator-canvas")).toHaveTextContent("data:image/png;base64,simulator-preview");
     expect(downloadBlob).not.toHaveBeenCalled();
   });
 

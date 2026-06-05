@@ -22,25 +22,7 @@ export function LightingControls({
 }: LightingControlsProps) {
   return (
     <section className="panel-section">
-      <div className="panel-header">
-        <p className="panel-label">発光設定</p>
-        <h2 className="panel-title">LED カラーと明るさ</h2>
-        <div className="helper-list">
-          <p>発光色は彫刻面の見え方に直接影響します。</p>
-          <p>明るさは書き出し結果にも反映されます。</p>
-        </div>
-      </div>
-
       <div className="panel-subsection">
-        <div className="status-box">
-          <p className="status-title">現在の発光設定</p>
-          <p className="status-primary">
-            {lightingPresets.find((preset) => preset.id === activePresetId)?.label ?? lightingPresets[0].label}
-          </p>
-          <p className="status-secondary">
-            明るさ {brightness.toFixed(1)} / 高さ減衰 {heightAttenuation.toFixed(2)}
-          </p>
-        </div>
         <div className="control-group">
           <span className="control-label">LED 色プリセット</span>
           <div className="choice-row">

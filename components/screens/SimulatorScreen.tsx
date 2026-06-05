@@ -6,13 +6,20 @@ import { DisplayControls } from "@/components/controls/DisplayControls";
 import { EngravingControls } from "@/components/controls/EngravingControls";
 import { ImageControls } from "@/components/controls/ImageControls";
 import { LightingControls } from "@/components/controls/LightingControls";
+import { ExportCropOverlay } from "@/components/controls/ExportCropOverlay";
+import { ExportCropOverlayToggle } from "@/components/controls/ExportCropOverlayToggle";
 import { SaveControls } from "@/components/controls/SaveControls";
 import { NoticeModal } from "@/components/modals/NoticeModal";
 import { SaveCompleteModal } from "@/components/modals/SaveCompleteModal";
 import { SimulatorCanvas } from "@/components/simulator/SimulatorCanvas";
 import { ErrorNotice } from "@/components/ui/ErrorNotice";
 import { downloadBlob } from "@/lib/download/downloadBlob";
-import { exportCanvasImage, type ExportImageFormat } from "@/lib/export/exportCanvasImage";
+import {
+  exportCanvasImage,
+  getCanvasPreviewDataUrl,
+  type ExportImageFormat
+} from "@/lib/export/exportCanvasImage";
+import { defaultExportCropRegion } from "@/lib/export/exportCropRegion";
 import { exportEngravingImage } from "@/lib/export/exportEngravingImage";
 import { composePreviewImageFromDataUrl } from "@/lib/image/composePreviewImage";
 import { generateEngravingMapFromDataUrl, type EngravingMapResult } from "@/lib/image/generateEngravingMap";
@@ -221,14 +228,9 @@ function hasImage(src: string | null): src is string {
   return Boolean(src);
 }
 
-function getTabDescription(tabId: ControlPanelTabId) {
-  return CONTROL_PANEL_TABS.find((tab) => tab.id === tabId)?.description ?? "";
-}
-
 export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
   const previewRef = useRef<HTMLDivElement>(null);
   const previewFileInputRef = useRef<HTMLInputElement>(null);
-  const controlDrawerCloseButtonRef = useRef<HTMLButtonElement>(null);
   const wasControlDrawerOpenRef = useRef(false);
   const previewPointerStartRef = useRef<{ x: number; y: number } | null>(null);
   const previewPointerMovedRef = useRef(false);
@@ -259,6 +261,9 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
   const [controlPanelTab, setControlPanelTab] = useState<ControlPanelTabId>("image");
   const [isControlDrawerOpen, setIsControlDrawerOpen] = useState(false);
   const [isPreviewDragActive, setIsPreviewDragActive] = useState(false);
+  const [exportCropRegion, setExportCropRegion] = useState(defaultExportCropRegion);
+  const [isExportCropOverlayVisible, setIsExportCropOverlayVisible] = useState(false);
+  const [exportPreviewUrl, setExportPreviewUrl] = useState<string | null>(null);
 
   const isImageReady = hasImage(sourceImage.src);
   const isEngravingReady = engraving.status === "ready";
@@ -311,19 +316,6 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
       sourceImage.src
     ]
   );
-
-  const imageStatusLabel = useMemo(() => {
-    switch (sourceImage.status) {
-      case "loading":
-        return "画像を読み込み中です。";
-      case "ready":
-        return "プレビューへ反映済みです。";
-      case "error":
-        return "別の PNG ファイルで再試行してください。";
-      default:
-        return "PNG をアップロードすると 3D プレビューへ反映されます。";
-    }
-  }, [sourceImage.status]);
 
   const controlPanelTabs = useMemo<ControlPanelTabViewModel[]>(
     () =>
@@ -390,11 +382,6 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
       sourceImage.fileName,
       sourceImage.src
     ]
-  );
-
-  const activeControlPanelTab = useMemo(
-    () => controlPanelTabs.find((tab) => tab.id === controlPanelTab) ?? controlPanelTabs[0],
-    [controlPanelTab, controlPanelTabs]
   );
 
   const liveRegionMessage = useMemo(() => {
@@ -475,19 +462,29 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
       const nextTab = controlPanelTabs[nextIndex];
       setControlPanelTab(nextTab.id);
       setIsControlDrawerOpen(true);
+      if (nextTab.id === "export") {
+        setIsExportCropOverlayVisible(true);
+      }
       globalThis.document?.getElementById(`preview-control-tab-${nextTab.id}`)?.focus();
     },
     [controlPanelTabs]
   );
 
-  const activateControlPanelTab = useCallback((tabId: ControlPanelTabId) => {
-    setControlPanelTab(tabId);
-  }, []);
+  const openControlPanel = useCallback(
+    (tabId: ControlPanelTabId) => {
+      if (isControlDrawerOpen && controlPanelTab === tabId) {
+        setIsControlDrawerOpen(false);
+        return;
+      }
 
-  const openControlPanel = useCallback((tabId: ControlPanelTabId) => {
-    setControlPanelTab(tabId);
-    setIsControlDrawerOpen(true);
-  }, []);
+      setControlPanelTab(tabId);
+      setIsControlDrawerOpen(true);
+      if (tabId === "export") {
+        setIsExportCropOverlayVisible(true);
+      }
+    },
+    [controlPanelTab, isControlDrawerOpen]
+  );
 
   const closeControlDrawer = useCallback(() => {
     setIsControlDrawerOpen(false);
@@ -496,9 +493,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
   useEffect(() => {
     const wasControlDrawerOpen = wasControlDrawerOpenRef.current;
 
-    if (isControlDrawerOpen && !wasControlDrawerOpen) {
-      controlDrawerCloseButtonRef.current?.focus();
-    } else if (!isControlDrawerOpen && wasControlDrawerOpen) {
+    if (!isControlDrawerOpen && wasControlDrawerOpen) {
       globalThis.document?.getElementById(`preview-control-tab-${controlPanelTab}`)?.focus();
     }
 
@@ -550,6 +545,8 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
         src: payload.engraving.src,
         status: "ready"
       });
+      setExportCropRegion(defaultExportCropRegion);
+      setIsExportCropOverlayVisible(false);
     } catch (caughtError) {
       dispatchSourceImage({
         type: "load-error",
@@ -663,7 +660,15 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
         return;
       }
 
-      if (event.target instanceof Element && event.target.closest(".control-panel, .control-drawer-backdrop")) {
+      if (event.target instanceof Element && event.target.closest(".control-panel")) {
+        return;
+      }
+
+      if (event.target instanceof Element && event.target.closest(".export-crop-overlay")) {
+        return;
+      }
+
+      if (event.target instanceof Element && event.target.closest(".export-crop-overlay-toggle")) {
         return;
       }
 
@@ -672,9 +677,19 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
         return;
       }
 
+      const clickedCanvasHost =
+        event.target instanceof Element &&
+        Boolean(event.target.closest(".simulator-canvas-host"));
+
+      if (isControlDrawerOpen && clickedCanvasHost) {
+        closeControlDrawer();
+        resetPreviewPointerTracking();
+        return;
+      }
+
       openPreviewFileDialog();
     },
-    [openPreviewFileDialog, resetPreviewPointerTracking]
+    [closeControlDrawer, isControlDrawerOpen, openPreviewFileDialog, resetPreviewPointerTracking]
   );
 
   const handleResetView = useCallback(() => {
@@ -713,6 +728,8 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
     setAcrylicSizeId(defaultAcrylicSizePresetId);
     setShowSourceOverlay(false);
     setImageLayout(defaultImageLayout);
+    setExportCropRegion(defaultExportCropRegion);
+    setIsExportCropOverlayVisible(false);
     clearEditorSnapshot();
   }, []);
 
@@ -936,7 +953,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
     dispatchSave({ type: "save-start" });
 
     try {
-      const exportedImageBlob = await exportCanvasImage(previewRef.current, exportFormat);
+      const exportedImageBlob = await exportCanvasImage(previewRef.current, exportFormat, exportCropRegion);
       const downloadedAt = new Date().toISOString();
 
       writeEditorSnapshot(buildEditorSnapshot());
@@ -961,6 +978,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
     brightness,
     buildEditorSnapshot,
     cameraPresetId,
+    exportCropRegion,
     exportFormat,
     ledColorId,
     sourceImage.fileName,
@@ -969,17 +987,49 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
 
   const previewSourceUrl = previewImage.src ?? sourceImage.src;
   const previewEngravingUrl = previewEngravingImage.src ?? engraving.src;
+
+  useEffect(() => {
+    if (!isControlDrawerOpen || controlPanelTab !== "export" || !isImageReady) {
+      setExportPreviewUrl(null);
+      return;
+    }
+
+    let frame = 0;
+    const timeoutId = globalThis.setTimeout(() => {
+      frame = globalThis.requestAnimationFrame(() => {
+        setExportPreviewUrl(
+          getCanvasPreviewDataUrl(previewRef.current, exportFormat, exportCropRegion)
+        );
+      });
+    }, 120);
+
+    return () => {
+      globalThis.clearTimeout(timeoutId);
+      if (frame) {
+        globalThis.cancelAnimationFrame(frame);
+      }
+    };
+  }, [
+    acrylicSizeId,
+    backgroundId,
+    brightness,
+    cameraPresetId,
+    controlPanelTab,
+    exportCropRegion,
+    exportFormat,
+    heightAttenuation,
+    isControlDrawerOpen,
+    isImageReady,
+    ledColorId,
+    previewEngravingUrl,
+    previewSourceUrl,
+    showSourceOverlay
+  ]);
+
   const isPreviewSurfaceClickable = !sourceImage.src && !isBusy;
   const previewSurfaceLabel = sourceImage.src
     ? "3Dビューのプレビュー。PNGを差し替えるには画像をドラッグしてください。"
     : "3Dビューに画像をドラッグするか、クリックして PNG を選択";
-  const previewHeaderStatus =
-    sourceImage.status === "error"
-      ? sourceImage.errorMessage
-      : sourceImage.status === "ready"
-        ? "現在の設定がプレビューに反映されています。"
-        : null;
-
   return (
     <main className="shell simulator-shell">
       <p className="sr-only" aria-live="polite" aria-atomic="true">
@@ -1006,17 +1056,11 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
       <div className="simulator-layout">
         <section className="preview-shell">
           <div className="preview-header">
-            <div>
-              <h2 className="panel-title">3D Preview</h2>
-            </div>
-            <div className="preview-header-actions">
-              {previewHeaderStatus ? (
-                <p className="preview-status" aria-live="polite">
-                  {previewHeaderStatus}
-                </p>
-              ) : null}
-              <div className="preview-control-menu" role="tablist" aria-label="シミュレーター設定">
-                {controlPanelTabs.map((tab) => (
+            <div className="preview-control-menu" role="tablist" aria-label="シミュレーター設定">
+              {controlPanelTabs.map((tab) => {
+                const isSelected = isControlDrawerOpen && controlPanelTab === tab.id;
+
+                return (
                   <button
                     key={tab.id}
                     type="button"
@@ -1025,18 +1069,26 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                     className="preview-control-tab"
                     data-state={tab.completionState}
                     aria-label={tab.label}
-                    aria-selected={controlPanelTab === tab.id}
+                    aria-selected={isSelected}
                     aria-controls={`control-panel-${tab.id}`}
-                    aria-expanded={isControlDrawerOpen && controlPanelTab === tab.id}
+                    aria-expanded={isSelected}
                     tabIndex={controlPanelTab === tab.id ? 0 : -1}
                     onClick={() => openControlPanel(tab.id)}
                     onKeyDown={(event) => handleControlTabKeyDown(event, tab.id)}
                   >
                     <span className="preview-control-tab-label">{tab.label}</span>
                   </button>
-                ))}
-              </div>
-              <button type="button" className="secondary-button compact" onClick={resetEditor}>
+                );
+              })}
+            </div>
+            <div className="preview-header-actions">
+              {sourceImage.src ? (
+                <ExportCropOverlayToggle
+                  visible={isExportCropOverlayVisible}
+                  onVisibleChange={setIsExportCropOverlayVisible}
+                />
+              ) : null}
+              <button type="button" className="secondary-button compact preview-header-reset" onClick={resetEditor}>
                 全体をリセット
               </button>
             </div>
@@ -1067,7 +1119,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
               onChange={handlePreviewFileInputChange}
             />
             {sourceImage.src ? (
-              <>
+              <div className="preview-canvas-shell">
                 <SimulatorCanvas
                   imageUrl={previewSourceUrl}
                   engravingImageUrl={previewEngravingUrl}
@@ -1078,9 +1130,16 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                   brightness={brightness}
                   heightAttenuation={heightAttenuation}
                   cameraPreset={cameraPresetId}
+                  cameraControlsEnabled={!isExportCropOverlayVisible}
                   containerRef={previewRef}
                 />
-              </>
+                {isExportCropOverlayVisible ? (
+                  <ExportCropOverlay
+                    cropRegion={exportCropRegion}
+                    onCropRegionChange={setExportCropRegion}
+                  />
+                ) : null}
+              </div>
             ) : (
               <div className="preview-empty-state" data-testid="preview-empty-state">
                 <div className="preview-empty-icon" aria-hidden="true">
@@ -1109,46 +1168,8 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
               </div>
             ) : null}
             {isControlDrawerOpen ? (
-              <>
-                <button
-                  type="button"
-                  className="control-drawer-backdrop"
-                  aria-label="設定を閉じる"
-                  onClick={closeControlDrawer}
-                />
-                <aside id="control-drawer" className="control-panel" aria-labelledby="control-drawer-title">
-                  <div className="control-drawer-header">
-                    <div>
-                      <p className="panel-label">Settings</p>
-                      <h2 id="control-drawer-title" className="control-drawer-title">
-                        シミュレーター設定
-                      </h2>
-                    </div>
-                    <button
-                      ref={controlDrawerCloseButtonRef}
-                      type="button"
-                      className="secondary-button compact"
-                      onClick={closeControlDrawer}
-                    >
-                      閉じる
-                    </button>
-                  </div>
+                <aside id="control-drawer" className="control-panel" aria-label="シミュレーター設定">
                   <div id="control-panel-content" className="control-panel-content">
-            {isImageReady ? (
-              <div className="control-panel-shortcut" data-testid="control-panel-export-shortcut">
-                <div>
-                  <p className="status-title">書き出し可能</p>
-                  <p className="status-secondary">現在のプレビューを保存できます。</p>
-                </div>
-                <button
-                  type="button"
-                  className="secondary-button compact"
-                  onClick={() => activateControlPanelTab("export")}
-                >
-                  すぐに書き出しへ進む
-                </button>
-              </div>
-            ) : null}
             <div className="control-tab-panels">
             <div
               id="control-panel-image"
@@ -1159,41 +1180,14 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
               data-testid="control-panel-image"
             >
               <article className="control-panel-card">
-                <div className="control-panel-summary" data-testid="control-panel-summary">
-                  <h2 className="control-panel-summary-title">画像</h2>
-                  <p className="control-panel-summary-status">
-                    {activeControlPanelTab.id === "image" ? activeControlPanelTab.statusLabel : ""}
-                  </p>
-                  <button
-                    type="button"
-                    className="summary-help-button"
-                    title={getTabDescription("image")}
-                    aria-label="画像セクションの説明"
-                  >
-                    ?
-                  </button>
-                </div>
                 <ImageControls
                   acrylicSizeId={acrylicSizeId}
-                  fileName={sourceImage.fileName}
                   hasImage={isImageReady}
-                  statusLabel={imageStatusLabel}
-                  errorMessage={sourceImage.errorMessage}
                   imageLayout={imageLayout}
                   onAcrylicSizeChange={setAcrylicSizeId}
                   onImageLayoutChange={handleImageLayoutChange}
                   onResetImageLayout={() => setImageLayout(defaultImageLayout)}
                 />
-                <div className="step-action">
-                  <button
-                    type="button"
-                    className="primary-button"
-                    disabled={!isImageReady}
-                    onClick={() => activateControlPanelTab("engraving")}
-                  >
-                    {isImageReady ? "彫刻を調整する" : "PNGを追加すると次へ進めます"}
-                  </button>
-                </div>
               </article>
             </div>
             <div
@@ -1205,38 +1199,13 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
               data-testid="control-panel-engraving"
             >
               <article className="control-panel-card">
-                <div className="control-panel-summary" data-testid="control-panel-summary">
-                  <h2 className="control-panel-summary-title">彫刻</h2>
-                  <p className="control-panel-summary-status">
-                    {activeControlPanelTab.id === "engraving" ? activeControlPanelTab.statusLabel : ""}
-                  </p>
-                  <button
-                    type="button"
-                    className="summary-help-button"
-                    title={getTabDescription("engraving")}
-                    aria-label="彫刻セクションの説明"
-                  >
-                    ?
-                  </button>
-                </div>
                 <EngravingControls
                   adjustments={engravingAdjustments}
                   sourceImageUrl={previewSourceUrl}
                   engravingImageUrl={previewEngravingUrl}
-                  averageStrength={engraving.averageStrength}
                   onAdjustmentsChange={handleEngravingAdjustmentsChange}
                   onDownload={handleDownloadEngraving}
                 />
-                <div className="step-action">
-                  <button
-                    type="button"
-                    className="primary-button"
-                    disabled={!isImageReady}
-                    onClick={() => activateControlPanelTab("lighting")}
-                  >
-                    {isImageReady ? "ライトを調整する" : "PNGを追加すると次へ進めます"}
-                  </button>
-                </div>
               </article>
             </div>
             <div
@@ -1248,20 +1217,6 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
               data-testid="control-panel-lighting"
             >
               <article className="control-panel-card">
-                <div className="control-panel-summary" data-testid="control-panel-summary">
-                  <h2 className="control-panel-summary-title">ライト</h2>
-                  <p className="control-panel-summary-status">
-                    {activeControlPanelTab.id === "lighting" ? activeControlPanelTab.statusLabel : ""}
-                  </p>
-                  <button
-                    type="button"
-                    className="summary-help-button"
-                    title={getTabDescription("lighting")}
-                    aria-label="ライトセクションの説明"
-                  >
-                    ?
-                  </button>
-                </div>
                 <LightingControls
                   activePresetId={ledColorId}
                   brightness={brightness}
@@ -1270,16 +1225,6 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                   onBrightnessChange={setBrightness}
                   onHeightAttenuationChange={setHeightAttenuation}
                 />
-                <div className="step-action">
-                  <button
-                    type="button"
-                    className="primary-button"
-                    disabled={!isImageReady}
-                    onClick={() => activateControlPanelTab("display")}
-                  >
-                    {isImageReady ? "表示を確認する" : "PNGを追加すると次へ進めます"}
-                  </button>
-                </div>
               </article>
             </div>
             <div
@@ -1291,20 +1236,6 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
               data-testid="control-panel-display"
             >
               <article className="control-panel-card">
-                <div className="control-panel-summary" data-testid="control-panel-summary">
-                  <h2 className="control-panel-summary-title">表示</h2>
-                  <p className="control-panel-summary-status">
-                    {activeControlPanelTab.id === "display" ? activeControlPanelTab.statusLabel : ""}
-                  </p>
-                  <button
-                    type="button"
-                    className="summary-help-button"
-                    title={getTabDescription("display")}
-                    aria-label="表示セクションの説明"
-                  >
-                    ?
-                  </button>
-                </div>
                 <DisplayControls
                   activeBackgroundId={backgroundId}
                   activeCameraPreset={cameraPresetId}
@@ -1314,16 +1245,6 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                   onSourceOverlayChange={setShowSourceOverlay}
                   onResetView={handleResetView}
                 />
-                <div className="step-action">
-                  <button
-                    type="button"
-                    className="primary-button"
-                    disabled={!isImageReady}
-                    onClick={() => activateControlPanelTab("export")}
-                  >
-                    {isImageReady ? "書き出しへ進む" : "PNGを追加すると次へ進めます"}
-                  </button>
-                </div>
               </article>
             </div>
             <div
@@ -1335,25 +1256,10 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
               data-testid="control-panel-export"
             >
               <article className="control-panel-card">
-                <div className="control-panel-summary" data-testid="control-panel-summary">
-                  <h2 className="control-panel-summary-title">書き出し</h2>
-                  <p className="control-panel-summary-status">
-                    {activeControlPanelTab.id === "export" ? activeControlPanelTab.statusLabel : ""}
-                  </p>
-                  <button
-                    type="button"
-                    className="summary-help-button"
-                    title={getTabDescription("export")}
-                    aria-label="書き出しセクションの説明"
-                  >
-                    ?
-                  </button>
-                </div>
                 <SaveControls
                   saveStatus={save.status}
-                  errorMessage={save.errorMessage}
                   hasImage={Boolean(sourceImage.src)}
-                  savedAt={save.savedAt}
+                  croppedPreviewUrl={exportPreviewUrl}
                   exportFormat={exportFormat}
                   onFormatChange={setExportFormat}
                   onSave={handleSave}
@@ -1363,7 +1269,6 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
           </div>
           </div>
         </aside>
-              </>
             ) : null}
           </div>
           {sourceImage.errorMessage ? (

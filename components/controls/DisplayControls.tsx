@@ -24,26 +24,7 @@ export function DisplayControls({
 }: DisplayControlsProps) {
   return (
     <section className="panel-section">
-      <div className="panel-header">
-        <p className="panel-label">表示設定</p>
-        <h2 className="panel-title">背景とカメラ</h2>
-        <div className="helper-list">
-          <p>閲覧環境に近い背景で見え方を確認できます。</p>
-          <p>カメラ位置を切り替えて仕上がりを比較します。</p>
-        </div>
-      </div>
-
       <div className="panel-subsection">
-        <div className="status-box">
-          <p className="status-title">現在の表示設定</p>
-          <p className="status-primary">
-            {backgroundPresets.find((preset) => preset.id === activeBackgroundId)?.label ?? backgroundPresets[0].label}
-          </p>
-          <p className="status-secondary">
-            {cameraOptions.find((option) => option.id === activeCameraPreset)?.label ?? cameraOptions[0].label}
-            {showSourceOverlay ? " / 元画像表示オン" : " / 元画像表示オフ"}
-          </p>
-        </div>
         <div className="control-group">
           <span className="control-label">背景プリセット</span>
           <div className="choice-row">

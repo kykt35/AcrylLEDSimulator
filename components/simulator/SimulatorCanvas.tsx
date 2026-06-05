@@ -21,6 +21,7 @@ type SimulatorCanvasProps = {
   heightAttenuation?: number;
   background?: string;
   cameraPreset?: string;
+  cameraControlsEnabled?: boolean;
   containerRef?: React.RefObject<HTMLDivElement | null>;
 };
 
@@ -86,6 +87,7 @@ export function SimulatorCanvas({
   heightAttenuation = 0.3,
   background = "#07111f",
   cameraPreset = "front",
+  cameraControlsEnabled = true,
   containerRef
 }: SimulatorCanvasProps) {
   const [canvasResetKey, setCanvasResetKey] = React.useState(0);
@@ -136,7 +138,11 @@ export function SimulatorCanvas({
               heightAttenuation={heightAttenuation}
             />
             <LedBaseMesh sizePreset={sizePreset} glowColor={glowColor} brightness={brightness} />
-            <CameraController preset={cameraPreset} sizePreset={sizePreset} />
+            <CameraController
+              preset={cameraPreset}
+              sizePreset={sizePreset}
+              controlsEnabled={cameraControlsEnabled}
+            />
           </Canvas>
         </WebGLBoundary>
       )}

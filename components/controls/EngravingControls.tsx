@@ -7,7 +7,6 @@ type EngravingControlsProps = {
   adjustments: EngravingAdjustments;
   sourceImageUrl: string | null;
   engravingImageUrl: string | null;
-  averageStrength?: number | null;
   onAdjustmentsChange: (patch: Partial<EngravingAdjustments>) => void;
   onDownload: () => void | Promise<void>;
 };
@@ -31,29 +30,12 @@ export function EngravingControls({
   adjustments,
   sourceImageUrl,
   engravingImageUrl,
-  averageStrength,
   onAdjustmentsChange,
   onDownload
 }: EngravingControlsProps) {
   return (
     <section className="panel-section">
-      <div className="panel-header">
-        <p className="panel-label">彫刻データ</p>
-        <h2 className="panel-title">グレースケールを調整する</h2>
-        <div className="helper-list">
-          <p>白いほど強く彫刻され、LED 導光時に光りやすくなります。</p>
-          <p>黒は未彫刻として扱います。</p>
-        </div>
-      </div>
       <div className="panel-subsection">
-        <div className="status-box">
-          <p className="status-title">現在の彫刻プレビュー</p>
-          <p className="status-secondary">
-            {averageStrength != null
-              ? `平均彫刻強度: ${(averageStrength * 100).toFixed(1)}%`
-              : "PNG を読み込むと彫刻用プレビューを生成します。"}
-          </p>
-        </div>
         <div className="control-grid">
           {numericControls.map((control) => (
             <label key={control.key} className="control-field range-field">
