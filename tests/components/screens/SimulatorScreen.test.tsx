@@ -84,6 +84,11 @@ vi.mock("@/lib/image/loadPngTexture", () => ({
 }));
 
 describe("SimulatorScreen", () => {
+  const openControlDrawer = async (user: ReturnType<typeof userEvent.setup>) => {
+    await user.click(screen.getByRole("button", { name: "設定を開く" }));
+    return screen.getByRole("complementary", { name: "シミュレーター設定" });
+  };
+
   beforeEach(() => {
     vi.mocked(loadPngTexture).mockResolvedValue({
       src: "data:image/png;base64,simulator",
@@ -128,6 +133,8 @@ describe("SimulatorScreen", () => {
     await waitFor(() => {
       expect(screen.getByTestId("simulator-canvas")).toHaveTextContent("data:image/png;base64,simulator-preview");
     });
+
+    await openControlDrawer(user);
 
     expect(composePreviewImageFromDataUrl).toHaveBeenCalledWith(
       "data:image/png;base64,engraving",
@@ -186,6 +193,7 @@ describe("SimulatorScreen", () => {
     const user = userEvent.setup();
 
     render(<SimulatorScreen />);
+    await openControlDrawer(user);
 
     const displayTab = screen.getByRole("tab", { name: "表示" });
     displayTab.focus();
@@ -225,6 +233,8 @@ describe("SimulatorScreen", () => {
     const file = new File(["png"], "simulator.png", { type: "image/png" });
 
     await user.upload(input, file);
+    await openControlDrawer(user);
+
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "彫刻を調整する" })).toBeEnabled();
     });
@@ -253,6 +263,8 @@ describe("SimulatorScreen", () => {
     const file = new File(["png"], "simulator.png", { type: "image/png" });
 
     await user.upload(input, file);
+    await openControlDrawer(user);
+
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "すぐに書き出しへ進む" })).toBeEnabled();
     });
@@ -261,24 +273,35 @@ describe("SimulatorScreen", () => {
     expect(screen.getByRole("tab", { name: "書き出し" })).toHaveAttribute("aria-selected", "true");
   });
 
-  it("keeps the control panel visible without the mobile drawer", async () => {
+  it("keeps settings hidden until the preview drawer is opened", async () => {
     const user = userEvent.setup();
 
     render(<SimulatorScreen />);
 
-    expect(screen.queryByRole("button", { name: "設定" })).not.toBeInTheDocument();
+    const openButton = screen.getByRole("button", { name: "設定を開く" });
+
+    expect(openButton).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByRole("complementary", { name: "シミュレーター設定" })).not.toBeInTheDocument();
+
+    await user.click(openButton);
+
+    expect(openButton).toHaveAttribute("aria-expanded", "true");
     expect(screen.getByRole("complementary", { name: "シミュレーター設定" })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "画像" })).toHaveAttribute("aria-selected", "true");
 
     await user.click(screen.getByRole("tab", { name: "ライト" }));
     expect(screen.getByRole("tab", { name: "ライト" })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByTestId("control-panel-lighting")).not.toHaveAttribute("hidden");
+
+    await user.keyboard("{Escape}");
+    expect(screen.queryByRole("complementary", { name: "シミュレーター設定" })).not.toBeInTheDocument();
   });
 
   it("updates the acrylic size selection", async () => {
     const user = userEvent.setup();
 
     render(<SimulatorScreen />);
+    await openControlDrawer(user);
 
     expect(screen.getByRole("radio", { name: "M (120 x 180 mm)" })).toHaveAttribute("aria-checked", "true");
     expect(screen.getByRole("tab", { name: "画像" })).toHaveTextContent("画像");
@@ -304,6 +327,7 @@ describe("SimulatorScreen", () => {
 
     expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-height-attenuation", "0.3");
 
+    await openControlDrawer(user);
     await user.click(screen.getByRole("tab", { name: "ライト" }));
     fireEvent.change(screen.getByLabelText("高さ方向の減衰"), {
       target: { value: "0.45" }
@@ -317,6 +341,7 @@ describe("SimulatorScreen", () => {
     const user = userEvent.setup();
 
     render(<SimulatorScreen />);
+    await openControlDrawer(user);
 
     await user.click(screen.getByRole("tab", { name: "ライト" }));
     await user.click(screen.getByRole("button", { name: "Warm White" }));
@@ -340,6 +365,7 @@ describe("SimulatorScreen", () => {
       expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "false");
     });
 
+    await openControlDrawer(user);
     await user.click(screen.getByRole("tab", { name: "表示" }));
     expect(screen.getByText("現在の表示設定")).toBeInTheDocument();
     expect(screen.getByText("現在の表示設定").parentElement).toHaveTextContent("元画像表示オフ");
@@ -394,6 +420,7 @@ describe("SimulatorScreen", () => {
       expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "true");
     });
 
+    await openControlDrawer(user);
     expect(screen.getByRole("radio", { name: "S (100 x 150 mm)" })).toHaveAttribute("aria-checked", "true");
     await user.click(screen.getByRole("tab", { name: "表示" }));
     expect(screen.getByLabelText("元画像を重ねて表示")).toBeChecked();
@@ -420,6 +447,7 @@ describe("SimulatorScreen", () => {
       );
     });
 
+    await openControlDrawer(user);
     await user.click(screen.getByRole("button", { name: "余白なく広げる" }));
     fireEvent.change(screen.getByLabelText("画像サイズ"), { target: { value: "130" } });
     fireEvent.change(screen.getByLabelText("画像の横位置"), { target: { value: "25" } });
@@ -459,6 +487,7 @@ describe("SimulatorScreen", () => {
 
     const alert = await screen.findByRole("alert");
     expect(within(alert).getByText("PNGファイルを選択してください。")).toBeInTheDocument();
+    await openControlDrawer(user);
     await user.click(screen.getByRole("tab", { name: "書き出し" }));
     expect(screen.getByRole("button", { name: "画像をダウンロードする" })).toBeDisabled();
   });
@@ -471,7 +500,18 @@ describe("SimulatorScreen", () => {
     expect(screen.queryByText("2. 調整")).not.toBeInTheDocument();
     expect(screen.queryByText("3. 書き出し")).not.toBeInTheDocument();
     expect(screen.getByTestId("preview-empty-state")).toHaveTextContent("3Dビューへ PNG を追加して始めましょう");
-    expect(screen.getByRole("complementary", { name: "シミュレーター設定" })).toBeInTheDocument();
+    expect(screen.queryByRole("complementary", { name: "シミュレーター設定" })).not.toBeInTheDocument();
+    expect(screen.queryByText("PNGを追加すると配置調整ができます。")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "PNGを追加すると次へ進めます" })).not.toBeInTheDocument();
+  });
+
+  it("shows the empty image controls after the settings drawer is opened", async () => {
+    const user = userEvent.setup();
+
+    render(<SimulatorScreen />);
+
+    await openControlDrawer(user);
+
     expect(screen.getByText("PNGを追加すると配置調整ができます。")).toBeInTheDocument();
     expect(screen.queryByLabelText("画像サイズ")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "PNGを追加すると次へ進めます" })).toBeDisabled();
@@ -486,10 +526,10 @@ describe("SimulatorScreen", () => {
     const file = new File(["png"], "simulator.png", { type: "image/png" });
 
     await user.upload(input, file);
+    await openControlDrawer(user);
     await waitFor(() => {
       expect(screen.getByRole("tab", { name: "書き出し" })).toBeInTheDocument();
     });
-
     await user.click(screen.getByRole("tab", { name: "書き出し" }));
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "画像をダウンロードする" })).toBeEnabled();
@@ -517,10 +557,10 @@ describe("SimulatorScreen", () => {
     const file = new File(["png"], "simulator.png", { type: "image/png" });
 
     await user.upload(input, file);
+    await openControlDrawer(user);
     await waitFor(() => {
       expect(screen.getByRole("tab", { name: "書き出し" })).toBeInTheDocument();
     });
-
     await user.click(screen.getByRole("tab", { name: "書き出し" }));
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "画像をダウンロードする" })).toBeEnabled();
@@ -548,10 +588,10 @@ describe("SimulatorScreen", () => {
     const file = new File(["png"], "simulator.png", { type: "image/png" });
 
     await user.upload(input, file);
+    await openControlDrawer(user);
     await waitFor(() => {
       expect(screen.getByRole("tab", { name: "書き出し" })).toBeInTheDocument();
     });
-
     await user.click(screen.getByRole("tab", { name: "書き出し" }));
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "画像をダウンロードする" })).toBeEnabled();
@@ -576,6 +616,7 @@ describe("SimulatorScreen", () => {
     const file = new File(["png"], "simulator.png", { type: "image/png" });
 
     await user.upload(input, file);
+    await openControlDrawer(user);
     await waitFor(() => {
       expect(screen.getAllByAltText("彫刻用グレースケールプレビュー")).toHaveLength(1);
     });

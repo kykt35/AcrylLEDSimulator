@@ -228,6 +228,9 @@ function getTabDescription(tabId: ControlPanelTabId) {
 export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
   const previewRef = useRef<HTMLDivElement>(null);
   const previewFileInputRef = useRef<HTMLInputElement>(null);
+  const controlDrawerOpenButtonRef = useRef<HTMLButtonElement>(null);
+  const controlDrawerCloseButtonRef = useRef<HTMLButtonElement>(null);
+  const wasControlDrawerOpenRef = useRef(false);
   const previewPointerStartRef = useRef<{ x: number; y: number } | null>(null);
   const previewPointerMovedRef = useRef(false);
   const [sourceImage, dispatchSourceImage] = useReducer(sourceImageReducer, defaultSourceImageState);
@@ -255,6 +258,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
   const [isSaveCompleteOpen, setIsSaveCompleteOpen] = useState(false);
   const [exportFormat, setExportFormat] = useState<ExportImageFormat>("png");
   const [controlPanelTab, setControlPanelTab] = useState<ControlPanelTabId>("image");
+  const [isControlDrawerOpen, setIsControlDrawerOpen] = useState(false);
   const [isPreviewDragActive, setIsPreviewDragActive] = useState(false);
 
   const isImageReady = hasImage(sourceImage.src);
@@ -479,6 +483,42 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
   const activateControlPanelTab = useCallback((tabId: ControlPanelTabId) => {
     setControlPanelTab(tabId);
   }, []);
+
+  const openControlDrawer = useCallback(() => {
+    setIsControlDrawerOpen(true);
+  }, []);
+
+  const closeControlDrawer = useCallback(() => {
+    setIsControlDrawerOpen(false);
+  }, []);
+
+  useEffect(() => {
+    if (isControlDrawerOpen) {
+      controlDrawerCloseButtonRef.current?.focus();
+    } else if (wasControlDrawerOpenRef.current) {
+      controlDrawerOpenButtonRef.current?.focus();
+    }
+
+    wasControlDrawerOpenRef.current = isControlDrawerOpen;
+  }, [isControlDrawerOpen]);
+
+  useEffect(() => {
+    if (!isControlDrawerOpen) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        closeControlDrawer();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [closeControlDrawer, isControlDrawerOpen]);
 
   const handleFileSelected = useCallback(async (file: File) => {
     dispatchSourceImage({ type: "load-start", fileName: file.name });
@@ -934,7 +974,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
         : null;
 
   return (
-    <main className="shell">
+    <main className="shell simulator-shell">
       <p className="sr-only" aria-live="polite" aria-atomic="true">
         {liveRegionMessage}
       </p>
@@ -960,8 +1000,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
         <section className="preview-shell">
           <div className="preview-header">
             <div>
-              <p className="panel-label">3D Preview</p>
-              <h2 className="panel-title">3D プレビュー</h2>
+              <h2 className="panel-title">3D Preview</h2>
             </div>
             <div className="preview-header-actions">
               {previewHeaderStatus ? (
@@ -969,6 +1008,17 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                   {previewHeaderStatus}
                 </p>
               ) : null}
+              <button
+                ref={controlDrawerOpenButtonRef}
+                type="button"
+                className="primary-button compact"
+                aria-controls="control-drawer"
+                aria-expanded={isControlDrawerOpen}
+                aria-label="設定を開く"
+                onClick={openControlDrawer}
+              >
+                設定
+              </button>
               <button type="button" className="secondary-button compact" onClick={resetEditor}>
                 全体をリセット
               </button>
@@ -1053,8 +1103,32 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
           ) : null}
         </section>
 
-        <aside className="control-panel" aria-label="シミュレーター設定">
-          <div id="control-panel-content" className="control-panel-content">
+        {isControlDrawerOpen ? (
+          <>
+            <button
+              type="button"
+              className="control-drawer-backdrop"
+              aria-label="設定を閉じる"
+              onClick={closeControlDrawer}
+            />
+            <aside id="control-drawer" className="control-panel" aria-labelledby="control-drawer-title">
+              <div className="control-drawer-header">
+                <div>
+                  <p className="panel-label">Settings</p>
+                  <h2 id="control-drawer-title" className="control-drawer-title">
+                    シミュレーター設定
+                  </h2>
+                </div>
+                <button
+                  ref={controlDrawerCloseButtonRef}
+                  type="button"
+                  className="secondary-button compact"
+                  onClick={closeControlDrawer}
+                >
+                  閉じる
+                </button>
+              </div>
+              <div id="control-panel-content" className="control-panel-content">
             <div className="control-tablist" role="tablist" aria-label="シミュレーター設定">
               {controlPanelTabs.map((tab) => (
                 <button
@@ -1304,6 +1378,8 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
           </div>
           </div>
         </aside>
+          </>
+        ) : null}
       </div>
 
       <SaveCompleteModal
