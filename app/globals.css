@@ -1094,7 +1094,11 @@ button {
   border: 1px solid rgba(169, 216, 255, 0.2);
   background: rgba(136, 240, 255, 0.12);
   color: var(--accent);
-  font-weight: 700;
+}
+
+.preview-empty-icon-image {
+  width: 36px;
+  height: 36px;
 }
 
 .preview-loading-overlay {

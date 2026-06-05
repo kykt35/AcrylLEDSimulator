@@ -12,6 +12,7 @@ import { SaveCompleteModal } from "@/components/modals/SaveCompleteModal";
 import { SimulatorHeaderActions } from "@/components/screens/SimulatorHeaderActions";
 import { SimulatorCanvas } from "@/components/simulator/SimulatorCanvas";
 import { ErrorNotice } from "@/components/ui/ErrorNotice";
+import { PreviewEmptyIcon } from "@/components/ui/PreviewEmptyIcon";
 import { downloadBlob } from "@/lib/download/downloadBlob";
 import {
   exportCanvasImage,
@@ -1134,11 +1135,11 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
               </div>
             ) : (
               <div className="preview-empty-state" data-testid="preview-empty-state">
+                <h3>PNGファイルを追加して始めましょう</h3>
                 <div className="preview-empty-icon" aria-hidden="true">
-                  PNG
+                  <PreviewEmptyIcon className="preview-empty-icon-image" />
                 </div>
-                <h3>3Dビューへ PNG を追加して始めましょう</h3>
-                <p>このエリアに画像をドラッグするか、クリックして PNG を選択すると 3D プレビューへ反映します。</p>
+                <p>このエリアに画像をドラッグするか、クリックしてPNGファイルを選択すると 3D プレビューへ反映します。</p>
               </div>
             )}
             {isPreviewDragActive ? (

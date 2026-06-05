@@ -495,7 +495,7 @@ describe("SimulatorScreen", () => {
     expect(screen.queryByText("1. PNG追加")).not.toBeInTheDocument();
     expect(screen.queryByText("2. 調整")).not.toBeInTheDocument();
     expect(screen.queryByText("3. 書き出し")).not.toBeInTheDocument();
-    expect(screen.getByTestId("preview-empty-state")).toHaveTextContent("3Dビューへ PNG を追加して始めましょう");
+    expect(screen.getByTestId("preview-empty-state")).toHaveTextContent("PNGファイルを追加して始めましょう");
     expect(screen.queryByRole("tab", { name: "画像" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "リセット" })).not.toBeInTheDocument();
     expect(screen.queryByRole("complementary", { name: "シミュレーター設定" })).not.toBeInTheDocument();
