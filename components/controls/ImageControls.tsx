@@ -9,10 +9,7 @@ import type { ImageLayout } from "@/lib/simulator/imageLayout";
 
 type ImageControlsProps = {
   acrylicSizeId: AcrylicSizePresetId;
-  fileName: string;
   hasImage: boolean;
-  statusLabel: string;
-  errorMessage: string | null;
   imageLayout: ImageLayout;
   onAcrylicSizeChange: (sizeId: AcrylicSizePresetId) => void;
   onImageLayoutChange: (patch: Partial<ImageLayout>) => void;
@@ -21,10 +18,7 @@ type ImageControlsProps = {
 
 export function ImageControls({
   acrylicSizeId,
-  fileName,
   hasImage,
-  statusLabel,
-  errorMessage,
   imageLayout,
   onAcrylicSizeChange,
   onImageLayoutChange,
@@ -77,15 +71,6 @@ export function ImageControls({
 
   return (
     <section className="panel-section">
-      <div className="panel-header">
-        <p className="panel-label">画像設定</p>
-        <h2 className="panel-title">画像の配置を調整</h2>
-        <div className="helper-list">
-          <p>透過 PNG を推奨します</p>
-          <p>読み込み後に彫刻用グレースケール画像を自動生成します</p>
-          <p>画像の追加と差し替えは 3D ビュー上のドラッグまたはクリックで行います</p>
-        </div>
-      </div>
       <div className="panel-subsection">
         <div className="control-group">
           <span className="control-label">アクリル板サイズ</span>
@@ -104,22 +89,9 @@ export function ImageControls({
             ))}
           </div>
         </div>
-        <div className="status-box">
-          <p className="status-title">現在の入力</p>
-          <p className="status-primary">{fileName}</p>
-          <p className="status-secondary">{errorMessage ?? statusLabel}</p>
-        </div>
-        <div className="status-box">
-          <p className="status-title">画像の追加方法</p>
-          <p className="status-secondary">3D ビューに画像をドラッグするか、クリックして PNG を選択してください。</p>
-        </div>
       </div>
       {hasImage ? (
         <div className="panel-subsection">
-          <div>
-            <p className="status-title">プレビュー画像の調整</p>
-            <p className="status-secondary">配置、サイズ、表示方法をここで切り替えられます。</p>
-          </div>
           <div className="control-group">
             <span className="control-label">コンテントフィット</span>
             <div className="choice-row">
@@ -167,14 +139,7 @@ export function ImageControls({
             画像調整をリセット
           </button>
         </div>
-      ) : (
-        <div className="panel-subsection">
-          <div className="status-box">
-            <p className="status-title">プレビュー画像の調整</p>
-            <p className="status-secondary">PNGを追加すると配置調整ができます。</p>
-          </div>
-        </div>
-      )}
+      ) : null}
     </section>
   );
 }

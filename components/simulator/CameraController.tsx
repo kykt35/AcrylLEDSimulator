@@ -8,6 +8,7 @@ import { type AcrylicSizePreset } from "@/lib/simulator/acrylicSizePresets";
 type CameraControllerProps = {
   preset: string;
   sizePreset: AcrylicSizePreset;
+  controlsEnabled?: boolean;
 };
 
 const cameraPresets: Record<string, [number, number, number]> = {
@@ -16,7 +17,11 @@ const cameraPresets: Record<string, [number, number, number]> = {
   detail: [0.7, 0.25, 2.4]
 };
 
-export function CameraController({ preset, sizePreset }: CameraControllerProps) {
+export function CameraController({
+  preset,
+  sizePreset,
+  controlsEnabled = true
+}: CameraControllerProps) {
   const { camera } = useThree();
 
   useEffect(() => {
@@ -25,5 +30,12 @@ export function CameraController({ preset, sizePreset }: CameraControllerProps) 
     camera.lookAt(0, -0.2, 0);
   }, [camera, preset, sizePreset.cameraDistanceMultiplier]);
 
-  return <OrbitControls enablePan={false} minDistance={2.1} maxDistance={6.4} />;
+  return (
+    <OrbitControls
+      enabled={controlsEnabled}
+      enablePan={false}
+      minDistance={2.1}
+      maxDistance={6.4}
+    />
+  );
 }

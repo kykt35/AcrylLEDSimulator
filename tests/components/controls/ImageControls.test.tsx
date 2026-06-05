@@ -11,10 +11,7 @@ describe("ImageControls", () => {
     render(
       <ImageControls
         acrylicSizeId="medium"
-        fileName="sample.png"
         hasImage={true}
-        statusLabel="ready"
-        errorMessage={null}
         imageLayout={{
           contentFit: "contain",
           scale: 1,
@@ -29,8 +26,6 @@ describe("ImageControls", () => {
 
     expect(screen.getByRole("radio", { name: "M (120 x 180 mm)" })).toHaveAttribute("aria-checked", "true");
     expect(screen.getByRole("radio", { name: "S (100 x 150 mm)" })).toBeInTheDocument();
-    expect(screen.getByText("画像の追加方法")).toBeInTheDocument();
-    expect(screen.getByText("3D ビューに画像をドラッグするか、クリックして PNG を選択してください。")).toBeInTheDocument();
 
     await user.click(screen.getByRole("radio", { name: "L (150 x 200 mm)" }));
 
@@ -41,10 +36,7 @@ describe("ImageControls", () => {
     render(
       <ImageControls
         acrylicSizeId="medium"
-        fileName="未選択"
         hasImage={false}
-        statusLabel="PNG をアップロードすると 3D プレビューへ反映されます。"
-        errorMessage={null}
         imageLayout={{
           contentFit: "contain",
           scale: 1,
@@ -57,8 +49,7 @@ describe("ImageControls", () => {
       />
     );
 
-    expect(screen.getByText("PNGを追加すると配置調整ができます。")).toBeInTheDocument();
-    expect(screen.queryByText("コンテントフィット")).not.toBeInTheDocument();
+    expect(screen.getByRole("radiogroup", { name: "アクリル板サイズ" })).toBeInTheDocument();
     expect(screen.queryByLabelText("画像サイズ")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("画像の横位置")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("画像の縦位置")).not.toBeInTheDocument();
@@ -72,10 +63,7 @@ describe("ImageControls", () => {
     render(
       <ImageControls
         acrylicSizeId="medium"
-        fileName="sample.png"
         hasImage={true}
-        statusLabel="ready"
-        errorMessage={null}
         imageLayout={{
           contentFit: "contain",
           scale: 1,

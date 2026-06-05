@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 import AboutPage from "@/app/about/page";
 import HomePage from "@/app/page";
+import UsagePage from "@/app/usage/page";
 
 vi.mock("@/components/screens/SimulatorScreen", () => ({
   SimulatorScreen: ({ searchParams }: { searchParams?: Record<string, string | string[] | undefined> }) => (
@@ -47,5 +48,18 @@ describe("AboutPage", () => {
     await user.keyboard("{Escape}");
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+});
+
+describe("UsagePage", () => {
+  it("renders the usage flow and simulator entry", () => {
+    render(<UsagePage />);
+
+    expect(screen.getByRole("heading", { name: "使い方" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "シミュレーターへ戻る" })).toHaveAttribute("href", "/");
+    expect(screen.getByText("PNG を追加する")).toBeInTheDocument();
+    expect(screen.getByText("彫刻とライトを調整する")).toBeInTheDocument();
+    expect(screen.getByText("画像を書き出す")).toBeInTheDocument();
+    expect(screen.getByText("事前に確認すること")).toBeInTheDocument();
   });
 });

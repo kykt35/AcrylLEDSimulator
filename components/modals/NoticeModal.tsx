@@ -5,9 +5,14 @@ import React, { useEffect, useId, useRef, useState } from "react";
 type NoticeModalProps = {
   triggerLabel: string;
   buttonClassName?: string;
+  onTriggerClick?: () => void;
 };
 
-export function NoticeModal({ triggerLabel, buttonClassName = "secondary-link" }: NoticeModalProps) {
+export function NoticeModal({
+  triggerLabel,
+  buttonClassName = "secondary-link",
+  onTriggerClick
+}: NoticeModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const titleId = useId();
   const descriptionId = useId();
@@ -62,7 +67,15 @@ export function NoticeModal({ triggerLabel, buttonClassName = "secondary-link" }
 
   return (
     <>
-      <button ref={triggerRef} type="button" className={buttonClassName} onClick={() => setIsOpen(true)}>
+      <button
+        ref={triggerRef}
+        type="button"
+        className={buttonClassName}
+        onClick={() => {
+          onTriggerClick?.();
+          setIsOpen(true);
+        }}
+      >
         {triggerLabel}
       </button>
       {isOpen ? (

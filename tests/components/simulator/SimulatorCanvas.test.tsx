@@ -1,16 +1,41 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { SimulatorCanvas } from "@/components/simulator/SimulatorCanvas";
 import { getAcrylicSizePreset } from "@/lib/simulator/acrylicSizePresets";
+
+const simulatorCanvasMockState = vi.hoisted(() => ({
+  throwOnRender: false
+}));
 
 vi.mock("@react-three/fiber", () => ({
   Canvas: ({
     children,
-    gl
+    gl,
+    onCreated
   }: {
     children: React.ReactNode;
     gl?: { preserveDrawingBuffer?: boolean };
-  }) => <div data-testid="r3f-canvas" data-preserve-drawing-buffer={String(Boolean(gl?.preserveDrawingBuffer))}>{children}</div>,
+    onCreated?: (state: { gl: { domElement: HTMLCanvasElement } }) => void;
+  }) => {
+    if (simulatorCanvasMockState.throwOnRender) {
+      throw new Error("WebGL blocked");
+    }
+
+    const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
+
+    React.useEffect(() => {
+      if (canvasRef.current) {
+        onCreated?.({ gl: { domElement: canvasRef.current } });
+      }
+    }, [onCreated]);
+
+    return (
+      <div data-testid="r3f-canvas" data-preserve-drawing-buffer={String(Boolean(gl?.preserveDrawingBuffer))}>
+        <canvas ref={canvasRef} data-testid="webgl-dom-element" />
+        {children}
+      </div>
+    );
+  },
   useThree: () => ({
     camera: {
       position: { set: vi.fn() },
@@ -59,6 +84,10 @@ vi.mock("@react-three/drei", () => ({
 }));
 
 describe("SimulatorCanvas", () => {
+  beforeEach(() => {
+    simulatorCanvasMockState.throwOnRender = false;
+  });
+
   it("renders the canvas container and propagates the size preset", () => {
     render(
       <SimulatorCanvas
@@ -80,5 +109,27 @@ describe("SimulatorCanvas", () => {
     expect(screen.getByTestId("acrylic-stand-mesh")).toHaveAttribute("data-size-preset", "large");
     expect(screen.getByTestId("acrylic-stand-mesh")).toHaveAttribute("data-height-attenuation", "0.45");
     expect(screen.getByTestId("led-base-mesh")).toHaveAttribute("data-size-preset", "large");
+  });
+
+  it("shows a retry fallback when the WebGL context is lost", () => {
+    render(<SimulatorCanvas imageUrl="data:image/png;base64,source" />);
+
+    const webglCanvas = screen.getByTestId("webgl-dom-element");
+    fireEvent(webglCanvas, new Event("webglcontextlost", { cancelable: true }));
+
+    expect(screen.getByText("3D プレビューを表示できません")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "3Dプレビューを再読み込み" })).toBeInTheDocument();
+  });
+
+  it("shows a retry fallback when the WebGL renderer cannot be created", () => {
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    simulatorCanvasMockState.throwOnRender = true;
+
+    render(<SimulatorCanvas imageUrl="data:image/png;base64,source" />);
+
+    expect(screen.getByText("3D プレビューを表示できません")).toBeInTheDocument();
+    expect(screen.queryByTestId("r3f-canvas")).not.toBeInTheDocument();
+
+    consoleErrorSpy.mockRestore();
   });
 });
