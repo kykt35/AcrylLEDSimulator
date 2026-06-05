@@ -78,7 +78,7 @@ describe("ImageControls", () => {
 
     await user.click(screen.getByRole("button", { name: "余白なく広げる" }));
     fireEvent.change(screen.getByLabelText("画像サイズ"), { target: { value: "130" } });
-    await user.click(screen.getByRole("button", { name: "画像調整をリセット" }));
+    await user.click(screen.getByRole("button", { name: "配置調整をリセット" }));
 
     expect(onImageLayoutChange).toHaveBeenCalledWith({ contentFit: "cover" });
     expect(onImageLayoutChange).toHaveBeenCalledWith({ scale: 1.3 });

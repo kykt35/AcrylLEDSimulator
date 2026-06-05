@@ -213,19 +213,19 @@ describe("SimulatorScreen", () => {
 
     await user.keyboard("{ArrowRight}");
 
-    const exportTab = screen.getByRole("tab", { name: "書出し" });
-    expect(exportTab).toHaveFocus();
-    expect(exportTab).toHaveAttribute("aria-selected", "true");
-    expect(screen.getByTestId("control-panel-export")).not.toHaveAttribute("hidden");
-    expect(screen.getByTestId("control-panel-image")).toHaveAttribute("hidden");
-
-    await user.keyboard("{Home}");
-
     const imageTab = screen.getByRole("tab", { name: "配置" });
     expect(imageTab).toHaveFocus();
     expect(imageTab).toHaveAttribute("aria-selected", "true");
     expect(screen.getByTestId("control-panel-image")).not.toHaveAttribute("hidden");
     expect(screen.getByTestId("control-panel-export")).toHaveAttribute("hidden");
+
+    await user.keyboard("{Home}");
+
+    const lightingTab = screen.getByRole("tab", { name: "ライト" });
+    expect(lightingTab).toHaveFocus();
+    expect(lightingTab).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByTestId("control-panel-lighting")).not.toHaveAttribute("hidden");
+    expect(screen.getByTestId("control-panel-image")).toHaveAttribute("hidden");
   });
 
   it("switches control tabs after an image is uploaded", async () => {
