@@ -501,7 +501,7 @@ describe("SimulatorScreen", () => {
     expect(screen.queryByRole("complementary", { name: "シミュレーター設定" })).not.toBeInTheDocument();
   });
 
-  it("shows the export crop overlay on the 3D view when the export tab is open", async () => {
+  it("keeps the export crop overlay hidden when the export tab is opened", async () => {
     const user = userEvent.setup();
 
     render(<SimulatorScreen />);
@@ -514,11 +514,11 @@ describe("SimulatorScreen", () => {
     await user.click(screen.getByRole("tab", { name: "書き出し" }));
 
     await waitFor(() => {
-      expect(screen.getByTestId("export-crop-overlay")).toBeInTheDocument();
       expect(screen.getByTestId("export-preview-image")).toBeInTheDocument();
-      expect(screen.getByTestId("export-crop-overlay-toggle")).toBeChecked();
+      expect(screen.getByTestId("export-crop-overlay-toggle")).not.toBeChecked();
     });
 
+    expect(screen.queryByTestId("export-crop-overlay")).not.toBeInTheDocument();
     expect(screen.getByTestId("export-preview-image")).toHaveAttribute(
       "src",
       "data:image/png;base64,cropped-preview"
@@ -530,7 +530,7 @@ describe("SimulatorScreen", () => {
     );
   });
 
-  it("hides the export crop overlay when the toggle is turned off", async () => {
+  it("shows and hides the export crop overlay with the toggle", async () => {
     const user = userEvent.setup();
 
     render(<SimulatorScreen />);
@@ -542,9 +542,9 @@ describe("SimulatorScreen", () => {
     await openControlDrawer(user);
     await user.click(screen.getByRole("tab", { name: "書き出し" }));
 
-    await waitFor(() => {
-      expect(screen.getByTestId("export-crop-overlay")).toBeInTheDocument();
-    });
+    await user.click(screen.getByTestId("export-crop-overlay-toggle"));
+    expect(screen.getByTestId("export-crop-overlay")).toBeInTheDocument();
+    expect(screen.getByTestId("export-crop-overlay-toggle")).toBeChecked();
 
     await user.click(screen.getByTestId("export-crop-overlay-toggle"));
 

@@ -462,9 +462,6 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
       const nextTab = controlPanelTabs[nextIndex];
       setControlPanelTab(nextTab.id);
       setIsControlDrawerOpen(true);
-      if (nextTab.id === "export") {
-        setIsExportCropOverlayVisible(true);
-      }
       globalThis.document?.getElementById(`preview-control-tab-${nextTab.id}`)?.focus();
     },
     [controlPanelTabs]
@@ -479,9 +476,6 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
 
       setControlPanelTab(tabId);
       setIsControlDrawerOpen(true);
-      if (tabId === "export") {
-        setIsExportCropOverlayVisible(true);
-      }
     },
     [controlPanelTab, isControlDrawerOpen]
   );
