@@ -85,7 +85,7 @@ vi.mock("@/lib/image/loadPngTexture", () => ({
 
 describe("SimulatorScreen", () => {
   const openControlDrawer = async (user: ReturnType<typeof userEvent.setup>) => {
-    await user.click(screen.getByRole("button", { name: "設定を開く" }));
+    await user.click(screen.getByRole("tab", { name: "画像" }));
     return screen.getByRole("complementary", { name: "シミュレーター設定" });
   };
 
@@ -273,19 +273,19 @@ describe("SimulatorScreen", () => {
     expect(screen.getByRole("tab", { name: "書き出し" })).toHaveAttribute("aria-selected", "true");
   });
 
-  it("keeps settings hidden until the preview drawer is opened", async () => {
+  it("keeps settings panels hidden until a preview menu item is opened", async () => {
     const user = userEvent.setup();
 
     render(<SimulatorScreen />);
 
-    const openButton = screen.getByRole("button", { name: "設定を開く" });
+    const imageTab = screen.getByRole("tab", { name: "画像" });
 
-    expect(openButton).toHaveAttribute("aria-expanded", "false");
+    expect(imageTab).toHaveAttribute("aria-expanded", "false");
     expect(screen.queryByRole("complementary", { name: "シミュレーター設定" })).not.toBeInTheDocument();
 
-    await user.click(openButton);
+    await user.click(imageTab);
 
-    expect(openButton).toHaveAttribute("aria-expanded", "true");
+    expect(imageTab).toHaveAttribute("aria-expanded", "true");
     expect(screen.getByRole("complementary", { name: "シミュレーター設定" })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "画像" })).toHaveAttribute("aria-selected", "true");
 

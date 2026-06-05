@@ -228,7 +228,6 @@ function getTabDescription(tabId: ControlPanelTabId) {
 export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
   const previewRef = useRef<HTMLDivElement>(null);
   const previewFileInputRef = useRef<HTMLInputElement>(null);
-  const controlDrawerOpenButtonRef = useRef<HTMLButtonElement>(null);
   const controlDrawerCloseButtonRef = useRef<HTMLButtonElement>(null);
   const wasControlDrawerOpenRef = useRef(false);
   const previewPointerStartRef = useRef<{ x: number; y: number } | null>(null);
@@ -475,7 +474,8 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
       event.preventDefault();
       const nextTab = controlPanelTabs[nextIndex];
       setControlPanelTab(nextTab.id);
-      globalThis.document?.getElementById(`control-tab-${nextTab.id}`)?.focus();
+      setIsControlDrawerOpen(true);
+      globalThis.document?.getElementById(`preview-control-tab-${nextTab.id}`)?.focus();
     },
     [controlPanelTabs]
   );
@@ -484,7 +484,8 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
     setControlPanelTab(tabId);
   }, []);
 
-  const openControlDrawer = useCallback(() => {
+  const openControlPanel = useCallback((tabId: ControlPanelTabId) => {
+    setControlPanelTab(tabId);
     setIsControlDrawerOpen(true);
   }, []);
 
@@ -493,14 +494,16 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
   }, []);
 
   useEffect(() => {
-    if (isControlDrawerOpen) {
+    const wasControlDrawerOpen = wasControlDrawerOpenRef.current;
+
+    if (isControlDrawerOpen && !wasControlDrawerOpen) {
       controlDrawerCloseButtonRef.current?.focus();
-    } else if (wasControlDrawerOpenRef.current) {
-      controlDrawerOpenButtonRef.current?.focus();
+    } else if (!isControlDrawerOpen && wasControlDrawerOpen) {
+      globalThis.document?.getElementById(`preview-control-tab-${controlPanelTab}`)?.focus();
     }
 
     wasControlDrawerOpenRef.current = isControlDrawerOpen;
-  }, [isControlDrawerOpen]);
+  }, [controlPanelTab, isControlDrawerOpen]);
 
   useEffect(() => {
     if (!isControlDrawerOpen) {
@@ -657,6 +660,10 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
   const handlePreviewSurfaceClick = useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
       if (event.target === previewFileInputRef.current) {
+        return;
+      }
+
+      if (event.target instanceof Element && event.target.closest(".control-panel, .control-drawer-backdrop")) {
         return;
       }
 
@@ -1008,17 +1015,27 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                   {previewHeaderStatus}
                 </p>
               ) : null}
-              <button
-                ref={controlDrawerOpenButtonRef}
-                type="button"
-                className="primary-button compact"
-                aria-controls="control-drawer"
-                aria-expanded={isControlDrawerOpen}
-                aria-label="設定を開く"
-                onClick={openControlDrawer}
-              >
-                設定
-              </button>
+              <div className="preview-control-menu" role="tablist" aria-label="シミュレーター設定">
+                {controlPanelTabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    id={`preview-control-tab-${tab.id}`}
+                    role="tab"
+                    className="preview-control-tab"
+                    data-state={tab.completionState}
+                    aria-label={tab.label}
+                    aria-selected={controlPanelTab === tab.id}
+                    aria-controls={`control-panel-${tab.id}`}
+                    aria-expanded={isControlDrawerOpen && controlPanelTab === tab.id}
+                    tabIndex={controlPanelTab === tab.id ? 0 : -1}
+                    onClick={() => openControlPanel(tab.id)}
+                    onKeyDown={(event) => handleControlTabKeyDown(event, tab.id)}
+                  >
+                    <span className="preview-control-tab-label">{tab.label}</span>
+                  </button>
+                ))}
+              </div>
               <button type="button" className="secondary-button compact" onClick={resetEditor}>
                 全体をリセット
               </button>
@@ -1091,64 +1108,32 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                 </span>
               </div>
             ) : null}
-          </div>
-          {sourceImage.errorMessage ? (
-            <ErrorNotice title="画像の読み込みに失敗しました" message={sourceImage.errorMessage} />
-          ) : null}
-          {engraving.status === "error" && engraving.errorMessage ? (
-            <ErrorNotice title="彫刻用画像の生成に失敗しました" message={engraving.errorMessage} />
-          ) : null}
-          {save.status === "error" && save.errorMessage ? (
-            <ErrorNotice title="ダウンロードに失敗しました" message={save.errorMessage} />
-          ) : null}
-        </section>
-
-        {isControlDrawerOpen ? (
-          <>
-            <button
-              type="button"
-              className="control-drawer-backdrop"
-              aria-label="設定を閉じる"
-              onClick={closeControlDrawer}
-            />
-            <aside id="control-drawer" className="control-panel" aria-labelledby="control-drawer-title">
-              <div className="control-drawer-header">
-                <div>
-                  <p className="panel-label">Settings</p>
-                  <h2 id="control-drawer-title" className="control-drawer-title">
-                    シミュレーター設定
-                  </h2>
-                </div>
+            {isControlDrawerOpen ? (
+              <>
                 <button
-                  ref={controlDrawerCloseButtonRef}
                   type="button"
-                  className="secondary-button compact"
+                  className="control-drawer-backdrop"
+                  aria-label="設定を閉じる"
                   onClick={closeControlDrawer}
-                >
-                  閉じる
-                </button>
-              </div>
-              <div id="control-panel-content" className="control-panel-content">
-            <div className="control-tablist" role="tablist" aria-label="シミュレーター設定">
-              {controlPanelTabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  type="button"
-                  id={`control-tab-${tab.id}`}
-                  role="tab"
-                  className="control-tab"
-                  data-state={tab.completionState}
-                  aria-label={tab.label}
-                  aria-selected={controlPanelTab === tab.id}
-                  aria-controls={`control-panel-${tab.id}`}
-                  tabIndex={controlPanelTab === tab.id ? 0 : -1}
-                  onClick={() => activateControlPanelTab(tab.id)}
-                  onKeyDown={(event) => handleControlTabKeyDown(event, tab.id)}
-                >
-                  <span className="control-tab-label">{tab.label}</span>
-                </button>
-              ))}
-            </div>
+                />
+                <aside id="control-drawer" className="control-panel" aria-labelledby="control-drawer-title">
+                  <div className="control-drawer-header">
+                    <div>
+                      <p className="panel-label">Settings</p>
+                      <h2 id="control-drawer-title" className="control-drawer-title">
+                        シミュレーター設定
+                      </h2>
+                    </div>
+                    <button
+                      ref={controlDrawerCloseButtonRef}
+                      type="button"
+                      className="secondary-button compact"
+                      onClick={closeControlDrawer}
+                    >
+                      閉じる
+                    </button>
+                  </div>
+                  <div id="control-panel-content" className="control-panel-content">
             {isImageReady ? (
               <div className="control-panel-shortcut" data-testid="control-panel-export-shortcut">
                 <div>
@@ -1169,7 +1154,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
               id="control-panel-image"
               role="tabpanel"
               className="control-tab-panel"
-              aria-labelledby="control-tab-image"
+              aria-labelledby="preview-control-tab-image"
               hidden={controlPanelTab !== "image"}
               data-testid="control-panel-image"
             >
@@ -1215,7 +1200,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
               id="control-panel-engraving"
               role="tabpanel"
               className="control-tab-panel"
-              aria-labelledby="control-tab-engraving"
+              aria-labelledby="preview-control-tab-engraving"
               hidden={controlPanelTab !== "engraving"}
               data-testid="control-panel-engraving"
             >
@@ -1258,7 +1243,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
               id="control-panel-lighting"
               role="tabpanel"
               className="control-tab-panel"
-              aria-labelledby="control-tab-lighting"
+              aria-labelledby="preview-control-tab-lighting"
               hidden={controlPanelTab !== "lighting"}
               data-testid="control-panel-lighting"
             >
@@ -1301,7 +1286,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
               id="control-panel-display"
               role="tabpanel"
               className="control-tab-panel"
-              aria-labelledby="control-tab-display"
+              aria-labelledby="preview-control-tab-display"
               hidden={controlPanelTab !== "display"}
               data-testid="control-panel-display"
             >
@@ -1345,7 +1330,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
               id="control-panel-export"
               role="tabpanel"
               className="control-tab-panel"
-              aria-labelledby="control-tab-export"
+              aria-labelledby="preview-control-tab-export"
               hidden={controlPanelTab !== "export"}
               data-testid="control-panel-export"
             >
@@ -1378,8 +1363,20 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
           </div>
           </div>
         </aside>
-          </>
-        ) : null}
+              </>
+            ) : null}
+          </div>
+          {sourceImage.errorMessage ? (
+            <ErrorNotice title="画像の読み込みに失敗しました" message={sourceImage.errorMessage} />
+          ) : null}
+          {engraving.status === "error" && engraving.errorMessage ? (
+            <ErrorNotice title="彫刻用画像の生成に失敗しました" message={engraving.errorMessage} />
+          ) : null}
+          {save.status === "error" && save.errorMessage ? (
+            <ErrorNotice title="ダウンロードに失敗しました" message={save.errorMessage} />
+          ) : null}
+        </section>
+
       </div>
 
       <SaveCompleteModal
