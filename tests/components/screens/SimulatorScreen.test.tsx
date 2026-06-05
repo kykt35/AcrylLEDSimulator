@@ -208,7 +208,7 @@ describe("SimulatorScreen", () => {
     await uploadSampleImage(user);
     await openControlDrawer(user);
 
-    const displayTab = screen.getByRole("tab", { name: "表示" });
+    const displayTab = screen.getByRole("tab", { name: "カメラ" });
     displayTab.focus();
 
     await user.keyboard("{ArrowRight}");
@@ -245,8 +245,8 @@ describe("SimulatorScreen", () => {
     await user.click(screen.getByRole("tab", { name: "ライト" }));
     expect(screen.getByRole("tab", { name: "ライト" })).toHaveAttribute("aria-selected", "true");
 
-    await user.click(screen.getByRole("tab", { name: "表示" }));
-    expect(screen.getByRole("tab", { name: "表示" })).toHaveAttribute("aria-selected", "true");
+    await user.click(screen.getByRole("tab", { name: "カメラ" }));
+    expect(screen.getByRole("tab", { name: "カメラ" })).toHaveAttribute("aria-selected", "true");
 
     await user.click(screen.getByRole("tab", { name: "書出し" }));
     expect(screen.getByRole("tab", { name: "書出し" })).toHaveAttribute("aria-selected", "true");
@@ -366,13 +366,13 @@ describe("SimulatorScreen", () => {
     });
 
     await openControlDrawer(user);
-    await user.click(screen.getByRole("tab", { name: "表示" }));
+    await user.click(screen.getByRole("tab", { name: "カメラ" }));
     expect(screen.getByLabelText("元画像を重ねて表示")).not.toBeChecked();
 
     await user.click(screen.getByLabelText("元画像を重ねて表示"));
     expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "true");
 
-    await user.click(screen.getByRole("button", { name: "表示設定をリセット" }));
+    await user.click(screen.getByRole("button", { name: "カメラ設定をリセット" }));
     expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "false");
     expect(screen.getByLabelText("元画像を重ねて表示")).not.toBeChecked();
   });
@@ -421,7 +421,7 @@ describe("SimulatorScreen", () => {
 
     await openControlDrawer(user);
     expect(screen.getByRole("radio", { name: "S (100 x 150 mm)" })).toHaveAttribute("aria-checked", "true");
-    await user.click(screen.getByRole("tab", { name: "表示" }));
+    await user.click(screen.getByRole("tab", { name: "カメラ" }));
     expect(screen.getByLabelText("元画像を重ねて表示")).toBeChecked();
   });
 

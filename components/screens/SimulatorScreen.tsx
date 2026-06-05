@@ -82,7 +82,7 @@ const CONTROL_PANEL_TABS: readonly ControlPanelTabDefinition[] = [
   },
   {
     id: "display",
-    label: "表示",
+    label: "カメラ",
     eyebrow: "Display",
     description: "背景、カメラ、オーバーレイ表示を切り替えます。"
   },

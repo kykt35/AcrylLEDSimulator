@@ -26,7 +26,7 @@ describe("DisplayControls", () => {
     await user.click(screen.getByRole("button", { name: "Rose Glow" }));
     await user.click(screen.getByRole("button", { name: "俯瞰" }));
     await user.click(screen.getByLabelText("元画像を重ねて表示"));
-    await user.click(screen.getByRole("button", { name: "表示設定をリセット" }));
+    await user.click(screen.getByRole("button", { name: "カメラ設定をリセット" }));
 
     expect(onBackgroundChange).toHaveBeenCalledWith("rose");
     expect(onCameraPresetChange).toHaveBeenCalledWith("tilt");
