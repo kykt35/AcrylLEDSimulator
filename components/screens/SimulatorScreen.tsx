@@ -929,15 +929,20 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
     }));
   }, []);
 
-  const handleDownloadEngraving = useCallback(async () => {
-    if (!engraving.src) {
-      return;
-    }
+  const handleDownloadEngraving = useCallback(
+    async ({ invert }: { invert: boolean }) => {
+      if (!engraving.src) {
+        return;
+      }
 
-    const baseName = sourceImage.fileName.replace(/\.[^.]+$/, "") || "acryl-led-simulation";
-    const exported = await exportEngravingImage(engraving.src, `${baseName}-engraving.png`);
-    downloadBlob(exported.blob, exported.fileName);
-  }, [engraving.src, sourceImage.fileName]);
+      const baseName = sourceImage.fileName.replace(/\.[^.]+$/, "") || "acryl-led-simulation";
+      const exported = await exportEngravingImage(engraving.src, `${baseName}-engraving.png`, {
+        invert
+      });
+      downloadBlob(exported.blob, exported.fileName);
+    },
+    [engraving.src, sourceImage.fileName]
+  );
 
   const handleSave = useCallback(async () => {
     if (!sourceImage.src) {
@@ -1154,106 +1159,116 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
               </div>
             ) : null}
             {isControlDrawerOpen ? (
-                <aside id="control-drawer" className="control-panel" aria-label="シミュレーター設定">
+                <aside
+                  id="control-drawer"
+                  className="control-panel"
+                  aria-label="シミュレーター設定"
+                  onClick={(event) => event.stopPropagation()}
+                >
                   <div id="control-panel-content" className="control-panel-content">
-            <div className="control-tab-panels">
-            <div
-              id="control-panel-image"
-              role="tabpanel"
-              className="control-tab-panel"
-              aria-labelledby="preview-control-tab-image"
-              hidden={controlPanelTab !== "image"}
-              data-testid="control-panel-image"
-            >
-              <article className="control-panel-card">
-                <ImageControls
-                  acrylicSizeId={acrylicSizeId}
-                  hasImage={isImageReady}
-                  imageLayout={imageLayout}
-                  onAcrylicSizeChange={setAcrylicSizeId}
-                  onImageLayoutChange={handleImageLayoutChange}
-                  onResetImageLayout={() => setImageLayout(defaultImageLayout)}
-                />
-              </article>
-            </div>
-            <div
-              id="control-panel-engraving"
-              role="tabpanel"
-              className="control-tab-panel"
-              aria-labelledby="preview-control-tab-engraving"
-              hidden={controlPanelTab !== "engraving"}
-              data-testid="control-panel-engraving"
-            >
-              <article className="control-panel-card">
-                <EngravingControls
-                  adjustments={engravingAdjustments}
-                  isEngravingMode={isEngravingMode}
-                  sourceImageUrl={previewSourceUrl}
-                  engravingImageUrl={previewEngravingUrl}
-                  onEngravingModeChange={setIsEngravingMode}
-                  onAdjustmentsChange={handleEngravingAdjustmentsChange}
-                  onDownload={handleDownloadEngraving}
-                />
-              </article>
-            </div>
-            <div
-              id="control-panel-lighting"
-              role="tabpanel"
-              className="control-tab-panel"
-              aria-labelledby="preview-control-tab-lighting"
-              hidden={controlPanelTab !== "lighting"}
-              data-testid="control-panel-lighting"
-            >
-              <article className="control-panel-card">
-                <LightingControls
-                  activePresetId={ledColorId}
-                  brightness={brightness}
-                  heightAttenuation={heightAttenuation}
-                  onPresetChange={setLedColorId}
-                  onBrightnessChange={setBrightness}
-                  onHeightAttenuationChange={setHeightAttenuation}
-                />
-              </article>
-            </div>
-            <div
-              id="control-panel-display"
-              role="tabpanel"
-              className="control-tab-panel"
-              aria-labelledby="preview-control-tab-display"
-              hidden={controlPanelTab !== "display"}
-              data-testid="control-panel-display"
-            >
-              <article className="control-panel-card">
-                <DisplayControls
-                  activeBackgroundId={backgroundId}
-                  activeCameraPreset={cameraPresetId}
-                  onBackgroundChange={setBackgroundId}
-                  onCameraPresetChange={setCameraPresetId}
-                  onResetView={handleResetView}
-                />
-              </article>
-            </div>
-            <div
-              id="control-panel-export"
-              role="tabpanel"
-              className="control-tab-panel"
-              aria-labelledby="preview-control-tab-export"
-              hidden={controlPanelTab !== "export"}
-              data-testid="control-panel-export"
-            >
-              <article className="control-panel-card">
-                <SaveControls
-                  saveStatus={save.status}
-                  hasImage={Boolean(sourceImage.src)}
-                  croppedPreviewUrl={exportPreviewUrl}
-                  exportFormat={exportFormat}
-                  onFormatChange={setExportFormat}
-                  onSave={handleSave}
-                />
-              </article>
-            </div>
-          </div>
-          </div>
+                    <div className="control-tab-panels">
+                      {controlPanelTab === "image" ? (
+                        <div
+                          id="control-panel-image"
+                          role="tabpanel"
+                          className="control-tab-panel"
+                          aria-labelledby="preview-control-tab-image"
+                          data-testid="control-panel-image"
+                        >
+                          <article className="control-panel-card">
+                            <ImageControls
+                              acrylicSizeId={acrylicSizeId}
+                              hasImage={isImageReady}
+                              imageLayout={imageLayout}
+                              onAcrylicSizeChange={setAcrylicSizeId}
+                              onImageLayoutChange={handleImageLayoutChange}
+                              onResetImageLayout={() => setImageLayout(defaultImageLayout)}
+                            />
+                          </article>
+                        </div>
+                      ) : null}
+                      {controlPanelTab === "engraving" ? (
+                        <div
+                          id="control-panel-engraving"
+                          role="tabpanel"
+                          className="control-tab-panel"
+                          aria-labelledby="preview-control-tab-engraving"
+                          data-testid="control-panel-engraving"
+                        >
+                          <article className="control-panel-card">
+                            <EngravingControls
+                              adjustments={engravingAdjustments}
+                              isEngravingMode={isEngravingMode}
+                              sourceImageUrl={previewSourceUrl}
+                              engravingImageUrl={previewEngravingUrl}
+                              onEngravingModeChange={setIsEngravingMode}
+                              onAdjustmentsChange={handleEngravingAdjustmentsChange}
+                              onDownload={handleDownloadEngraving}
+                            />
+                          </article>
+                        </div>
+                      ) : null}
+                      {controlPanelTab === "lighting" ? (
+                        <div
+                          id="control-panel-lighting"
+                          role="tabpanel"
+                          className="control-tab-panel"
+                          aria-labelledby="preview-control-tab-lighting"
+                          data-testid="control-panel-lighting"
+                        >
+                          <article className="control-panel-card">
+                            <LightingControls
+                              activePresetId={ledColorId}
+                              brightness={brightness}
+                              heightAttenuation={heightAttenuation}
+                              onPresetChange={setLedColorId}
+                              onBrightnessChange={setBrightness}
+                              onHeightAttenuationChange={setHeightAttenuation}
+                            />
+                          </article>
+                        </div>
+                      ) : null}
+                      {controlPanelTab === "display" ? (
+                        <div
+                          id="control-panel-display"
+                          role="tabpanel"
+                          className="control-tab-panel"
+                          aria-labelledby="preview-control-tab-display"
+                          data-testid="control-panel-display"
+                        >
+                          <article className="control-panel-card">
+                            <DisplayControls
+                              activeBackgroundId={backgroundId}
+                              activeCameraPreset={cameraPresetId}
+                              onBackgroundChange={setBackgroundId}
+                              onCameraPresetChange={setCameraPresetId}
+                              onResetView={handleResetView}
+                            />
+                          </article>
+                        </div>
+                      ) : null}
+                      {controlPanelTab === "export" ? (
+                        <div
+                          id="control-panel-export"
+                          role="tabpanel"
+                          className="control-tab-panel"
+                          aria-labelledby="preview-control-tab-export"
+                          data-testid="control-panel-export"
+                        >
+                          <article className="control-panel-card">
+                            <SaveControls
+                              saveStatus={save.status}
+                              hasImage={Boolean(sourceImage.src)}
+                              croppedPreviewUrl={exportPreviewUrl}
+                              exportFormat={exportFormat}
+                              onFormatChange={setExportFormat}
+                              onSave={handleSave}
+                            />
+                          </article>
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
         </aside>
             ) : null}
           </div>

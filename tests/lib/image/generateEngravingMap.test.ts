@@ -1,10 +1,25 @@
 import {
   applyEngravingAdjustments,
   buildEdgeMap,
-  buildLumaMap
+  buildLumaMap,
+  invertGrayscalePixels
 } from "@/lib/image/engravingFilters";
 
 describe("engravingFilters", () => {
+  it("inverts grayscale pixel values while preserving alpha", () => {
+    const pixels = new Uint8ClampedArray([
+      255, 255, 255, 255,
+      40, 40, 40, 128
+    ]);
+
+    invertGrayscalePixels(pixels);
+
+    expect(Array.from(pixels)).toEqual([
+      0, 0, 0, 255,
+      215, 215, 215, 128
+    ]);
+  });
+
   it("builds a luma map with alpha applied", () => {
     const pixels = new Uint8ClampedArray([
       255, 255, 255, 255,
