@@ -7,6 +7,14 @@
 - `pnpm dev`: 開発サーバーを起動
 - `pnpm test`: Vitest を実行
 
+## Specs
+
+- 仕様入口: [docs/specs/README.md](docs/specs/README.md)
+- 機能一覧: [docs/specs/feature-index.md](docs/specs/feature-index.md)
+- 仕様更新ルール: [docs/specs/operations/spec-maintenance.md](docs/specs/operations/spec-maintenance.md)
+
+実装の振る舞い、状態、エラー、保存/復元、書き出し結果が変わる場合は、同じ作業単位で該当する仕様も更新してください。
+
 ## Phase 1 Scope
 
 - Canvas 表示と基本レイアウト
