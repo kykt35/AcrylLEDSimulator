@@ -4,7 +4,7 @@
 - Phase: Phase 5
 - Topic: MVP release and validation
 - Milestone: M6 MVP公開
-- Source Documents: `docs/MVP_milestone.md`, `docs/MVP_PRD.md`
+- Source Documents: `specs/product/milestones.md`, `specs/product/prd.md`
 - Created: 2026-04-02
 
 ## Summary

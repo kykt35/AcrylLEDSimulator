@@ -75,19 +75,19 @@ specs/
 
 **目的:** 既存ドキュメントを `specs/` 配下へ移し、仕様の種類ごとに参照しやすい状態にする。
 
-**変更ファイル:**
-- `docs/MVP_PRD.md` -> `specs/product/prd.md`
-- `docs/MVP_milestone.md` -> `specs/product/milestones.md`
-- `docs/acceptance-criteria.md` -> `specs/product/acceptance-criteria.md`
-- `docs/user-flow.md` -> `specs/ux/user-flow.md`
-- `docs/screen-spec.md` -> `specs/ux/screens.md`
-- `docs/MVP_UI_Design.md` -> `specs/ux/ui-design.md`
-- `docs/MVP_Tech_Stack.md` -> `specs/architecture/tech-stack.md`
-- `docs/component-design.md` -> `specs/architecture/component-design.md`
-- `docs/state-design.md` -> `specs/architecture/state-design.md`
-- `docs/data-model.md` -> `specs/architecture/data-model.md`
-- `docs/api-spec.md` -> `specs/architecture/api.md`
-- `docs/error-handling.md` -> `specs/architecture/error-handling.md`
+**移行後ファイル:**
+- `specs/product/prd.md`
+- `specs/product/milestones.md`
+- `specs/product/acceptance-criteria.md`
+- `specs/ux/user-flow.md`
+- `specs/ux/screens.md`
+- `specs/ux/ui-design.md`
+- `specs/architecture/tech-stack.md`
+- `specs/architecture/component-design.md`
+- `specs/architecture/state-design.md`
+- `specs/architecture/data-model.md`
+- `specs/architecture/api.md`
+- `specs/architecture/error-handling.md`
 
 **サブタスク:**
 1. [ ] 移行先ディレクトリを作成する（コミット: `docs: create specs hierarchy`）

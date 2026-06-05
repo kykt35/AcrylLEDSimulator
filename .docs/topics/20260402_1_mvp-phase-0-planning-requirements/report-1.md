@@ -4,7 +4,7 @@
 - Phase: Phase 0
 - Topic: MVP planning and requirements
 - Milestone: M1 要件確定
-- Source Documents: `docs/MVP_milestone.md`, `docs/MVP_PRD.md`
+- Source Documents: `specs/product/milestones.md`, `specs/product/prd.md`
 - Created: 2026-04-02
 
 ## Summary

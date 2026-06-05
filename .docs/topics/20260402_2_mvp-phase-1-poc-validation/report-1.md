@@ -4,7 +4,7 @@
 - Phase: Phase 1
 - Topic: MVP PoC validation
 - Milestone: M2 PoC完了
-- Source Documents: `docs/MVP_milestone.md`, `docs/MVP_PRD.md`
+- Source Documents: `specs/product/milestones.md`, `specs/product/prd.md`
 - Created: 2026-04-02
 
 ## Summary

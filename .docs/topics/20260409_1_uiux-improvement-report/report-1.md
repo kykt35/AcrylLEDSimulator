@@ -7,7 +7,7 @@
 - 対象: LEDアクスタ シミュレーター MVP
 - 確認方法:
   - 実装確認: `components/screens/SimulatorScreen.tsx`, `components/controls/*`, `app/globals.css`
-  - 仕様確認: `docs/screen-spec.md`, `docs/user-flow.md`, `docs/acceptance-criteria.md`
+  - 仕様確認: `specs/ux/screens.md`, `specs/ux/user-flow.md`, `specs/product/acceptance-criteria.md`
   - 実画面確認: `http://localhost:3001/`
 
 ## 1. 総評

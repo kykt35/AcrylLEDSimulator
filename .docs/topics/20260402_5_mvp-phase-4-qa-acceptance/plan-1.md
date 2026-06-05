@@ -4,9 +4,9 @@
 Phase 4 では、Phase 3 で実装した MVP を公開判断可能な品質まで整える。対象は新機能追加ではなく、主要ブラウザでの動作確認、操作導線の磨き込み、保存や例外系の確認、見た目と文言の調整、不具合修正、受入記録の整備である。実装作業は QA で見つかった問題の修正に限定し、仕様追加は次フェーズへ送る。
 
 ## 前提条件
-- 基準要件は `docs/MVP_milestone.md`、`docs/MVP_PRD.md`、`docs/MVP_UI_Design.md`、`docs/MVP_Tech_Stack.md` を参照する
-- 受入基準は `docs/acceptance-criteria.md` を正とする
-- エラー時挙動は `docs/error-handling.md` を正とする
+- 基準要件は `specs/product/milestones.md`、`specs/product/prd.md`、`specs/ux/ui-design.md`、`specs/architecture/tech-stack.md` を参照する
+- 受入基準は `specs/product/acceptance-criteria.md` を正とする
+- エラー時挙動は `specs/architecture/error-handling.md` を正とする
 - Phase 3 の実装前提は `.docs/topics/20260402_4_mvp-phase-3-mvp-implementation/plan-1.md` と実装済みコードを参照する
 - Phase 4 はデスクトップ優先で進め、Chrome、Safari、Edge を最低確認対象とする
 
@@ -28,7 +28,7 @@ Phase 4 では、Phase 3 で実装した MVP を公開判断可能な品質ま�
 - `.docs/topics/20260402_5_mvp-phase-4-qa-acceptance/bug-list-1.md`
 
 **サブタスク:**
-1. [ ] `docs/acceptance-criteria.md` と `docs/error-handling.md` から確認観点を抽出する
+1. [ ] `specs/product/acceptance-criteria.md` と `specs/architecture/error-handling.md` から確認観点を抽出する
 2. [ ] コミット: `docs: prepare phase4 qa checklist`
 3. [ ] ブラウザ別、主要導線別、例外ケース別のチェックリストを `checklist-1.md` に整理する
 4. [ ] 受入結果を記録するテンプレートを `acceptance-log-1.md` に作成する
@@ -83,7 +83,7 @@ Phase 4 では、Phase 3 で実装した MVP を公開判断可能な品質ま�
 6. [ ] 公開前に潰すべき例外系不具合を確定する
 
 **受け入れ条件:**
-- [ ] `docs/error-handling.md` の主要ケースが確認されている
+- [ ] `specs/architecture/error-handling.md` の主要ケースが確認されている
 - [ ] 保存失敗や画像失敗で状態維持が確認できる
 - [ ] 必要な回帰テストが追加または更新されている
 
@@ -161,7 +161,7 @@ Phase 4 では、Phase 3 で実装した MVP を公開判断可能な品質ま�
 - 対策: 受入観点に紐づく修正だけに限定し、修正後は対象シナリオを再確認する
 
 ## 完了判定
-- `docs/acceptance-criteria.md` の Must 観点が主要ブラウザで確認済みである
+- `specs/product/acceptance-criteria.md` の Must 観点が主要ブラウザで確認済みである
 - 重大不具合が解消され、残課題が公開判断可能な粒度で整理されている
 - リリース候補版、受入確認記録、不具合一覧、Go / Hold 判定が揃っている
 - Phase 5 へ引き継ぐ公開時注意点と計測観点が文書化されている

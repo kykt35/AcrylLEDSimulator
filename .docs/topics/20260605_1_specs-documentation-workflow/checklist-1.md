@@ -48,13 +48,13 @@
 
 | ID | 種別 | 内容 | 対応コミット(予定) | 実績コミット | 状態 | メモ |
 |---|---|---|---|---|---|---|
-| 4-1 | docs | `README.md` に仕様入口へのリンクを追加する | `docs: link specs from readme` |  | planned |  |
-| 4-2 | docs | `AGENTS.md` に作業ルール、仕様参照先、検証コマンドを追加する | `docs: add agent project guide` |  | planned |  |
-| 4-3 | docs | `.agents/implementation-change-rules.md` に仕様更新判断ルールを追加する | `docs: add implementation change rules` |  | planned |  |
-| 4-4 | docs | `.agents/skills/spec-update/SKILL.md` に仕様更新手順を追加する | `docs: add spec update skill` |  | planned |  |
-| 4-5 | docs | `.github/pull_request_template.md` に仕様更新確認欄を追加する | `docs: add pr spec checklist` |  | planned |  |
-| 4-6 | verify | `README.md`, `AGENTS.md`, `.agents`, `.github`, `specs`, `.docs` のリンクと旧参照を確認する | - |  | planned |  |
-| 4-7 | verify | ドキュメントのみの変更としてアプリテスト省略可否をPR本文に記録する | - |  | planned |  |
+| 4-1 | docs | `README.md` に仕様入口へのリンクを追加する | `docs: link specs from readme` | `docs: add specification update workflow` | done |  |
+| 4-2 | docs | `AGENTS.md` に作業ルール、仕様参照先、検証コマンドを追加する | `docs: add agent project guide` | `docs: add specification update workflow` | done |  |
+| 4-3 | docs | `.agents/implementation-change-rules.md` に仕様更新判断ルールを追加する | `docs: add implementation change rules` | `docs: add specification update workflow` | done |  |
+| 4-4 | docs | `.agents/skills/spec-update/SKILL.md` に仕様更新手順を追加する | `docs: add spec update skill` | `docs: add specification update workflow` | done |  |
+| 4-5 | docs | `.github/pull_request_template.md` に仕様更新確認欄を追加する | `docs: add pr spec checklist` | `docs: add specification update workflow` | done |  |
+| 4-6 | verify | `README.md`, `AGENTS.md`, `.agents`, `.github`, `specs`, `.docs` のリンクと旧参照を確認する | - | `docs: add specification update workflow` | done | 配置、旧パス、Markdownリンクを確認 |
+| 4-7 | verify | ドキュメントのみの変更としてアプリテスト省略可否をPR本文に記録する | - | `docs: add specification update workflow` | done | アプリ実装変更なしのため `pnpm test` は省略 |
 
 ## 計画差分ログ
 
@@ -63,6 +63,6 @@
 | 2026-06-05 | 初版作成 | 元計画と `quartet-labo/an-ne_platform#336` の仕様運用方針を統合するため |  |
 
 ## 最終確認
-- [ ] 全タスクの状態を更新した
-- [ ] `changed/skipped` の理由を記載した
+- [x] 全タスクの状態を更新した
+- [x] `changed/skipped` の理由を記載した
 - [ ] 実施内容がPR要約に反映された
