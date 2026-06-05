@@ -16,11 +16,11 @@
 
 | ID | 種別 | 内容 | 対応コミット(予定) | 実績コミット | 状態 | メモ |
 |---|---|---|---|---|---|---|
-| 1-1 | docs | 既存 `docs/*.md` と現行実装の仕様境界を確認する | `docs: audit existing specification sources` |  | planned |  |
-| 1-2 | docs | `specs/README.md` に分類と参照順序を定義する | `docs: define specs documentation structure` |  | planned |  |
-| 1-3 | docs | `specs/feature-index.md` をリンク専用入口として作成する | `docs: add feature specification index` |  | planned |  |
-| 1-4 | docs | `specs/operations/` に仕様更新手順と変更履歴を追加する | `docs: add specification maintenance workflow` |  | planned |  |
-| 1-5 | verify | `find specs -maxdepth 3 -type f | sort` で配置を確認する | - |  | planned |  |
+| 1-1 | docs | 既存 `docs/*.md` と現行実装の仕様境界を確認する | `docs: audit existing specification sources` | `docs: define specs documentation structure` | done | `docs/`, `app/`, `components/`, `lib/`, `tests/` を確認 |
+| 1-2 | docs | `specs/README.md` に分類と参照順序を定義する | `docs: define specs documentation structure` | `docs: define specs documentation structure` | done |  |
+| 1-3 | docs | `specs/feature-index.md` をリンク専用入口として作成する | `docs: add feature specification index` | `docs: define specs documentation structure` | done | 詳細本文は書かずリンク入口に限定 |
+| 1-4 | docs | `specs/operations/` に仕様更新手順と変更履歴を追加する | `docs: add specification maintenance workflow` | `docs: define specs documentation structure` | done |  |
+| 1-5 | verify | `find specs -maxdepth 3 -type f | sort` で配置を確認する | - | `docs: define specs documentation structure` | done | 4ファイルの配置を確認 |
 
 ### Task 2: 既存 `docs/` 仕様の分類移行
 
