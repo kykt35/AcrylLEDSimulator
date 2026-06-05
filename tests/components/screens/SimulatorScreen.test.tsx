@@ -208,24 +208,24 @@ describe("SimulatorScreen", () => {
     await uploadSampleImage(user);
     await openControlDrawer(user);
 
-    const displayTab = screen.getByRole("tab", { name: "表示" });
+    const displayTab = screen.getByRole("tab", { name: "カメラ" });
     displayTab.focus();
 
     await user.keyboard("{ArrowRight}");
-
-    const exportTab = screen.getByRole("tab", { name: "書き出し" });
-    expect(exportTab).toHaveFocus();
-    expect(exportTab).toHaveAttribute("aria-selected", "true");
-    expect(screen.getByTestId("control-panel-export")).not.toHaveAttribute("hidden");
-    expect(screen.getByTestId("control-panel-image")).toHaveAttribute("hidden");
-
-    await user.keyboard("{Home}");
 
     const imageTab = screen.getByRole("tab", { name: "配置" });
     expect(imageTab).toHaveFocus();
     expect(imageTab).toHaveAttribute("aria-selected", "true");
     expect(screen.getByTestId("control-panel-image")).not.toHaveAttribute("hidden");
     expect(screen.getByTestId("control-panel-export")).toHaveAttribute("hidden");
+
+    await user.keyboard("{Home}");
+
+    const lightingTab = screen.getByRole("tab", { name: "ライト" });
+    expect(lightingTab).toHaveFocus();
+    expect(lightingTab).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByTestId("control-panel-lighting")).not.toHaveAttribute("hidden");
+    expect(screen.getByTestId("control-panel-image")).toHaveAttribute("hidden");
   });
 
   it("switches control tabs after an image is uploaded", async () => {
@@ -245,11 +245,11 @@ describe("SimulatorScreen", () => {
     await user.click(screen.getByRole("tab", { name: "ライト" }));
     expect(screen.getByRole("tab", { name: "ライト" })).toHaveAttribute("aria-selected", "true");
 
-    await user.click(screen.getByRole("tab", { name: "表示" }));
-    expect(screen.getByRole("tab", { name: "表示" })).toHaveAttribute("aria-selected", "true");
+    await user.click(screen.getByRole("tab", { name: "カメラ" }));
+    expect(screen.getByRole("tab", { name: "カメラ" })).toHaveAttribute("aria-selected", "true");
 
-    await user.click(screen.getByRole("tab", { name: "書き出し" }));
-    expect(screen.getByRole("tab", { name: "書き出し" })).toHaveAttribute("aria-selected", "true");
+    await user.click(screen.getByRole("tab", { name: "書出し" }));
+    expect(screen.getByRole("tab", { name: "書出し" })).toHaveAttribute("aria-selected", "true");
   });
 
   it("keeps settings panels hidden until a preview menu item is opened", async () => {
@@ -366,13 +366,13 @@ describe("SimulatorScreen", () => {
     });
 
     await openControlDrawer(user);
-    await user.click(screen.getByRole("tab", { name: "表示" }));
+    await user.click(screen.getByRole("tab", { name: "カメラ" }));
     expect(screen.getByLabelText("元画像を重ねて表示")).not.toBeChecked();
 
     await user.click(screen.getByLabelText("元画像を重ねて表示"));
     expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "true");
 
-    await user.click(screen.getByRole("button", { name: "表示設定をリセット" }));
+    await user.click(screen.getByRole("button", { name: "カメラ設定をリセット" }));
     expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "false");
     expect(screen.getByLabelText("元画像を重ねて表示")).not.toBeChecked();
   });
@@ -421,7 +421,7 @@ describe("SimulatorScreen", () => {
 
     await openControlDrawer(user);
     expect(screen.getByRole("radio", { name: "S (100 x 150 mm)" })).toHaveAttribute("aria-checked", "true");
-    await user.click(screen.getByRole("tab", { name: "表示" }));
+    await user.click(screen.getByRole("tab", { name: "カメラ" }));
     expect(screen.getByLabelText("元画像を重ねて表示")).toBeChecked();
   });
 
@@ -485,7 +485,7 @@ describe("SimulatorScreen", () => {
 
     const alert = await screen.findByRole("alert");
     expect(within(alert).getByText("PNGファイルを選択してください。")).toBeInTheDocument();
-    expect(screen.queryByRole("tab", { name: "書き出し" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("tab", { name: "書出し" })).not.toBeInTheDocument();
     expect(screen.queryByRole("complementary", { name: "シミュレーター設定" })).not.toBeInTheDocument();
   });
 
@@ -495,7 +495,7 @@ describe("SimulatorScreen", () => {
     expect(screen.getByRole("link", { name: "使い方" })).toHaveAttribute("href", "/usage");
     expect(screen.queryByText("1. PNG追加")).not.toBeInTheDocument();
     expect(screen.queryByText("2. 調整")).not.toBeInTheDocument();
-    expect(screen.queryByText("3. 書き出し")).not.toBeInTheDocument();
+    expect(screen.queryByText("3. 書出し")).not.toBeInTheDocument();
     expect(screen.getByTestId("preview-empty-state")).toHaveTextContent("PNGファイルを追加して始めましょう");
     expect(screen.queryByRole("tab", { name: "配置" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "リセット" })).not.toBeInTheDocument();
@@ -512,7 +512,7 @@ describe("SimulatorScreen", () => {
 
     await user.upload(input, file);
     await openControlDrawer(user);
-    await user.click(screen.getByRole("tab", { name: "書き出し" }));
+    await user.click(screen.getByRole("tab", { name: "書出し" }));
 
     await waitFor(() => {
       expect(screen.getByTestId("export-preview-image")).toBeInTheDocument();
@@ -541,7 +541,7 @@ describe("SimulatorScreen", () => {
 
     await user.upload(input, file);
     await openControlDrawer(user);
-    await user.click(screen.getByRole("tab", { name: "書き出し" }));
+    await user.click(screen.getByRole("tab", { name: "書出し" }));
 
     await user.click(screen.getByTestId("export-crop-overlay-toggle"));
     expect(screen.getByTestId("export-crop-overlay")).toBeInTheDocument();
@@ -564,9 +564,9 @@ describe("SimulatorScreen", () => {
     await user.upload(input, file);
     await openControlDrawer(user);
     await waitFor(() => {
-      expect(screen.getByRole("tab", { name: "書き出し" })).toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: "書出し" })).toBeInTheDocument();
     });
-    await user.click(screen.getByRole("tab", { name: "書き出し" }));
+    await user.click(screen.getByRole("tab", { name: "書出し" }));
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "画像をダウンロードする" })).toBeEnabled();
     });
@@ -599,9 +599,9 @@ describe("SimulatorScreen", () => {
     await user.upload(input, file);
     await openControlDrawer(user);
     await waitFor(() => {
-      expect(screen.getByRole("tab", { name: "書き出し" })).toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: "書出し" })).toBeInTheDocument();
     });
-    await user.click(screen.getByRole("tab", { name: "書き出し" }));
+    await user.click(screen.getByRole("tab", { name: "書出し" }));
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "画像をダウンロードする" })).toBeEnabled();
     });
@@ -628,9 +628,9 @@ describe("SimulatorScreen", () => {
     await user.upload(input, file);
     await openControlDrawer(user);
     await waitFor(() => {
-      expect(screen.getByRole("tab", { name: "書き出し" })).toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: "書出し" })).toBeInTheDocument();
     });
-    await user.click(screen.getByRole("tab", { name: "書き出し" }));
+    await user.click(screen.getByRole("tab", { name: "書出し" }));
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "画像をダウンロードする" })).toBeEnabled();
     });

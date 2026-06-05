@@ -63,6 +63,18 @@ type ControlPanelTabViewModel = ControlPanelTabDefinition & {
 
 const CONTROL_PANEL_TABS: readonly ControlPanelTabDefinition[] = [
   {
+    id: "lighting",
+    label: "ライト",
+    eyebrow: "Lighting",
+    description: "LED の色味と明るさを整えます。"
+  },
+  {
+    id: "display",
+    label: "カメラ",
+    eyebrow: "Display",
+    description: "背景、カメラ、オーバーレイ表示を切り替えます。"
+  },
+  {
     id: "image",
     label: "配置",
     eyebrow: "Source",
@@ -75,20 +87,8 @@ const CONTROL_PANEL_TABS: readonly ControlPanelTabDefinition[] = [
     description: "彫刻用グレースケールの強度を調整します。"
   },
   {
-    id: "lighting",
-    label: "ライト",
-    eyebrow: "Lighting",
-    description: "LED の色味と明るさを整えます。"
-  },
-  {
-    id: "display",
-    label: "表示",
-    eyebrow: "Display",
-    description: "背景、カメラ、オーバーレイ表示を切り替えます。"
-  },
-  {
     id: "export",
-    label: "書き出し",
+    label: "書出し",
     eyebrow: "Export",
     description: "現在の見え方を画像としてダウンロードします。"
   }

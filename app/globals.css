@@ -407,8 +407,7 @@ button {
   border-inline: none;
 }
 
-.preview-shell,
-.control-panel {
+.preview-shell {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 24px;
@@ -518,6 +517,10 @@ button {
   align-self: start;
   max-height: 100%;
   overflow: hidden;
+  border-radius: 0 24px 24px 0;
+  border: none;
+  backdrop-filter: none;
+  background: rgba(79, 79, 79, 0.35);
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
   animation: drawer-slide-in 0.18s ease-out;
 }
@@ -528,28 +531,19 @@ button {
   min-height: 0;
   flex-direction: column;
   gap: 0;
-  overflow: hidden;
+  padding-block: 16px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .control-tab-panels {
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  scrollbar-gutter: stable;
   display: grid;
   align-content: start;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-}
-
-.control-panel-content::after {
-  content: "";
-  display: block;
-  height: 12px;
-  margin-top: -12px;
-  pointer-events: none;
-  background: linear-gradient(180deg, transparent, rgba(7, 17, 31, 0.42));
 }
 
 .control-tab-panel {
@@ -570,6 +564,7 @@ button {
 .control-panel-card .panel-section {
   border: none;
   background: transparent;
+  border-radius: 0;
   padding: 20px;
 }
 
@@ -1535,10 +1530,10 @@ button {
   .control-panel-content {
     display: flex;
     min-height: 0;
+    overflow-y: auto;
   }
 
   .control-tab-panels {
-    overflow-y: auto;
     min-height: 0;
     max-height: none;
   }

@@ -80,7 +80,7 @@ export function DisplayControls({
         </label>
 
         <button type="button" className="secondary-button" onClick={onResetView}>
-          表示設定をリセット
+          カメラ設定をリセット
         </button>
       </div>
     </section>

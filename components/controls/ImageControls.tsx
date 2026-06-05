@@ -136,7 +136,7 @@ export function ImageControls({
             ))}
           </div>
           <button type="button" className="secondary-button" onClick={onResetImageLayout}>
-            画像調整をリセット
+            配置調整をリセット
           </button>
         </div>
       ) : null}
