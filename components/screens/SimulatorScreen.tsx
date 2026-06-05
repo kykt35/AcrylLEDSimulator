@@ -730,6 +730,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
     setImageLayout(defaultImageLayout);
     setExportCropRegion(defaultExportCropRegion);
     setIsExportCropOverlayVisible(false);
+    setIsControlDrawerOpen(false);
     clearEditorSnapshot();
   }, []);
 
@@ -1054,45 +1055,45 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
       </section>
 
       <div className="simulator-layout">
-        <section className="preview-shell">
-          <div className="preview-header">
-            <div className="preview-control-menu" role="tablist" aria-label="シミュレーター設定">
-              {controlPanelTabs.map((tab) => {
-                const isSelected = isControlDrawerOpen && controlPanelTab === tab.id;
+        <section className={`preview-shell${sourceImage.src ? "" : " is-preview-empty"}`}>
+          {sourceImage.src ? (
+            <div className="preview-header">
+              <div className="preview-control-menu" role="tablist" aria-label="シミュレーター設定">
+                {controlPanelTabs.map((tab) => {
+                  const isSelected = isControlDrawerOpen && controlPanelTab === tab.id;
 
-                return (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    id={`preview-control-tab-${tab.id}`}
-                    role="tab"
-                    className="preview-control-tab"
-                    data-state={tab.completionState}
-                    aria-label={tab.label}
-                    aria-selected={isSelected}
-                    aria-controls={`control-panel-${tab.id}`}
-                    aria-expanded={isSelected}
-                    tabIndex={controlPanelTab === tab.id ? 0 : -1}
-                    onClick={() => openControlPanel(tab.id)}
-                    onKeyDown={(event) => handleControlTabKeyDown(event, tab.id)}
-                  >
-                    <span className="preview-control-tab-label">{tab.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-            <div className="preview-header-actions">
-              {sourceImage.src ? (
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      id={`preview-control-tab-${tab.id}`}
+                      role="tab"
+                      className="preview-control-tab"
+                      data-state={tab.completionState}
+                      aria-label={tab.label}
+                      aria-selected={isSelected}
+                      aria-controls={`control-panel-${tab.id}`}
+                      aria-expanded={isSelected}
+                      tabIndex={controlPanelTab === tab.id ? 0 : -1}
+                      onClick={() => openControlPanel(tab.id)}
+                      onKeyDown={(event) => handleControlTabKeyDown(event, tab.id)}
+                    >
+                      <span className="preview-control-tab-label">{tab.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="preview-header-actions">
                 <ExportCropOverlayToggle
                   visible={isExportCropOverlayVisible}
                   onVisibleChange={setIsExportCropOverlayVisible}
                 />
-              ) : null}
-              <button type="button" className="secondary-button compact preview-header-reset" onClick={resetEditor}>
-                全体をリセット
-              </button>
+                <button type="button" className="secondary-button compact preview-header-reset" onClick={resetEditor}>
+                  全体をリセット
+                </button>
+              </div>
             </div>
-          </div>
+          ) : null}
           <div
             className={`preview-stage${isPreviewSurfaceClickable ? " is-clickable" : ""}${isPreviewDragActive ? " is-drag-active" : ""}${isBusy ? " is-busy" : ""}`}
             role={isPreviewSurfaceClickable ? "button" : undefined}

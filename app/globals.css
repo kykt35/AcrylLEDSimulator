@@ -368,6 +368,11 @@ button {
   position: relative;
 }
 
+.preview-shell.is-preview-empty {
+  grid-template-rows: minmax(320px, 1fr);
+  gap: 0;
+}
+
 .preview-header {
   display: flex;
   gap: 16px;
