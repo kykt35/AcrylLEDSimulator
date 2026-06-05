@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { DisplayControls } from "@/components/controls/DisplayControls";
 import { EngravingControls } from "@/components/controls/EngravingControls";
@@ -9,8 +8,8 @@ import { LightingControls } from "@/components/controls/LightingControls";
 import { ExportCropOverlay } from "@/components/controls/ExportCropOverlay";
 import { ExportCropOverlayToggle } from "@/components/controls/ExportCropOverlayToggle";
 import { SaveControls } from "@/components/controls/SaveControls";
-import { NoticeModal } from "@/components/modals/NoticeModal";
 import { SaveCompleteModal } from "@/components/modals/SaveCompleteModal";
+import { SimulatorHeaderActions } from "@/components/screens/SimulatorHeaderActions";
 import { SimulatorCanvas } from "@/components/simulator/SimulatorCanvas";
 import { ErrorNotice } from "@/components/ui/ErrorNotice";
 import { downloadBlob } from "@/lib/download/downloadBlob";
@@ -1043,15 +1042,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
             画像の読み込み、見え方の調整、ダウンロードまでを 1 画面で進めます。
           </p>
         </div>
-        <div className="header-actions">
-          <Link href="/usage" className="secondary-link">
-            使い方
-          </Link>
-          <Link href="/about" className="secondary-link">
-            このアプリについて
-          </Link>
-          <NoticeModal triggerLabel="注意事項" buttonClassName="ghost-link" />
-        </div>
+        <SimulatorHeaderActions />
       </section>
 
       <div className="simulator-layout">
@@ -1147,7 +1138,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                   PNG
                 </div>
                 <h3>3Dビューへ PNG を追加して始めましょう</h3>
-                <p>このエリアに画像をドラッグするか、クリックして透過 PNG を選択すると 3D プレビューへ反映します。</p>
+                <p>このエリアに画像をドラッグするか、クリックして PNG を選択すると 3D プレビューへ反映します。</p>
               </div>
             )}
             {isPreviewDragActive ? (

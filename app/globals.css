@@ -153,15 +153,73 @@ button {
 }
 
 .hero-actions,
-.header-actions {
+.header-actions,
+.header-actions-desktop {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
 }
 
+.header-actions-mobile {
+  display: none;
+}
+
+.header-menu-toggle {
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.header-menu-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.header-menu-toggle-icon {
+  display: grid;
+  gap: 4px;
+}
+
+.header-menu-toggle-icon span {
+  display: block;
+  width: 16px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--text);
+}
+
+.header-menu-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 220px;
+  padding: 10px;
+  display: grid;
+  gap: 8px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: var(--surface-strong);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.35);
+  z-index: 20;
+}
+
+.header-menu-link {
+  width: 100%;
+  justify-content: flex-start;
+}
+
 .simulator-header .header-actions {
   align-items: center;
   gap: 10px;
+  position: relative;
+  flex-shrink: 0;
 }
 
 .eyebrow,
@@ -1399,8 +1457,24 @@ button {
   }
 
   .simulator-header {
+    flex-direction: row;
     align-items: flex-start;
-    flex-direction: column;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .simulator-header > div:first-child {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .header-actions-desktop {
+    display: none;
+  }
+
+  .header-actions-mobile {
+    display: block;
+    position: relative;
   }
 
   .preview-shell {
