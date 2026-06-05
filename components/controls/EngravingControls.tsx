@@ -5,8 +5,10 @@ import type { EngravingAdjustments } from "@/lib/image/engravingFilters";
 
 type EngravingControlsProps = {
   adjustments: EngravingAdjustments;
+  isEngravingMode: boolean;
   sourceImageUrl: string | null;
   engravingImageUrl: string | null;
+  onEngravingModeChange: (enabled: boolean) => void;
   onAdjustmentsChange: (patch: Partial<EngravingAdjustments>) => void;
   onDownload: () => void | Promise<void>;
 };
@@ -42,13 +44,30 @@ const guideToneOptions = [
 
 export function EngravingControls({
   adjustments,
+  isEngravingMode,
   sourceImageUrl,
   engravingImageUrl,
+  onEngravingModeChange,
   onAdjustmentsChange,
   onDownload
 }: EngravingControlsProps) {
   return (
     <section className="panel-section">
+      <div className="panel-subsection">
+        <label className="toggle-field">
+          <input
+            type="checkbox"
+            className="sr-only"
+            aria-label="彫刻モード"
+            checked={isEngravingMode}
+            onChange={(event) => onEngravingModeChange(event.target.checked)}
+          />
+          <span className={`toggle-switch${isEngravingMode ? " is-on" : ""}`} aria-hidden="true">
+            <span className="toggle-knob" />
+          </span>
+          <span>彫刻モード</span>
+        </label>
+      </div>
       <div className="panel-subsection">
         <div className="control-grid">
           <div className="control-group full-width">

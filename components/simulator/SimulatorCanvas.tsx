@@ -15,7 +15,7 @@ type SimulatorCanvasProps = {
   imageUrl?: string | null;
   engravingImageUrl?: string | null;
   sizePreset?: AcrylicSizePreset;
-  showSourceOverlay?: boolean;
+  isEngravingMode?: boolean;
   glowColor?: string;
   brightness?: number;
   heightAttenuation?: number;
@@ -81,7 +81,7 @@ export function SimulatorCanvas({
   imageUrl,
   engravingImageUrl,
   sizePreset = getAcrylicSizePreset("medium"),
-  showSourceOverlay = false,
+  isEngravingMode = false,
   glowColor = "#7fe7ff",
   brightness = 1,
   heightAttenuation = 0.3,
@@ -132,7 +132,7 @@ export function SimulatorCanvas({
               imageUrl={imageUrl}
               engravingImageUrl={engravingImageUrl}
               sizePreset={sizePreset}
-              showSourceOverlay={showSourceOverlay}
+              isEngravingMode={isEngravingMode}
               glowColor={glowColor}
               brightness={brightness}
               heightAttenuation={heightAttenuation}

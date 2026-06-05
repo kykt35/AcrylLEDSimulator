@@ -13,8 +13,10 @@ describe("EngravingControls", () => {
     render(
       <EngravingControls
         adjustments={defaultEngravingAdjustments}
+        isEngravingMode={false}
         engravingImageUrl="data:image/png;base64,engraving"
         sourceImageUrl="data:image/png;base64,source"
+        onEngravingModeChange={vi.fn()}
         onAdjustmentsChange={onAdjustmentsChange}
         onDownload={onDownload}
       />
@@ -32,12 +34,35 @@ describe("EngravingControls", () => {
     expect(screen.getByText(defaultEngravingAdjustments.threshold.toFixed(2))).toBeInTheDocument();
   });
 
+  it("emits engraving mode changes from the toggle", async () => {
+    const user = userEvent.setup();
+    const onEngravingModeChange = vi.fn();
+
+    render(
+      <EngravingControls
+        adjustments={defaultEngravingAdjustments}
+        isEngravingMode={false}
+        engravingImageUrl="data:image/png;base64,engraving"
+        sourceImageUrl="data:image/png;base64,source"
+        onEngravingModeChange={onEngravingModeChange}
+        onAdjustmentsChange={vi.fn()}
+        onDownload={vi.fn()}
+      />
+    );
+
+    await user.click(screen.getByLabelText("彫刻モード"));
+
+    expect(onEngravingModeChange).toHaveBeenCalledWith(true);
+  });
+
   it("shows both source and engraving previews", () => {
     render(
       <EngravingControls
         adjustments={defaultEngravingAdjustments}
+        isEngravingMode={false}
         engravingImageUrl="data:image/png;base64,engraving"
         sourceImageUrl="data:image/png;base64,source"
+        onEngravingModeChange={vi.fn()}
         onAdjustmentsChange={vi.fn()}
         onDownload={vi.fn()}
       />

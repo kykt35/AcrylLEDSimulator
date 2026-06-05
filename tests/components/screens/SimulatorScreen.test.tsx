@@ -26,12 +26,12 @@ vi.mock("@/lib/image/composePreviewImage", () => ({
 vi.mock("@/components/simulator/SimulatorCanvas", () => ({
   SimulatorCanvas: ({
     imageUrl,
-    showSourceOverlay,
+    isEngravingMode,
     containerRef,
     heightAttenuation
   }: {
     imageUrl?: string | null;
-    showSourceOverlay?: boolean;
+    isEngravingMode?: boolean;
     containerRef?: React.RefObject<HTMLDivElement | null>;
     heightAttenuation?: number;
   }) => (
@@ -39,7 +39,7 @@ vi.mock("@/components/simulator/SimulatorCanvas", () => ({
       ref={containerRef}
       className="simulator-canvas-host"
       data-testid="simulator-canvas"
-      data-show-source-overlay={String(Boolean(showSourceOverlay))}
+      data-is-engraving-mode={String(Boolean(isEngravingMode))}
       data-height-attenuation={heightAttenuation ?? ""}
     >
       <canvas />
@@ -157,7 +157,7 @@ describe("SimulatorScreen", () => {
     );
     expect(screen.getByText("simulator.png の読み込みが完了しました。")).toBeInTheDocument();
     expect(screen.getAllByAltText("彫刻用グレースケールプレビュー")).toHaveLength(1);
-    expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "false");
+    expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-is-engraving-mode", "false");
     expect(screen.getByRole("tab", { name: "配置" })).toHaveAttribute("data-state", "complete");
     expect(screen.getByRole("tab", { name: "配置" })).toHaveTextContent("配置");
     expect(screen.getByTestId("export-crop-overlay-toggle")).toBeInTheDocument();
@@ -351,7 +351,7 @@ describe("SimulatorScreen", () => {
     expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-height-attenuation", "0.45");
   });
 
-  it("keeps the source overlay hidden by default and after resetting display settings", async () => {
+  it("shows the source image by default and switches to engraving mode from the engraving panel", async () => {
     const user = userEvent.setup();
 
     render(<SimulatorScreen />);
@@ -362,22 +362,22 @@ describe("SimulatorScreen", () => {
     await user.upload(input, file);
 
     await waitFor(() => {
-      expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "false");
+      expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-is-engraving-mode", "false");
     });
 
     await openControlDrawer(user);
+    await user.click(screen.getByRole("tab", { name: "彫刻" }));
+    expect(screen.getByLabelText("彫刻モード")).not.toBeChecked();
+
+    await user.click(screen.getByLabelText("彫刻モード"));
+    expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-is-engraving-mode", "true");
+
     await user.click(screen.getByRole("tab", { name: "カメラ" }));
-    expect(screen.getByLabelText("元画像を重ねて表示")).not.toBeChecked();
-
-    await user.click(screen.getByLabelText("元画像を重ねて表示"));
-    expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "true");
-
     await user.click(screen.getByRole("button", { name: "カメラ設定をリセット" }));
-    expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "false");
-    expect(screen.getByLabelText("元画像を重ねて表示")).not.toBeChecked();
+    expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-is-engraving-mode", "true");
   });
 
-  it("restores the saved source overlay setting when resuming from a snapshot", async () => {
+  it("restores the saved display mode when resuming from a snapshot", async () => {
     const user = userEvent.setup();
 
     writeEditorSnapshot({
@@ -403,7 +403,7 @@ describe("SimulatorScreen", () => {
         backgroundId: "night",
         cameraPresetId: "front",
         acrylicSizeId: "small",
-        showSourceOverlay: true,
+        showSourceOverlay: false,
         imageLayout: {
           contentFit: "contain",
           scale: 1,
@@ -416,13 +416,13 @@ describe("SimulatorScreen", () => {
     render(<SimulatorScreen searchParams={{ resume: "1" }} />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-show-source-overlay", "true");
+      expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-is-engraving-mode", "true");
     });
 
     await openControlDrawer(user);
     expect(screen.getByRole("radio", { name: "S (100 x 150 mm)" })).toHaveAttribute("aria-checked", "true");
-    await user.click(screen.getByRole("tab", { name: "カメラ" }));
-    expect(screen.getByLabelText("元画像を重ねて表示")).toBeChecked();
+    await user.click(screen.getByRole("tab", { name: "彫刻" }));
+    expect(screen.getByLabelText("彫刻モード")).toBeChecked();
   });
 
   it("updates image layout controls for the preview", async () => {

@@ -23,7 +23,7 @@ describe("AcrylicStandMesh", () => {
       <AcrylicStandMesh
         imageUrl="data:image/png;base64,abc"
         engravingImageUrl="data:image/png;base64,engraving"
-        showSourceOverlay={true}
+        isEngravingMode={false}
       />
     );
 
@@ -37,7 +37,9 @@ describe("AcrylicStandMesh", () => {
   });
 
   it("uses the selected size preset for the acrylic geometry", () => {
-    const { container } = render(<AcrylicStandMesh sizePreset={getAcrylicSizePreset("large")} />);
+    const { container } = render(
+      <AcrylicStandMesh isEngravingMode sizePreset={getAcrylicSizePreset("large")} />
+    );
 
     expect(container.querySelector("boxGeometry")).toHaveAttribute("args", "1.9,2.75,0.08");
     expect(container.querySelector("planeGeometry")).toHaveAttribute("args", "1.88,2.73");
