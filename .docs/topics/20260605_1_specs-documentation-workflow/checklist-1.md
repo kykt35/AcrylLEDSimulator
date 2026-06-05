@@ -37,12 +37,12 @@
 
 | ID | 種別 | 内容 | 対応コミット(予定) | 実績コミット | 状態 | メモ |
 |---|---|---|---|---|---|---|
-| 3-1 | docs | 実装とテストから機能境界、入口、関連パスを洗い出す | `docs: audit simulator feature boundaries` |  | planned |  |
-| 3-2 | docs | シミュレーター全体、画像入力、彫刻マップ生成の詳細仕様を追加する | `docs: add simulator input and engraving specs` |  | planned |  |
-| 3-3 | docs | LED発光設定、アクリルサイズ、背景、カメラ、表示切替の詳細仕様を追加する | `docs: add lighting and display specs` |  | planned |  |
-| 3-4 | docs | 書き出し、クロップ、彫刻画像ダウンロード、セッション保存/復元の詳細仕様を追加する | `docs: add export and save specs` |  | planned |  |
-| 3-5 | docs | `feature-index.md` の機能カテゴリと詳細仕様リンクを更新する | `docs: update feature index links` |  | planned |  |
-| 3-6 | verify | 各詳細仕様の必須見出しと関連実装/関連テストの存在を確認する | - |  | planned |  |
+| 3-1 | docs | 実装とテストから機能境界、入口、関連パスを洗い出す | `docs: audit simulator feature boundaries` | `docs: add simulator feature specifications` | done | `components/controls`, `components/simulator`, `lib`, `tests` を確認 |
+| 3-2 | docs | シミュレーター全体、画像入力、彫刻マップ生成の詳細仕様を追加する | `docs: add simulator input and engraving specs` | `docs: add simulator feature specifications` | done |  |
+| 3-3 | docs | LED発光設定、アクリルサイズ、背景、カメラ、表示切替の詳細仕様を追加する | `docs: add lighting and display specs` | `docs: add simulator feature specifications` | done |  |
+| 3-4 | docs | 書き出し、クロップ、彫刻画像ダウンロード、セッション保存/復元の詳細仕様を追加する | `docs: add export and save specs` | `docs: add simulator feature specifications` | done |  |
+| 3-5 | docs | `feature-index.md` の機能カテゴリと詳細仕様リンクを更新する | `docs: update feature index links` | `docs: add simulator feature specifications` | done | Task 1で作成したリンク構成と詳細仕様を対応 |
+| 3-6 | verify | 各詳細仕様の必須見出しと関連実装/関連テストの存在を確認する | - | `docs: add simulator feature specifications` | done | 必須見出しと主要リンクを確認 |
 
 ### Task 4: 仕様更新ワークフローと参照リンクの整備
 
