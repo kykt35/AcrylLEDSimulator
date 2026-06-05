@@ -31,7 +31,7 @@
 | Q4-12 | Layout | デスクトップで表示が崩れない | 主要 UI が重ならず読める | ready |
 
 ## Acceptance Gates
-- Must 機能が `specs/product/acceptance-criteria.md` と矛盾しない
+- Must 機能が `docs/specs/product/acceptance-criteria.md` と矛盾しない
 - 重大不具合が 0 件である、または Go 判定時に明確な回避策がある
 - `npm test` と `npm run build` が成功する
 - Safari / Edge の手動確認結果が受入記録へ追記される

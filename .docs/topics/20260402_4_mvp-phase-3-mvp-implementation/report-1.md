@@ -4,7 +4,7 @@
 - Phase: Phase 3
 - Topic: MVP implementation
 - Milestone: M4 MVP実装完了
-- Source Documents: `specs/product/milestones.md`, `specs/product/prd.md`
+- Source Documents: `docs/specs/product/milestones.md`, `docs/specs/product/prd.md`
 - Created: 2026-04-02
 
 ## Summary

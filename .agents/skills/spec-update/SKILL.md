@@ -7,14 +7,14 @@ description: Update Acryl LED Simulator specification documents when implementat
 
 ## Quick Start
 
-実装変更が仕様に影響する場合は、`.agents/implementation-change-rules.md` と `specs/operations/spec-maintenance.md` を基準に `specs/` を更新する。
+実装変更が仕様に影響する場合は、`.agents/implementation-change-rules.md` と `docs/specs/operations/spec-maintenance.md` を基準に `docs/specs/` を更新する。
 
 ## 対象ドキュメント
 
-- 仕様入口: `specs/README.md`
-- 機能一覧: `specs/feature-index.md`
-- 機能別仕様: `specs/features/*.md`
-- 仕様運用ルール: `specs/operations/spec-maintenance.md`
+- 仕様入口: `docs/specs/README.md`
+- 機能一覧: `docs/specs/feature-index.md`
+- 機能別仕様: `docs/specs/features/*.md`
+- 仕様運用ルール: `docs/specs/operations/spec-maintenance.md`
 
 ## 基本ルール
 
@@ -28,18 +28,18 @@ description: Update Acryl LED Simulator specification documents when implementat
 
 | 変更内容 | 更新先 |
 |---|---|
-| 3Dプレビュー、WebGL、Canvas構成 | `specs/features/simulator.md` |
-| PNG入力、ドラッグ&ドロップ、画像配置 | `specs/features/image-input.md` |
-| 彫刻用グレースケール生成、彫刻モード | `specs/features/engraving-map.md` |
-| LED色、明るさ、高さ方向の減衰 | `specs/features/lighting-controls.md` |
-| 背景、カメラ、アクリルサイズ | `specs/features/display-controls.md` |
-| PNG/JPG書き出し、クロップ、セッション保存/復元 | `specs/features/export-save.md` |
-| API変更 | `specs/architecture/api.md` と該当機能仕様 |
-| 状態/データ変更 | `specs/architecture/state-design.md`, `specs/architecture/data-model.md`, 該当機能仕様 |
+| 3Dプレビュー、WebGL、Canvas構成 | `docs/specs/features/simulator.md` |
+| PNG入力、ドラッグ&ドロップ、画像配置 | `docs/specs/features/image-input.md` |
+| 彫刻用グレースケール生成、彫刻モード | `docs/specs/features/engraving-map.md` |
+| LED色、明るさ、高さ方向の減衰 | `docs/specs/features/lighting-controls.md` |
+| 背景、カメラ、アクリルサイズ | `docs/specs/features/display-controls.md` |
+| PNG/JPG書き出し、クロップ、セッション保存/復元 | `docs/specs/features/export-save.md` |
+| API変更 | `docs/specs/architecture/api.md` と該当機能仕様 |
+| 状態/データ変更 | `docs/specs/architecture/state-design.md`, `docs/specs/architecture/data-model.md`, 該当機能仕様 |
 
 ## 作業フロー
 
-1. `specs/feature-index.md` で対象カテゴリと詳細仕様を確認する。
+1. `docs/specs/feature-index.md` で対象カテゴリと詳細仕様を確認する。
 2. 変更したコードから、入口、状態、エラー、保存データ、関連実装、関連テストを確認する。
 3. 該当する詳細仕様を更新する。
 4. 新機能や新カテゴリがある場合だけ、`feature-index.md` を更新する。
@@ -66,8 +66,8 @@ description: Update Acryl LED Simulator specification documents when implementat
 ## 確認コマンド
 
 ```bash
-find specs -maxdepth 3 -type f | sort
-sed -n '1,160p' specs/feature-index.md
+find docs/specs -maxdepth 3 -type f | sort
+sed -n '1,160p' docs/specs/feature-index.md
 ```
 
 ドキュメントのみの変更では、通常 `pnpm test` は不要。

@@ -2,7 +2,7 @@
 
 - Report Type: architecture-review
 - Topic: acrylic-engraving-grayscale-simulation
-- Source Documents: `specs/product/prd.md`, `components/screens/SimulatorScreen.tsx`, `components/simulator/SimulatorCanvas.tsx`, `components/simulator/AcrylicStandMesh.tsx`, `lib/image/loadPngTexture.ts`, `components/controls/ImageControls.tsx`
+- Source Documents: `docs/specs/product/prd.md`, `components/screens/SimulatorScreen.tsx`, `components/simulator/SimulatorCanvas.tsx`, `components/simulator/AcrylicStandMesh.tsx`, `lib/image/loadPngTexture.ts`, `components/controls/ImageControls.tsx`
 - Created: 2026-04-03
 
 ## Summary

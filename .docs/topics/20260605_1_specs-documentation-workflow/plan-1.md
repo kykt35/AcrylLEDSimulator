@@ -2,7 +2,7 @@
 
 ## 概要
 
-既存の `docs/` 直下にあるMVP/Phase仕様を、継続運用しやすい `specs/` 配下へ整理する。単なるファイル移動ではなく、別リポジトリ `quartet-labo/an-ne_platform` の PR #336 で導入された「機能一覧インデックス」「機能別詳細仕様」「仕様更新ルール」「エージェント向け手順」を、このNext.js / React / Three.jsアプリ向けに取り込む。
+既存の `docs/` 直下にあるMVP/Phase仕様を、継続運用しやすい `docs/specs/` 配下へ整理する。単なるファイル移動ではなく、別リポジトリ `quartet-labo/an-ne_platform` の PR #336 で導入された「機能一覧インデックス」「機能別詳細仕様」「仕様更新ルール」「エージェント向け手順」を、このNext.js / React / Three.jsアプリ向けに取り込む。
 
 この計画では Task をPR単位、サブタスクをコミット単位として扱う。
 
@@ -20,7 +20,7 @@
 ## 前提条件
 
 - 現在の仕様は `docs/` 直下にある
-- このリポジトリでは元計画に従い、仕様の正を `specs/` に置く
+- このリポジトリでは元計画に従い、仕様の正を `docs/specs/` に置く
 - `.docs/` は計画、調査、チェックリストなどの作業管理用として残す
 - アプリ実装変更は原則含めない
 - mainブランチには直接コミットしない
@@ -37,7 +37,7 @@
 ## 推奨する最終構成
 
 ```text
-specs/
+docs/specs/
   README.md
   feature-index.md
   product/
@@ -79,23 +79,23 @@ AGENTS.md
 
 ### Task 1: 仕様入口と運用構造の定義
 
-**目的:** `specs/` の役割、参照順序、機能一覧インデックスの責務を先に固定し、以降の移行と詳細化の判断基準を揃える。
+**目的:** `docs/specs/` の役割、参照順序、機能一覧インデックスの責務を先に固定し、以降の移行と詳細化の判断基準を揃える。
 
 **変更ファイル:**
-- `specs/README.md`
-- `specs/feature-index.md`
-- `specs/operations/spec-maintenance.md`
-- `specs/operations/change-log.md`
+- `docs/specs/README.md`
+- `docs/specs/feature-index.md`
+- `docs/specs/operations/spec-maintenance.md`
+- `docs/specs/operations/change-log.md`
 
 **サブタスク:**
 1. [ ] 既存 `docs/*.md` と現行実装の仕様境界を確認する（コミット: `docs: audit existing specification sources`）
-2. [ ] `specs/` のディレクトリ責務と参照順序を `specs/README.md` に定義する（コミット: `docs: define specs documentation structure`）
+2. [ ] `docs/specs/` のディレクトリ責務と参照順序を `docs/specs/README.md` に定義する（コミット: `docs: define specs documentation structure`）
 3. [ ] `feature-index.md` をカテゴリ、機能、詳細仕様リンクだけの入口として作成する（コミット: `docs: add feature specification index`）
 4. [ ] 仕様更新手順と変更履歴フォーマットを `operations/` に作成する（コミット: `docs: add specification maintenance workflow`）
-5. [ ] `find specs -maxdepth 3 -type f | sort` で配置を確認する
+5. [ ] `find docs/specs -maxdepth 3 -type f | sort` で配置を確認する
 
 **受け入れ条件:**
-- [ ] `specs/README.md` から仕様カテゴリと読む順序が分かる
+- [ ] `docs/specs/README.md` から仕様カテゴリと読む順序が分かる
 - [ ] `feature-index.md` に詳細な仕様本文が混ざっていない
 - [ ] 新しい仕様を追加するときの配置先を判断できる
 - [ ] 仕様変更履歴の最小フォーマットがある
@@ -104,34 +104,34 @@ AGENTS.md
 
 ### Task 2: 既存 `docs/` 仕様の分類移行
 
-**目的:** 既存仕様を `specs/product/`, `specs/ux/`, `specs/architecture/` に移し、二重管理を避ける。
+**目的:** 既存仕様を `docs/specs/product/`, `docs/specs/ux/`, `docs/specs/architecture/` に移し、二重管理を避ける。
 
 **移行後ファイル:**
-- `specs/product/prd.md`
-- `specs/product/milestones.md`
-- `specs/product/acceptance-criteria.md`
-- `specs/ux/user-flow.md`
-- `specs/ux/screens.md`
-- `specs/ux/ui-design.md`
-- `specs/architecture/tech-stack.md`
-- `specs/architecture/component-design.md`
-- `specs/architecture/state-design.md`
-- `specs/architecture/data-model.md`
-- `specs/architecture/api.md`
-- `specs/architecture/error-handling.md`
+- `docs/specs/product/prd.md`
+- `docs/specs/product/milestones.md`
+- `docs/specs/product/acceptance-criteria.md`
+- `docs/specs/ux/user-flow.md`
+- `docs/specs/ux/screens.md`
+- `docs/specs/ux/ui-design.md`
+- `docs/specs/architecture/tech-stack.md`
+- `docs/specs/architecture/component-design.md`
+- `docs/specs/architecture/state-design.md`
+- `docs/specs/architecture/data-model.md`
+- `docs/specs/architecture/api.md`
+- `docs/specs/architecture/error-handling.md`
 - 必要に応じて `docs/README.md`
 
 **サブタスク:**
 1. [ ] 移行先ディレクトリを作成し、既存仕様の移動先を確定する（コミット: `docs: create specs hierarchy`）
-2. [ ] プロダクト系仕様を `specs/product/` へ移行する（コミット: `docs: move product specs`）
-3. [ ] UX系仕様を `specs/ux/` へ移行する（コミット: `docs: move ux specs`）
-4. [ ] 技術設計系仕様を `specs/architecture/` へ移行する（コミット: `docs: move architecture specs`）
+2. [ ] プロダクト系仕様を `docs/specs/product/` へ移行する（コミット: `docs: move product specs`）
+3. [ ] UX系仕様を `docs/specs/ux/` へ移行する（コミット: `docs: move ux specs`）
+4. [ ] 技術設計系仕様を `docs/specs/architecture/` へ移行する（コミット: `docs: move architecture specs`）
 5. [ ] 旧 `docs/` を空にするか、移行案内だけの `docs/README.md` にする（コミット: `docs: remove duplicated legacy specs`）
 6. [ ] `rg "docs/(MVP_|acceptance|user-flow|screen-spec|component-design|state-design|data-model|api-spec|error-handling)"` で旧参照を確認する
 
 **受け入れ条件:**
-- [ ] 既存仕様がカテゴリ別に `specs/` 配下へ移っている
-- [ ] 同じ仕様本文が `docs/` と `specs/` に重複していない
+- [ ] 既存仕様がカテゴリ別に `docs/specs/` 配下へ移っている
+- [ ] 同じ仕様本文が `docs/` と `docs/specs/` に重複していない
 - [ ] ファイル名がカテゴリ内で英小文字kebab-caseに揃っている
 - [ ] 旧パス参照が残っていない、または意図した移行案内に限られている
 
@@ -142,13 +142,13 @@ AGENTS.md
 **目的:** 実装変更時に参照できる機能別詳細仕様を、現行コードと既存テストから作成する。
 
 **変更ファイル:**
-- `specs/features/simulator.md`
-- `specs/features/image-input.md`
-- `specs/features/engraving-map.md`
-- `specs/features/lighting-controls.md`
-- `specs/features/display-controls.md`
-- `specs/features/export-save.md`
-- `specs/feature-index.md`
+- `docs/specs/features/simulator.md`
+- `docs/specs/features/image-input.md`
+- `docs/specs/features/engraving-map.md`
+- `docs/specs/features/lighting-controls.md`
+- `docs/specs/features/display-controls.md`
+- `docs/specs/features/export-save.md`
+- `docs/specs/feature-index.md`
 
 **サブタスク:**
 1. [ ] `app/`, `components/`, `lib/`, `tests/` から主要機能、入口、関連実装、関連テストを洗い出す（コミット: `docs: audit simulator feature boundaries`）
@@ -179,12 +179,12 @@ AGENTS.md
 - 必要に応じて `.docs/plans/*.md`
 
 **サブタスク:**
-1. [ ] `README.md` に仕様入口 `specs/README.md` と `specs/feature-index.md` へのリンクを追加する（コミット: `docs: link specs from readme`）
+1. [ ] `README.md` に仕様入口 `docs/specs/README.md` と `docs/specs/feature-index.md` へのリンクを追加する（コミット: `docs: link specs from readme`）
 2. [ ] `AGENTS.md` にリポジトリ作業ルール、仕様参照先、検証コマンドを追加する（コミット: `docs: add agent project guide`）
 3. [ ] `.agents/implementation-change-rules.md` に仕様更新が必要な変更/不要な変更/判断例を定義する（コミット: `docs: add implementation change rules`）
 4. [ ] `.agents/skills/spec-update/SKILL.md` にこのリポジトリ向けの仕様更新手順を追加する（コミット: `docs: add spec update skill`）
 5. [ ] PRテンプレートに仕様更新確認欄を追加する（コミット: `docs: add pr spec checklist`）
-6. [ ] `rg "docs/|specs/" README.md AGENTS.md .agents .github specs .docs` でリンクと旧参照を確認する
+6. [ ] `test ! -e specs` と `rg "docs/specs" README.md AGENTS.md .agents .github docs .docs` で配置と参照を確認する
 7. [ ] ドキュメントのみの変更として、必要なら `pnpm test` を省略した理由をPR本文に明記する
 
 **受け入れ条件:**
@@ -202,15 +202,15 @@ AGENTS.md
 
 ## 検証方針
 
-- 配置確認: `find specs .agents .github -maxdepth 4 -type f | sort`
+- 配置確認: `find docs/specs .agents .github -maxdepth 4 -type f | sort`
 - 旧参照確認: `rg "docs/(MVP_|acceptance|user-flow|screen-spec|component-design|state-design|data-model|api-spec|error-handling)"`
-- リンク確認: `rg "\\]\\(([^)]*)\\)" specs README.md AGENTS.md .agents .github`
+- リンク確認: `rg "\\]\\(([^)]*)\\)" docs/specs README.md AGENTS.md .agents .github`
 - ドキュメントのみの移行ではアプリテストは必須にしない
 - 仕様内容が実装ファイル名やテスト名を参照する場合は、該当パスの存在を確認する
 
 ## 備考
 
-- 参考PRは `.docs/specs/` を使っているが、このリポジトリでは元計画に合わせて `specs/` を仕様の正とする
+- 参考PRは `.docs/specs/` を使っているが、このリポジトリでは元計画に合わせて `docs/specs/` を仕様の正とする
 - `feature-index.md` は詳細説明を増やしすぎず、詳細仕様へのナビゲーションに徹する
 - 既存仕様の内容修正は移行時には最小限にし、不整合や不足は `features/*.md` の `未確認・推定` か後続PRで扱う
 - `.docs/topics/` は計画と実績記録の置き場所として使い、仕様本文とは分ける

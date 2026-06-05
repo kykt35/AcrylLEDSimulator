@@ -18,7 +18,7 @@
 | 書き出し/保存 | クロップ範囲指定 | [features/export-save.md](features/export-save.md) |
 | 書き出し/保存 | セッション保存/復元 | [features/export-save.md](features/export-save.md) |
 | API | PNGアップロード検証API | [architecture/api.md](architecture/api.md), [features/image-input.md](features/image-input.md) |
-| 仕様運用 | 実装変更時の仕様更新ルール | [operations/spec-maintenance.md](operations/spec-maintenance.md), [../.agents/implementation-change-rules.md](../.agents/implementation-change-rules.md) |
+| 仕様運用 | 実装変更時の仕様更新ルール | [operations/spec-maintenance.md](operations/spec-maintenance.md), [../../.agents/implementation-change-rules.md](../../.agents/implementation-change-rules.md) |
 
 ## 次の詳細化候補
 

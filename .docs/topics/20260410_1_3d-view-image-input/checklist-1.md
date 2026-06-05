@@ -43,7 +43,7 @@
 
 | ID | 種別 | 内容 | 対応コミット(予定) | 実績コミット | 状態 | メモ |
 |---|---|---|---|---|---|---|
-| 4-1 | docs | 画面仕様・エラーハンドリングのアップロード導線表現を更新 | `docs: update simulator upload flow references` |  | done | `specs/ux/screens.md` と `specs/architecture/error-handling.md` を更新 |
+| 4-1 | docs | 画面仕様・エラーハンドリングのアップロード導線表現を更新 | `docs: update simulator upload flow references` |  | done | `docs/specs/ux/screens.md` と `docs/specs/architecture/error-handling.md` を更新 |
 | 4-2 | docs | QA観点へ3Dビュー起点の操作を追加 | `docs: add qa coverage for preview-based upload` |  | done | クリック・ドラッグのQA観点を追記 |
 | 4-3 | verify | チェックリストとテスト結果の整合を確認 | - |  | done | コミットとテスト結果を反映済み |
 

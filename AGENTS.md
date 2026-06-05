@@ -12,16 +12,16 @@
 
 ## 仕様ドキュメント
 
-- 仕様の入口は `specs/README.md`。
-- 機能一覧は `specs/feature-index.md`。
-- 機能の詳細は `specs/features/*.md` に記載する。
-- 実装の振る舞いが変わる場合は、`specs/operations/spec-maintenance.md` と `.agents/implementation-change-rules.md` に従って仕様も更新する。
+- 仕様の入口は `docs/specs/README.md`。
+- 機能一覧は `docs/specs/feature-index.md`。
+- 機能の詳細は `docs/specs/features/*.md` に記載する。
+- 実装の振る舞いが変わる場合は、`docs/specs/operations/spec-maintenance.md` と `.agents/implementation-change-rules.md` に従って仕様も更新する。
 - 仕様更新を行う場合は、必要に応じて `.agents/skills/spec-update/SKILL.md` の手順を使う。
 
 ## よく使う確認
 
 ```bash
-find specs -maxdepth 3 -type f | sort
+find docs/specs -maxdepth 3 -type f | sort
 rg "docs/(MVP_|acceptance|user-flow|screen-spec|component-design|state-design|data-model|api-spec|error-handling)"
 pnpm test
 ```

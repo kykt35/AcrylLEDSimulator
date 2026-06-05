@@ -4,8 +4,8 @@
 Phase 3 では、Phase 2 で確定した画面仕様、状態設計、API 契約、受入基準をもとに、PoC 構成を MVP 実装へ置き換える。現状は `app/page.tsx` と `PocWorkbench` にトップ画面、シミュレーター UI、保存 PoC が混在しているため、まず画面責務を分離し、その後に状態集約、操作パネル分割、保存フロー、結果画面、テスト整備の順で進める。
 
 ## 前提条件
-- 要件の基準は `specs/product/milestones.md`、`specs/product/prd.md`、`specs/ux/ui-design.md`、`specs/architecture/tech-stack.md` を参照する
-- 設計の基準は `specs/ux/screens.md`、`specs/architecture/component-design.md`、`specs/architecture/state-design.md`、`specs/architecture/api.md`、`specs/product/acceptance-criteria.md` を参照する
+- 要件の基準は `docs/specs/product/milestones.md`、`docs/specs/product/prd.md`、`docs/specs/ux/ui-design.md`、`docs/specs/architecture/tech-stack.md` を参照する
+- 設計の基準は `docs/specs/ux/screens.md`、`docs/specs/architecture/component-design.md`、`docs/specs/architecture/state-design.md`、`docs/specs/architecture/api.md`、`docs/specs/product/acceptance-criteria.md` を参照する
 - 現状コードは PoC として `app/page.tsx` と `components/simulator/PocWorkbench.tsx` を中心に構成されている
 - 既存資産として `SimulatorCanvas`、`LightingControls`、`ImageUploader`、`exportCanvasImage`、`lightingPresets` は段階的に流用する
 - Phase 3 では Must 機能を優先し、共有 URL、保存履歴、注文導線は対象外とする
@@ -129,7 +129,7 @@ Phase 3 では、Phase 2 で確定した画面仕様、状態設計、API 契約
 
 **受け入れ条件:**
 - [ ] 現在のプレビューを保存処理へ渡せる
-- [ ] `/api/save` の入出力が `specs/architecture/api.md` と整合する
+- [ ] `/api/save` の入出力が `docs/specs/architecture/api.md` と整合する
 - [ ] 保存成功 / 失敗の分岐が画面上で明確に判別できる
 
 ---
@@ -179,7 +179,7 @@ Phase 3 では、Phase 2 で確定した画面仕様、状態設計、API 契約
 4. [ ] ルーティング分割後の主要画面表示と導線を確認する
 5. [ ] Chrome、Safari、Edge を想定した確認観点をチェックリストへ残す
 6. [ ] 既知不具合、未実装の簡略化、Phase 4 での確認事項を `report-2.md` にまとめる
-7. [ ] Phase 3 完了判定が `specs/product/acceptance-criteria.md` を満たすか確認する
+7. [ ] Phase 3 完了判定が `docs/specs/product/acceptance-criteria.md` を満たすか確認する
 
 **受け入れ条件:**
 - [ ] 主要フローの回帰を検知できるテストがある
@@ -212,5 +212,5 @@ Phase 3 では、Phase 2 で確定した画面仕様、状態設計、API 契約
 ## 完了判定
 - トップ画面からシミュレーター画面へ遷移し、PNG アップロード、LED 色変更、明るさ変更、背景切替、カメラ切替、保存、結果確認まで通せる
 - 保存失敗時に画像と設定が保持され、再試行できる
-- 実装内容が `specs/product/acceptance-criteria.md` の Must 機能を満たしている
+- 実装内容が `docs/specs/product/acceptance-criteria.md` の Must 機能を満たしている
 - Phase 4 へ引き継ぐテスト結果と既知課題が文書化されている

@@ -17,19 +17,19 @@
 | ID | 種別 | 内容 | 対応コミット(予定) | 実績コミット | 状態 | メモ |
 |---|---|---|---|---|---|---|
 | 1-1 | docs | 既存 `docs/*.md` と現行実装の仕様境界を確認する | `docs: audit existing specification sources` | `docs: define specs documentation structure` | done | `docs/`, `app/`, `components/`, `lib/`, `tests/` を確認 |
-| 1-2 | docs | `specs/README.md` に分類と参照順序を定義する | `docs: define specs documentation structure` | `docs: define specs documentation structure` | done |  |
-| 1-3 | docs | `specs/feature-index.md` をリンク専用入口として作成する | `docs: add feature specification index` | `docs: define specs documentation structure` | done | 詳細本文は書かずリンク入口に限定 |
-| 1-4 | docs | `specs/operations/` に仕様更新手順と変更履歴を追加する | `docs: add specification maintenance workflow` | `docs: define specs documentation structure` | done |  |
-| 1-5 | verify | `find specs -maxdepth 3 -type f | sort` で配置を確認する | - | `docs: define specs documentation structure` | done | 4ファイルの配置を確認 |
+| 1-2 | docs | `docs/specs/README.md` に分類と参照順序を定義する | `docs: define specs documentation structure` | `docs: define specs documentation structure` | done |  |
+| 1-3 | docs | `docs/specs/feature-index.md` をリンク専用入口として作成する | `docs: add feature specification index` | `docs: define specs documentation structure` | done | 詳細本文は書かずリンク入口に限定 |
+| 1-4 | docs | `docs/specs/operations/` に仕様更新手順と変更履歴を追加する | `docs: add specification maintenance workflow` | `docs: define specs documentation structure` | done |  |
+| 1-5 | verify | `find docs/specs -maxdepth 3 -type f | sort` で配置を確認する | - | `docs: define specs documentation structure` | done | 4ファイルの配置を確認 |
 
 ### Task 2: 既存 `docs/` 仕様の分類移行
 
 | ID | 種別 | 内容 | 対応コミット(予定) | 実績コミット | 状態 | メモ |
 |---|---|---|---|---|---|---|
-| 2-1 | docs | `specs/product`, `specs/ux`, `specs/architecture` を作成する | `docs: create specs hierarchy` | `docs: move existing specs into specs hierarchy` | done |  |
-| 2-2 | docs | PRD、マイルストーン、受け入れ条件を `specs/product/` へ移行する | `docs: move product specs` | `docs: move existing specs into specs hierarchy` | done |  |
-| 2-3 | docs | ユーザーフロー、画面仕様、UIデザインを `specs/ux/` へ移行する | `docs: move ux specs` | `docs: move existing specs into specs hierarchy` | done |  |
-| 2-4 | docs | 技術スタック、コンポーネント、状態、データ、API、エラー仕様を `specs/architecture/` へ移行する | `docs: move architecture specs` | `docs: move existing specs into specs hierarchy` | done |  |
+| 2-1 | docs | `docs/specs/product`, `docs/specs/ux`, `docs/specs/architecture` を作成する | `docs: create specs hierarchy` | `docs: move existing specs into specs hierarchy` | done |  |
+| 2-2 | docs | PRD、マイルストーン、受け入れ条件を `docs/specs/product/` へ移行する | `docs: move product specs` | `docs: move existing specs into specs hierarchy` | done |  |
+| 2-3 | docs | ユーザーフロー、画面仕様、UIデザインを `docs/specs/ux/` へ移行する | `docs: move ux specs` | `docs: move existing specs into specs hierarchy` | done |  |
+| 2-4 | docs | 技術スタック、コンポーネント、状態、データ、API、エラー仕様を `docs/specs/architecture/` へ移行する | `docs: move architecture specs` | `docs: move existing specs into specs hierarchy` | done |  |
 | 2-5 | docs | 旧 `docs/` を移行案内だけにするか空にし、二重管理を解消する | `docs: remove duplicated legacy specs` | `docs: move existing specs into specs hierarchy` | done | `docs/README.md` のみ残す |
 | 2-6 | verify | 旧 `docs/` パス参照を検索し、残存参照を確認する | - | `docs: move existing specs into specs hierarchy` | done | 対象旧パスの参照なし |
 

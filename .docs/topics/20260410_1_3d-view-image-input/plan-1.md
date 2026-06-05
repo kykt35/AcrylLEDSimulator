@@ -89,8 +89,8 @@
 **目的:** 実装後のUIと運用ドキュメントの不整合をなくし、QAが新しい入力導線で確認できる状態にする。
 
 **変更ファイル:**
-- `specs/ux/screens.md`
-- `specs/architecture/error-handling.md`
+- `docs/specs/ux/screens.md`
+- `docs/specs/architecture/error-handling.md`
 - 必要に応じて `.docs/topics/20260410_1_3d-view-image-input/checklist-1.md`
 
 **サブタスク:**

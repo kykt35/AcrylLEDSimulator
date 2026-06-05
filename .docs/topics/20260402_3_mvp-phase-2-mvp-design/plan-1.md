@@ -4,7 +4,7 @@
 Phase 2 では、Phase 1 の PoC で成立した 3D プレビュー体験を、Phase 3 の MVP 実装へ落とし込むための設計を固める。対象は画面仕様、コンポーネント責務、状態管理、API と保存データ、エラー処理、受入基準であり、実装着手時に再設計が発生しない粒度まで文書化する。
 
 ## 前提条件
-- 要件の基準は `specs/product/milestones.md`、`specs/product/prd.md`、`specs/ux/ui-design.md`、`specs/architecture/tech-stack.md` を参照する
+- 要件の基準は `docs/specs/product/milestones.md`、`docs/specs/product/prd.md`、`docs/specs/ux/ui-design.md`、`docs/specs/architecture/tech-stack.md` を参照する
 - 現状コードは Phase 1 PoC として `app/page.tsx` を中心に構成されており、MVP 用の画面分割、保存フロー、状態分離は未整理である
 - Phase 2 の成果物は設計ドキュメントを主とし、注文導線、共有 URL、本格的な管理機能は対象外とする
 - 実装優先度は Must 機能を先に確定し、Should 機能は拡張余地のみ残す

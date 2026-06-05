@@ -2,7 +2,7 @@
 
 - Report Type: architecture-review
 - Topic: acrylic-size-dropdown-feasibility
-- Source Documents: `specs/product/prd.md`, `specs/ux/screens.md`, `specs/architecture/state-design.md`, `components/screens/SimulatorScreen.tsx`, `components/controls/DisplayControls.tsx`, `components/controls/ImageControls.tsx`, `components/simulator/SimulatorCanvas.tsx`, `components/simulator/AcrylicStandMesh.tsx`, `components/simulator/LedBaseMesh.tsx`, `components/simulator/CameraController.tsx`, `lib/save/session.ts`
+- Source Documents: `docs/specs/product/prd.md`, `docs/specs/ux/screens.md`, `docs/specs/architecture/state-design.md`, `components/screens/SimulatorScreen.tsx`, `components/controls/DisplayControls.tsx`, `components/controls/ImageControls.tsx`, `components/simulator/SimulatorCanvas.tsx`, `components/simulator/AcrylicStandMesh.tsx`, `components/simulator/LedBaseMesh.tsx`, `components/simulator/CameraController.tsx`, `lib/save/session.ts`
 - Created: 2026-04-05
 
 ## Summary

@@ -1,7 +1,7 @@
 # Specs Documentation Structure Plan
 
 ## 概要
-アプリの仕様を継続的に管理するため、既存の `docs/` 直下ドキュメントを整理し、`specs/` ディレクトリ配下へ階層化する。単なるファイル移動ではなく、仕様の種類、更新責務、参照順序、変更時の確認ルールを明確にする。
+アプリの仕様を継続的に管理するため、既存の `docs/` 直下ドキュメントを整理し、`docs/specs/` ディレクトリ配下へ階層化する。単なるファイル移動ではなく、仕様の種類、更新責務、参照順序、変更時の確認ルールを明確にする。
 
 ## 前提条件
 - 既存仕様は主に `docs/` 直下に存在する
@@ -15,10 +15,10 @@
 - ドキュメント移行後にリンク切れと参照先を確認すること
 - 全ての作業が完了した後、PRを作成する
 
-## 推奨する `specs/` 階層
+## 推奨する `docs/specs/` 階層
 
 ```text
-specs/
+docs/specs/
   README.md
   product/
     prd.md
@@ -50,22 +50,22 @@ specs/
 
 ### Task 1: 仕様体系と命名規約の定義
 
-**目的:** 今後どの仕様をどこに書くか迷わないように、`specs/` の分類、命名、更新ルールを先に固定する。
+**目的:** 今後どの仕様をどこに書くか迷わないように、`docs/specs/` の分類、命名、更新ルールを先に固定する。
 
 **変更ファイル:**
-- `specs/README.md`
-- `specs/operations/spec-maintenance.md`
-- `specs/operations/change-log.md`
+- `docs/specs/README.md`
+- `docs/specs/operations/spec-maintenance.md`
+- `docs/specs/operations/change-log.md`
 
 **サブタスク:**
-1. [ ] `specs/` のトップレベル分類を決定する（コミット: `docs: define specs directory structure`）
-2. [ ] 各ディレクトリの責務と配置ルールを `specs/README.md` に記載する（コミット: `docs: add specs index`）
-3. [ ] 仕様変更時の更新手順を `specs/operations/spec-maintenance.md` に記載する（コミット: `docs: add spec maintenance rules`）
-4. [ ] 仕様変更履歴の最低限のフォーマットを `specs/operations/change-log.md` に作成する（コミット: `docs: add spec change log`）
+1. [ ] `docs/specs/` のトップレベル分類を決定する（コミット: `docs: define specs directory structure`）
+2. [ ] 各ディレクトリの責務と配置ルールを `docs/specs/README.md` に記載する（コミット: `docs: add specs index`）
+3. [ ] 仕様変更時の更新手順を `docs/specs/operations/spec-maintenance.md` に記載する（コミット: `docs: add spec maintenance rules`）
+4. [ ] 仕様変更履歴の最低限のフォーマットを `docs/specs/operations/change-log.md` に作成する（コミット: `docs: add spec change log`）
 5. [ ] ドキュメントだけの変更であることを確認する
 
 **受け入れ条件:**
-- [ ] `specs/README.md` から全カテゴリの役割が分かる
+- [ ] `docs/specs/README.md` から全カテゴリの役割が分かる
 - [ ] 新しい仕様を追加するときの配置先を判断できる
 - [ ] 仕様変更時に更新すべき関連ドキュメントが分かる
 
@@ -73,33 +73,33 @@ specs/
 
 ### Task 2: 既存 `docs/` の分類と移行
 
-**目的:** 既存ドキュメントを `specs/` 配下へ移し、仕様の種類ごとに参照しやすい状態にする。
+**目的:** 既存ドキュメントを `docs/specs/` 配下へ移し、仕様の種類ごとに参照しやすい状態にする。
 
 **移行後ファイル:**
-- `specs/product/prd.md`
-- `specs/product/milestones.md`
-- `specs/product/acceptance-criteria.md`
-- `specs/ux/user-flow.md`
-- `specs/ux/screens.md`
-- `specs/ux/ui-design.md`
-- `specs/architecture/tech-stack.md`
-- `specs/architecture/component-design.md`
-- `specs/architecture/state-design.md`
-- `specs/architecture/data-model.md`
-- `specs/architecture/api.md`
-- `specs/architecture/error-handling.md`
+- `docs/specs/product/prd.md`
+- `docs/specs/product/milestones.md`
+- `docs/specs/product/acceptance-criteria.md`
+- `docs/specs/ux/user-flow.md`
+- `docs/specs/ux/screens.md`
+- `docs/specs/ux/ui-design.md`
+- `docs/specs/architecture/tech-stack.md`
+- `docs/specs/architecture/component-design.md`
+- `docs/specs/architecture/state-design.md`
+- `docs/specs/architecture/data-model.md`
+- `docs/specs/architecture/api.md`
+- `docs/specs/architecture/error-handling.md`
 
 **サブタスク:**
 1. [ ] 移行先ディレクトリを作成する（コミット: `docs: create specs hierarchy`）
-2. [ ] プロダクト系仕様を `specs/product/` へ移行する（コミット: `docs: move product specs`）
-3. [ ] UX系仕様を `specs/ux/` へ移行する（コミット: `docs: move ux specs`）
-4. [ ] 技術設計系仕様を `specs/architecture/` へ移行する（コミット: `docs: move architecture specs`）
+2. [ ] プロダクト系仕様を `docs/specs/product/` へ移行する（コミット: `docs: move product specs`）
+3. [ ] UX系仕様を `docs/specs/ux/` へ移行する（コミット: `docs: move ux specs`）
+4. [ ] 技術設計系仕様を `docs/specs/architecture/` へ移行する（コミット: `docs: move architecture specs`）
 5. [ ] 旧 `docs/` を残す場合は移行案内だけにするか、削除するかを決める
 
 **受け入れ条件:**
-- [ ] 既存仕様が `specs/` 配下に分類されている
+- [ ] 既存仕様が `docs/specs/` 配下に分類されている
 - [ ] ファイル名がカテゴリ内で一貫している
-- [ ] 同じ仕様内容が `docs/` と `specs/` に二重管理されていない
+- [ ] 同じ仕様内容が `docs/` と `docs/specs/` に二重管理されていない
 
 ---
 
@@ -108,11 +108,11 @@ specs/
 **目的:** 画面やアーキテクチャ単位だけでなく、実装・改善時に参照しやすい機能単位の仕様を追加する。
 
 **変更ファイル:**
-- `specs/features/simulator.md`
-- `specs/features/image-input.md`
-- `specs/features/lighting-controls.md`
-- `specs/features/display-controls.md`
-- `specs/features/export-save.md`
+- `docs/specs/features/simulator.md`
+- `docs/specs/features/image-input.md`
+- `docs/specs/features/lighting-controls.md`
+- `docs/specs/features/display-controls.md`
+- `docs/specs/features/export-save.md`
 
 **サブタスク:**
 1. [ ] 現行コードから主要機能を洗い出す（コミット: `docs: audit simulator features`）
@@ -130,22 +130,22 @@ specs/
 
 ### Task 4: README と参照リンクの更新
 
-**目的:** 開発者が `specs/` を仕様の正と分かるように、入口とリンクを更新する。
+**目的:** 開発者が `docs/specs/` を仕様の正と分かるように、入口とリンクを更新する。
 
 **変更ファイル:**
 - `README.md`
-- `specs/README.md`
+- `docs/specs/README.md`
 - 必要に応じて `.docs/plans/*.md`
 
 **サブタスク:**
 1. [ ] `README.md` に仕様ドキュメントの参照先を追加する（コミット: `docs: link specs from readme`）
-2. [ ] `specs/README.md` に主要仕様への索引を追加する（コミット: `docs: add specs navigation`）
+2. [ ] `docs/specs/README.md` に主要仕様への索引を追加する（コミット: `docs: add specs navigation`）
 3. [ ] 移行後の相対リンクを確認・修正する（コミット: `docs: fix spec links`）
 4. [ ] 旧パスを参照している箇所を検索して更新する
 
 **受け入れ条件:**
 - [ ] `README.md` から仕様トップへ到達できる
-- [ ] `specs/README.md` から主要仕様へ到達できる
+- [ ] `docs/specs/README.md` から主要仕様へ到達できる
 - [ ] 旧 `docs/` パスへの不要な参照が残っていない
 
 ---
@@ -155,7 +155,7 @@ specs/
 **目的:** 仕様が作られた後に放置されないよう、開発フロー上の確認観点を明文化する。
 
 **変更ファイル:**
-- `specs/operations/spec-maintenance.md`
+- `docs/specs/operations/spec-maintenance.md`
 - 必要に応じて `.github/pull_request_template.md`
 
 **サブタスク:**
@@ -176,7 +176,7 @@ specs/
 - Task 5 は Task 1 完了後に並行作業可能
 
 ## 備考
-- まずは `specs/` を正とし、旧 `docs/` を二重管理しない方針が望ましい
+- まずは `docs/specs/` を正とし、旧 `docs/` を二重管理しない方針が望ましい
 - 既存ドキュメントの内容修正は、移行時には最小限に留める
 - 内容の再整理や不足仕様の追記は、移行完了後に別PRで進めるとレビューしやすい
 - 機能別仕様は実装コードと完全対応させすぎず、変更判断に必要な振る舞いを中心に書く
