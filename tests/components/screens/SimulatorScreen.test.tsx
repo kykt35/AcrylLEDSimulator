@@ -179,22 +179,7 @@ describe("SimulatorScreen", () => {
       expect(screen.getByTestId("simulator-canvas")).toHaveTextContent("data:image/png;base64,simulator-preview");
     });
 
-    expect(screen.getByText("画像を差し替える")).toBeInTheDocument();
-    expect(screen.getByText("3Dビューに PNG をドラッグして差し替え")).toBeInTheDocument();
-
-    const updatedUploadSurface = screen.getByTestId("preview-upload-surface");
-    expect(updatedUploadSurface).not.toHaveAttribute("role");
-    expect(updatedUploadSurface).toHaveAttribute("tabindex", "-1");
-    expect(updatedUploadSurface).toHaveAttribute(
-      "aria-label",
-      "3Dビューのプレビュー。PNGを差し替えるには画像をドラッグしてください。"
-    );
-
-    inputClickSpy.mockClear();
-    fireEvent.click(updatedUploadSurface);
-    fireEvent.keyDown(updatedUploadSurface, { key: "Enter" });
-    fireEvent.keyDown(updatedUploadSurface, { key: " " });
-    expect(inputClickSpy).not.toHaveBeenCalled();
+    expect(screen.queryByText("画像を差し替える")).not.toBeInTheDocument();
   });
 
   it("updates the section summary and supports keyboard tab navigation", async () => {
