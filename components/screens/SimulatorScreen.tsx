@@ -88,7 +88,7 @@ const CONTROL_PANEL_TABS: readonly ControlPanelTabDefinition[] = [
   },
   {
     id: "export",
-    label: "書き出し",
+    label: "書出し",
     eyebrow: "Export",
     description: "現在の見え方を画像としてダウンロードします。"
   }

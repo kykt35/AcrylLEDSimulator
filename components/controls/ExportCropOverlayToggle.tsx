@@ -19,7 +19,7 @@ export function ExportCropOverlayToggle({
     >
       <label className="export-crop-overlay-toggle__control">
         <input
-          aria-label="書き出し範囲を表示"
+          aria-label="書出範囲を表示"
           type="checkbox"
           className="sr-only"
           checked={visible}
@@ -29,7 +29,7 @@ export function ExportCropOverlayToggle({
         <span className={`toggle-switch${visible ? " is-on" : ""}`} aria-hidden="true">
           <span className="toggle-knob" />
         </span>
-        <span className="export-crop-overlay-toggle__label">書き出し範囲</span>
+        <span className="export-crop-overlay-toggle__label">書出範囲</span>
       </label>
     </div>
   );
