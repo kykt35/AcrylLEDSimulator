@@ -1089,7 +1089,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
                   onVisibleChange={setIsExportCropOverlayVisible}
                 />
                 <button type="button" className="secondary-button compact preview-header-reset" onClick={resetEditor}>
-                  全体をリセット
+                  リセット
                 </button>
               </div>
             </div>
