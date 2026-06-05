@@ -4,6 +4,7 @@ export type EngravingAdjustments = {
   threshold: number;
   invert: boolean;
   edgeWeight: number;
+  toneLevels: number;
 };
 
 export const defaultEngravingAdjustments: EngravingAdjustments = {
@@ -11,11 +12,19 @@ export const defaultEngravingAdjustments: EngravingAdjustments = {
   gamma: 0.9,
   threshold: 0.18,
   invert: false,
-  edgeWeight: 0.2
+  edgeWeight: 0.2,
+  toneLevels: 256
 };
 
 function clamp(value: number, min = 0, max = 1): number {
   return Math.min(max, Math.max(min, value));
+}
+
+function quantizeStrength(value: number, toneLevels: number): number {
+  const safeToneLevels = Math.round(clamp(toneLevels, 2, 256));
+  const steps = safeToneLevels - 1;
+
+  return Math.round(clamp(value) * steps) / steps;
 }
 
 export function buildLumaMap(pixels: Uint8ClampedArray): Float32Array {
@@ -72,13 +81,14 @@ export function applyEngravingAdjustments(
   const result = new Float32Array(source.length);
 
   for (let index = 0; index < source.length; index += 1) {
-    const contrasted = clamp((source[index] - 0.5) * adjustments.contrast + 0.5);
+    const guideSource = adjustments.invert ? 1 - source[index] : source[index];
+    const contrasted = clamp((guideSource - 0.5) * adjustments.contrast + 0.5);
     const gammaCorrected = Math.pow(contrasted, adjustments.gamma);
     const thresholded = gammaCorrected < adjustments.threshold ? 0 : gammaCorrected;
     const edge = edgeMap ? edgeMap[index] * adjustments.edgeWeight : 0;
     const combined = clamp(thresholded + edge);
 
-    result[index] = adjustments.invert ? 1 - combined : combined;
+    result[index] = quantizeStrength(combined, adjustments.toneLevels);
   }
 
   return result;

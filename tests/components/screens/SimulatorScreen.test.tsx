@@ -392,7 +392,8 @@ describe("SimulatorScreen", () => {
           gamma: 0.9,
           threshold: 0.18,
           invert: false,
-          edgeWeight: 0.2
+          edgeWeight: 0.2,
+          toneLevels: 256
         },
         averageStrength: 0.3
       },
@@ -659,13 +660,16 @@ describe("SimulatorScreen", () => {
     });
 
     await user.click(screen.getByRole("tab", { name: "彫刻" }));
+    expect(screen.getByRole("radio", { name: "白を導光" })).toHaveAttribute("aria-checked", "true");
+    await user.click(screen.getByRole("radio", { name: "黒を導光" }));
     fireEvent.change(screen.getByLabelText("しきい値 数値入力"), { target: { value: "0.45" } });
+    fireEvent.change(screen.getByLabelText("階調数 数値入力"), { target: { value: "4" } });
     await user.click(screen.getByRole("button", { name: "彫刻用 PNG をダウンロード" }));
 
     await waitFor(() => {
       expect(generateEngravingMapFromDataUrl).toHaveBeenCalledWith(
         "data:image/png;base64,simulator",
-        expect.objectContaining({ threshold: 0.45 })
+        expect.objectContaining({ invert: true, threshold: 0.45, toneLevels: 4 })
       );
       expect(exportEngravingImage).toHaveBeenCalledWith(
         "data:image/png;base64,engraving",

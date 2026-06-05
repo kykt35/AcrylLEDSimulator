@@ -5,7 +5,7 @@ import { EngravingControls } from "@/components/controls/EngravingControls";
 import { defaultEngravingAdjustments } from "@/lib/image/engravingFilters";
 
 describe("EngravingControls", () => {
-  it("updates numeric adjustments and toggles invert", async () => {
+  it("updates numeric adjustments, guide tone, and tone levels", async () => {
     const user = userEvent.setup();
     const onAdjustmentsChange = vi.fn();
     const onDownload = vi.fn();
@@ -21,10 +21,12 @@ describe("EngravingControls", () => {
     );
 
     fireEvent.change(screen.getByLabelText("しきい値"), { target: { value: "0.45" } });
-    await user.click(screen.getByLabelText("白黒を反転"));
+    fireEvent.change(screen.getByLabelText("階調数 数値入力"), { target: { value: "16" } });
+    await user.click(screen.getByRole("radio", { name: "黒を導光" }));
     await user.click(screen.getByRole("button", { name: "彫刻用 PNG をダウンロード" }));
 
     expect(onAdjustmentsChange).toHaveBeenCalledWith({ threshold: 0.45 });
+    expect(onAdjustmentsChange).toHaveBeenCalledWith({ toneLevels: 16 });
     expect(onAdjustmentsChange).toHaveBeenCalledWith({ invert: true });
     expect(onDownload).toHaveBeenCalled();
     expect(screen.getByText(defaultEngravingAdjustments.threshold.toFixed(2))).toBeInTheDocument();
