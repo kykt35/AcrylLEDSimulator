@@ -396,7 +396,7 @@ describe("SimulatorScreen", () => {
           threshold: 0.18,
           invert: false,
           edgeWeight: 0.2,
-          toneLevels: 256
+          toneLevels: 8
         },
         averageStrength: 0.3
       },

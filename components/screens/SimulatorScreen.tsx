@@ -25,6 +25,7 @@ import { composePreviewImageFromDataUrl } from "@/lib/image/composePreviewImage"
 import { generateEngravingMapFromDataUrl, type EngravingMapResult } from "@/lib/image/generateEngravingMap";
 import {
   defaultEngravingAdjustments,
+  normalizeEngravingAdjustments,
   type EngravingAdjustments
 } from "@/lib/image/engravingFilters";
 import { loadPngTexture } from "@/lib/image/loadPngTexture";
@@ -923,10 +924,12 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
   }, [engravingAdjustments, sourceImage.src]);
 
   const handleEngravingAdjustmentsChange = useCallback((patch: Partial<EngravingAdjustments>) => {
-    setEngravingAdjustments((current) => ({
-      ...current,
-      ...patch
-    }));
+    setEngravingAdjustments((current) =>
+      normalizeEngravingAdjustments({
+        ...current,
+        ...patch
+      })
+    );
   }, []);
 
   const handleDownloadEngraving = useCallback(
