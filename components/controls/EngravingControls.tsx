@@ -1,7 +1,11 @@
 "use client";
 
 import React, { useLayoutEffect, useRef, useState } from "react";
-import type { EngravingAdjustments } from "@/lib/image/engravingFilters";
+import {
+  engravingToneLevelRange,
+  normalizeToneLevels,
+  type EngravingAdjustments
+} from "@/lib/image/engravingFilters";
 
 export type EngravingDownloadOptions = {
   invert: boolean;
@@ -34,8 +38,8 @@ const numericControls: NumericAdjustmentControl[] = [
   {
     key: "toneLevels",
     label: "階調数",
-    min: 2,
-    max: 256,
+    min: engravingToneLevelRange.min,
+    max: engravingToneLevelRange.max,
     step: 1,
     formatValue: (value) => `${Math.round(value)}`
   }
@@ -45,6 +49,16 @@ const guideToneOptions = [
   { id: "white", label: "白を導光", invert: false },
   { id: "black", label: "黒を導光", invert: true }
 ] as const;
+
+function parseNumericControlValue(control: NumericAdjustmentControl, rawValue: string): number {
+  const value = Number(rawValue);
+
+  if (control.key === "toneLevels") {
+    return normalizeToneLevels(value);
+  }
+
+  return value;
+}
 
 export function EngravingControls({
   adjustments,
@@ -149,7 +163,9 @@ export function EngravingControls({
                 step={control.step}
                 value={adjustments[control.key]}
                 onChange={(event) =>
-                  onAdjustmentsChange({ [control.key]: Number(event.target.value) })
+                  onAdjustmentsChange({
+                    [control.key]: parseNumericControlValue(control, event.target.value)
+                  })
                 }
               />
               <input
@@ -160,7 +176,9 @@ export function EngravingControls({
                 step={control.step}
                 value={adjustments[control.key]}
                 onChange={(event) =>
-                  onAdjustmentsChange({ [control.key]: Number(event.target.value) })
+                  onAdjustmentsChange({
+                    [control.key]: parseNumericControlValue(control, event.target.value)
+                  })
                 }
               />
             </label>

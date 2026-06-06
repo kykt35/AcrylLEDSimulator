@@ -7,21 +7,48 @@ export type EngravingAdjustments = {
   toneLevels: number;
 };
 
+export const engravingToneLevelRange = {
+  min: 2,
+  max: 8
+} as const;
+
 export const defaultEngravingAdjustments: EngravingAdjustments = {
   contrast: 1.35,
   gamma: 0.9,
   threshold: 0.18,
   invert: false,
   edgeWeight: 0.2,
-  toneLevels: 256
+  toneLevels: engravingToneLevelRange.min
 };
 
 function clamp(value: number, min = 0, max = 1): number {
   return Math.min(max, Math.max(min, value));
 }
 
+export function normalizeToneLevels(value: number): number {
+  const numericValue = Number.isFinite(value) ? value : engravingToneLevelRange.min;
+
+  return Math.round(
+    Math.min(engravingToneLevelRange.max, Math.max(engravingToneLevelRange.min, numericValue))
+  );
+}
+
+export function normalizeEngravingAdjustments(
+  adjustments: Partial<EngravingAdjustments>
+): EngravingAdjustments {
+  const mergedAdjustments = {
+    ...defaultEngravingAdjustments,
+    ...adjustments
+  };
+
+  return {
+    ...mergedAdjustments,
+    toneLevels: normalizeToneLevels(mergedAdjustments.toneLevels)
+  };
+}
+
 function quantizeStrength(value: number, toneLevels: number): number {
-  const safeToneLevels = Math.round(clamp(toneLevels, 2, 256));
+  const safeToneLevels = normalizeToneLevels(toneLevels);
   const steps = safeToneLevels - 1;
 
   return Math.round(clamp(value) * steps) / steps;

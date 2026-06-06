@@ -32,7 +32,7 @@
 - ガンマは `Math.pow(value, gamma)` で調整する。
 - ガンマ補正後の値がthreshold未満の場合は0にする。
 - `edgeWeight > 0` の場合、Sobel風の3x3カーネルで輪郭マップを作り、強度に加算する。
-- 最終値は0から1へ丸め、toneLevelsに応じて量子化する。
+- 最終値は0から1へ丸め、2から8へ正規化したtoneLevelsに応じて量子化する。
 - プレビュー画像は各強度をRGB同値、alpha 255のグレースケール画像にする。
 - `averageStrength` は強度平均として保持する。
 
@@ -50,7 +50,7 @@
 | threshold | 0.18 | 0 - 1 |
 | invert | false | 白を導光 / 黒を導光 |
 | edgeWeight | 0.2 | 0 - 1 |
-| toneLevels | 256 | 2 - 256 |
+| toneLevels | 2 | 2 - 8 |
 
 根拠:
 
