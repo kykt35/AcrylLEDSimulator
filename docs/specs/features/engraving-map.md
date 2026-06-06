@@ -49,7 +49,7 @@
 | gamma | 0.9 | 0.4 - 1.8 |
 | threshold | 0.18 | 0 - 1 |
 | invert | false | 白を導光 / 黒を導光 |
-| edgeWeight | 0.2 | 0 - 1 |
+| edgeWeight | 0.2 | 0 - 2 |
 | toneLevels | 256 | 2 - 256 |
 
 根拠:

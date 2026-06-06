@@ -30,7 +30,7 @@ const numericControls: NumericAdjustmentControl[] = [
   { key: "contrast", label: "コントラスト", min: 0.5, max: 2.5, step: 0.05 },
   { key: "gamma", label: "中間調", min: 0.4, max: 1.8, step: 0.05 },
   { key: "threshold", label: "しきい値", min: 0, max: 1, step: 0.01 },
-  { key: "edgeWeight", label: "輪郭強調", min: 0, max: 1, step: 0.05 },
+  { key: "edgeWeight", label: "輪郭強調", min: 0, max: 2, step: 0.05 },
   {
     key: "toneLevels",
     label: "階調数",
