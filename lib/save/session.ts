@@ -2,7 +2,7 @@ import {
   defaultAcrylicSizePresetId,
   type AcrylicSizePresetId
 } from "@/lib/simulator/acrylicSizePresets";
-import { defaultEngravingAdjustments } from "@/lib/image/engravingFilters";
+import { normalizeEngravingAdjustments } from "@/lib/image/engravingFilters";
 
 export type SimulationSnapshot = {
   ledColorId: string;
@@ -28,6 +28,7 @@ export type EngravingSnapshot = {
     threshold: number;
     invert: boolean;
     edgeWeight: number;
+    edgeWidth: number;
     toneLevels: number;
   };
   averageStrength: number | null;
@@ -68,10 +69,7 @@ function normalizeEditorSnapshot(snapshot: EditorSnapshot): EditorSnapshot {
     ...snapshot,
     engraving: {
       ...snapshot.engraving,
-      adjustments: {
-        ...defaultEngravingAdjustments,
-        ...snapshot.engraving.adjustments
-      }
+      adjustments: normalizeEngravingAdjustments(snapshot.engraving.adjustments)
     },
     simulation: {
       ...snapshot.simulation,

@@ -17,7 +17,7 @@
 | UI | `components/controls/EngravingControls.tsx` | 彫刻モード、導光階調、各調整値、比較プレビュー、彫刻PNGダウンロードを提供する |
 | Screen | `components/screens/SimulatorScreen.tsx` | 元画像と調整値の変更に応じて彫刻画像を再生成する |
 | Lib | `lib/image/generateEngravingMap.ts` | Data URLまたはImageDataから彫刻用画像を生成する |
-| Lib | `lib/image/engravingFilters.ts` | 輝度、輪郭、コントラスト、ガンマ、しきい値、階調化の処理を行う |
+| Lib | `lib/image/engravingFilters.ts` | 輝度、輪郭、線幅補正、コントラスト、ガンマ、しきい値、階調化の処理を行う |
 | 3D | `components/simulator/EngravingGlowMaterial.tsx` | 彫刻画像を発光プレーンとして描画する |
 
 ## 実装から分かる仕様
@@ -32,7 +32,8 @@
 - ガンマは `Math.pow(value, gamma)` で調整する。
 - ガンマ補正後の値がthreshold未満の場合は0にする。
 - `edgeWeight > 0` の場合、Sobel風の3x3カーネルで輪郭マップを作り、強度に加算する。
-- 最終値は0から1へ丸め、toneLevelsに応じて量子化する。
+- `edgeWidth` は輪郭マップの線幅補正レベルを表し、`1` の場合は補正なし、`2` 以上の場合は近傍の最大輪郭値で輪郭マップを広げる。
+- 最終値は0から1へ丸め、2から8へ正規化したtoneLevelsに応じて量子化する。
 - プレビュー画像は各強度をRGB同値、alpha 255のグレースケール画像にする。
 - `averageStrength` は強度平均として保持する。
 
@@ -50,7 +51,8 @@
 | threshold | 0.18 | 0 - 1 |
 | invert | false | 白を導光 / 黒を導光 |
 | edgeWeight | 0.2 | 0 - 2 |
-| toneLevels | 256 | 2 - 256 |
+| edgeWidth | 1 | 1 - 5 |
+| toneLevels | 2 | 2 - 8 |
 
 根拠:
 

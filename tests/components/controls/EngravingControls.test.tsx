@@ -23,12 +23,16 @@ describe("EngravingControls", () => {
     );
 
     fireEvent.change(screen.getByLabelText("しきい値"), { target: { value: "0.45" } });
+    fireEvent.change(screen.getByLabelText("線幅補正"), { target: { value: "3" } });
     fireEvent.change(screen.getByLabelText("階調数 数値入力"), { target: { value: "16" } });
     await user.click(screen.getByRole("radio", { name: "黒を導光" }));
     await user.click(screen.getByRole("button", { name: "彫刻用 PNG をダウンロード" }));
 
+    expect(screen.getByLabelText("線幅補正")).toHaveAttribute("max", "5");
+    expect(screen.getByLabelText("階調数")).toHaveAttribute("max", "8");
     expect(onAdjustmentsChange).toHaveBeenCalledWith({ threshold: 0.45 });
-    expect(onAdjustmentsChange).toHaveBeenCalledWith({ toneLevels: 16 });
+    expect(onAdjustmentsChange).toHaveBeenCalledWith({ edgeWidth: 3 });
+    expect(onAdjustmentsChange).toHaveBeenCalledWith({ toneLevels: 8 });
     expect(onAdjustmentsChange).toHaveBeenCalledWith({ invert: true });
     expect(onDownload).toHaveBeenCalledWith({ invert: false });
     expect(screen.getByText(defaultEngravingAdjustments.threshold.toFixed(2))).toBeInTheDocument();

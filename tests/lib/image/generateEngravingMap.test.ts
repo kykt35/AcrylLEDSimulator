@@ -2,10 +2,20 @@ import {
   applyEngravingAdjustments,
   buildEdgeMap,
   buildLumaMap,
+  defaultEngravingAdjustments,
+  engravingEdgeWidthRange,
+  engravingToneLevelRange,
   invertGrayscalePixels
 } from "@/lib/image/engravingFilters";
 
 describe("engravingFilters", () => {
+  it("sets the default and maximum adjustment ranges", () => {
+    expect(defaultEngravingAdjustments.edgeWidth).toBe(1);
+    expect(engravingEdgeWidthRange.max).toBe(5);
+    expect(defaultEngravingAdjustments.toneLevels).toBe(2);
+    expect(engravingToneLevelRange.max).toBe(8);
+  });
+
   it("inverts grayscale pixel values while preserving alpha", () => {
     const pixels = new Uint8ClampedArray([
       255, 255, 255, 255,
@@ -41,7 +51,8 @@ describe("engravingFilters", () => {
       threshold: 0.2,
       invert: false,
       edgeWeight: 0,
-      toneLevels: 256
+      edgeWidth: 1,
+      toneLevels: 8
     });
 
     expect(normal[0]).toBe(0);
@@ -54,11 +65,12 @@ describe("engravingFilters", () => {
       threshold: 0,
       invert: true,
       edgeWeight: 0,
-      toneLevels: 256
+      edgeWidth: 1,
+      toneLevels: 8
     });
 
-    expect(inverted[0]).toBeCloseTo(0.9, 2);
-    expect(inverted[2]).toBeCloseTo(0.2, 4);
+    expect(inverted[0]).toBeCloseTo(6 / 7, 4);
+    expect(inverted[2]).toBeCloseTo(1 / 7, 4);
   });
 
   it("applies threshold after black guide tone inversion", () => {
@@ -70,10 +82,11 @@ describe("engravingFilters", () => {
       threshold: 0.5,
       invert: true,
       edgeWeight: 0,
-      toneLevels: 256
+      edgeWidth: 1,
+      toneLevels: 8
     });
 
-    expect(result[0]).toBeCloseTo(0.9, 2);
+    expect(result[0]).toBeCloseTo(6 / 7, 4);
     expect(result[1]).toBe(0);
   });
 
@@ -86,6 +99,7 @@ describe("engravingFilters", () => {
       threshold: 0,
       invert: false,
       edgeWeight: 0,
+      edgeWidth: 1,
       toneLevels: 4
     });
 
@@ -95,6 +109,23 @@ describe("engravingFilters", () => {
     expect(result[3]).toBeCloseTo(2 / 3, 4);
     expect(result[4]).toBeCloseTo(2 / 3, 4);
     expect(result[5]).toBe(1);
+  });
+
+  it("clamps tone levels to the supported range", () => {
+    const input = new Float32Array([0.2, 0.8]);
+
+    const result = applyEngravingAdjustments(input, {
+      contrast: 1,
+      gamma: 1,
+      threshold: 0,
+      invert: false,
+      edgeWeight: 0,
+      edgeWidth: 1,
+      toneLevels: 256
+    });
+
+    expect(result[0]).toBeCloseTo(1 / 7, 4);
+    expect(result[1]).toBeCloseTo(6 / 7, 4);
   });
 
   it("adds edge emphasis when edgeWeight is enabled", () => {
@@ -113,7 +144,8 @@ describe("engravingFilters", () => {
       threshold: 0,
       invert: false,
       edgeWeight: 0,
-      toneLevels: 256
+      edgeWidth: 1,
+      toneLevels: 8
     });
     const withEdges = applyEngravingAdjustments(source, {
       contrast: 1,
@@ -121,10 +153,29 @@ describe("engravingFilters", () => {
       threshold: 0,
       invert: false,
       edgeWeight: 0.5,
-      toneLevels: 256
+      edgeWidth: 1,
+      toneLevels: 8
     }, edgeMap);
 
     expect(edgeMap[1]).toBeGreaterThan(0);
     expect(withEdges[1]).toBeGreaterThan(withoutEdges[1]);
+  });
+
+  it("widens the edge map when edgeWidth is increased", () => {
+    const width = 5;
+    const height = 5;
+    const source = new Float32Array([
+      0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0,
+      0, 0, 1, 0, 0,
+      0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0
+    ]);
+
+    const narrowEdgeMap = buildEdgeMap(source, width, height, 1);
+    const wideEdgeMap = buildEdgeMap(source, width, height, 3);
+
+    expect(narrowEdgeMap[0]).toBe(0);
+    expect(wideEdgeMap[0]).toBeGreaterThan(0);
   });
 });

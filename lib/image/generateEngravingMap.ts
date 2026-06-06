@@ -40,7 +40,7 @@ export function generateEngravingMapFromImageData(
 } {
   const baseLuma = buildLumaMap(imageData.data);
   const edgeMap = adjustments.edgeWeight > 0
-    ? buildEdgeMap(baseLuma, imageData.width, imageData.height)
+    ? buildEdgeMap(baseLuma, imageData.width, imageData.height, adjustments.edgeWidth)
     : undefined;
   const strengthMap = applyEngravingAdjustments(baseLuma, adjustments, edgeMap);
   const pixels = createPreviewPixels(strengthMap);

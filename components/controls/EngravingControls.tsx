@@ -1,7 +1,13 @@
 "use client";
 
 import React, { useLayoutEffect, useRef, useState } from "react";
-import type { EngravingAdjustments } from "@/lib/image/engravingFilters";
+import {
+  engravingEdgeWidthRange,
+  engravingToneLevelRange,
+  normalizeEdgeWidth,
+  normalizeToneLevels,
+  type EngravingAdjustments
+} from "@/lib/image/engravingFilters";
 
 export type EngravingDownloadOptions = {
   invert: boolean;
@@ -18,7 +24,7 @@ type EngravingControlsProps = {
 };
 
 type NumericAdjustmentControl = {
-  key: "contrast" | "gamma" | "threshold" | "edgeWeight" | "toneLevels";
+  key: "contrast" | "gamma" | "threshold" | "edgeWeight" | "edgeWidth" | "toneLevels";
   label: string;
   min: number;
   max: number;
@@ -32,10 +38,18 @@ const numericControls: NumericAdjustmentControl[] = [
   { key: "threshold", label: "しきい値", min: 0, max: 1, step: 0.01 },
   { key: "edgeWeight", label: "輪郭強調", min: 0, max: 2, step: 0.05 },
   {
+    key: "edgeWidth",
+    label: "線幅補正",
+    min: engravingEdgeWidthRange.min,
+    max: engravingEdgeWidthRange.max,
+    step: 1,
+    formatValue: (value) => `${Math.round(value)}`
+  },
+  {
     key: "toneLevels",
     label: "階調数",
-    min: 2,
-    max: 256,
+    min: engravingToneLevelRange.min,
+    max: engravingToneLevelRange.max,
     step: 1,
     formatValue: (value) => `${Math.round(value)}`
   }
@@ -45,6 +59,20 @@ const guideToneOptions = [
   { id: "white", label: "白を導光", invert: false },
   { id: "black", label: "黒を導光", invert: true }
 ] as const;
+
+function parseNumericControlValue(control: NumericAdjustmentControl, rawValue: string): number {
+  const value = Number(rawValue);
+
+  if (control.key === "toneLevels") {
+    return normalizeToneLevels(value);
+  }
+
+  if (control.key === "edgeWidth") {
+    return normalizeEdgeWidth(value);
+  }
+
+  return value;
+}
 
 export function EngravingControls({
   adjustments,
@@ -149,7 +177,9 @@ export function EngravingControls({
                 step={control.step}
                 value={adjustments[control.key]}
                 onChange={(event) =>
-                  onAdjustmentsChange({ [control.key]: Number(event.target.value) })
+                  onAdjustmentsChange({
+                    [control.key]: parseNumericControlValue(control, event.target.value)
+                  })
                 }
               />
               <input
@@ -160,7 +190,9 @@ export function EngravingControls({
                 step={control.step}
                 value={adjustments[control.key]}
                 onChange={(event) =>
-                  onAdjustmentsChange({ [control.key]: Number(event.target.value) })
+                  onAdjustmentsChange({
+                    [control.key]: parseNumericControlValue(control, event.target.value)
+                  })
                 }
               />
             </label>
