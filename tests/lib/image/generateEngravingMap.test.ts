@@ -3,12 +3,15 @@ import {
   buildEdgeMap,
   buildLumaMap,
   defaultEngravingAdjustments,
+  engravingEdgeWidthRange,
   engravingToneLevelRange,
   invertGrayscalePixels
 } from "@/lib/image/engravingFilters";
 
 describe("engravingFilters", () => {
-  it("sets the default and maximum tone levels", () => {
+  it("sets the default and maximum adjustment ranges", () => {
+    expect(defaultEngravingAdjustments.edgeWidth).toBe(1);
+    expect(engravingEdgeWidthRange.max).toBe(5);
     expect(defaultEngravingAdjustments.toneLevels).toBe(2);
     expect(engravingToneLevelRange.max).toBe(8);
   });
@@ -48,6 +51,7 @@ describe("engravingFilters", () => {
       threshold: 0.2,
       invert: false,
       edgeWeight: 0,
+      edgeWidth: 1,
       toneLevels: 8
     });
 
@@ -61,6 +65,7 @@ describe("engravingFilters", () => {
       threshold: 0,
       invert: true,
       edgeWeight: 0,
+      edgeWidth: 1,
       toneLevels: 8
     });
 
@@ -77,6 +82,7 @@ describe("engravingFilters", () => {
       threshold: 0.5,
       invert: true,
       edgeWeight: 0,
+      edgeWidth: 1,
       toneLevels: 8
     });
 
@@ -93,6 +99,7 @@ describe("engravingFilters", () => {
       threshold: 0,
       invert: false,
       edgeWeight: 0,
+      edgeWidth: 1,
       toneLevels: 4
     });
 
@@ -113,6 +120,7 @@ describe("engravingFilters", () => {
       threshold: 0,
       invert: false,
       edgeWeight: 0,
+      edgeWidth: 1,
       toneLevels: 256
     });
 
@@ -136,6 +144,7 @@ describe("engravingFilters", () => {
       threshold: 0,
       invert: false,
       edgeWeight: 0,
+      edgeWidth: 1,
       toneLevels: 8
     });
     const withEdges = applyEngravingAdjustments(source, {
@@ -144,10 +153,29 @@ describe("engravingFilters", () => {
       threshold: 0,
       invert: false,
       edgeWeight: 0.5,
+      edgeWidth: 1,
       toneLevels: 8
     }, edgeMap);
 
     expect(edgeMap[1]).toBeGreaterThan(0);
     expect(withEdges[1]).toBeGreaterThan(withoutEdges[1]);
+  });
+
+  it("widens the edge map when edgeWidth is increased", () => {
+    const width = 5;
+    const height = 5;
+    const source = new Float32Array([
+      0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0,
+      0, 0, 1, 0, 0,
+      0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0
+    ]);
+
+    const narrowEdgeMap = buildEdgeMap(source, width, height, 1);
+    const wideEdgeMap = buildEdgeMap(source, width, height, 3);
+
+    expect(narrowEdgeMap[0]).toBe(0);
+    expect(wideEdgeMap[0]).toBeGreaterThan(0);
   });
 });

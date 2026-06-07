@@ -2,7 +2,9 @@
 
 import React, { useLayoutEffect, useRef, useState } from "react";
 import {
+  engravingEdgeWidthRange,
   engravingToneLevelRange,
+  normalizeEdgeWidth,
   normalizeToneLevels,
   type EngravingAdjustments
 } from "@/lib/image/engravingFilters";
@@ -22,7 +24,7 @@ type EngravingControlsProps = {
 };
 
 type NumericAdjustmentControl = {
-  key: "contrast" | "gamma" | "threshold" | "edgeWeight" | "toneLevels";
+  key: "contrast" | "gamma" | "threshold" | "edgeWeight" | "edgeWidth" | "toneLevels";
   label: string;
   min: number;
   max: number;
@@ -34,7 +36,15 @@ const numericControls: NumericAdjustmentControl[] = [
   { key: "contrast", label: "コントラスト", min: 0.5, max: 2.5, step: 0.05 },
   { key: "gamma", label: "中間調", min: 0.4, max: 1.8, step: 0.05 },
   { key: "threshold", label: "しきい値", min: 0, max: 1, step: 0.01 },
-  { key: "edgeWeight", label: "輪郭強調", min: 0, max: 1, step: 0.05 },
+  { key: "edgeWeight", label: "輪郭強調", min: 0, max: 2, step: 0.05 },
+  {
+    key: "edgeWidth",
+    label: "線幅補正",
+    min: engravingEdgeWidthRange.min,
+    max: engravingEdgeWidthRange.max,
+    step: 1,
+    formatValue: (value) => `${Math.round(value)}`
+  },
   {
     key: "toneLevels",
     label: "階調数",
@@ -55,6 +65,10 @@ function parseNumericControlValue(control: NumericAdjustmentControl, rawValue: s
 
   if (control.key === "toneLevels") {
     return normalizeToneLevels(value);
+  }
+
+  if (control.key === "edgeWidth") {
+    return normalizeEdgeWidth(value);
   }
 
   return value;

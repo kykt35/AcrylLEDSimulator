@@ -28,6 +28,7 @@ export type EngravingSnapshot = {
     threshold: number;
     invert: boolean;
     edgeWeight: number;
+    edgeWidth: number;
     toneLevels: number;
   };
   averageStrength: number | null;

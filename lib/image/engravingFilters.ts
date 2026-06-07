@@ -4,8 +4,14 @@ export type EngravingAdjustments = {
   threshold: number;
   invert: boolean;
   edgeWeight: number;
+  edgeWidth: number;
   toneLevels: number;
 };
+
+export const engravingEdgeWidthRange = {
+  min: 1,
+  max: 5
+} as const;
 
 export const engravingToneLevelRange = {
   min: 2,
@@ -18,6 +24,7 @@ export const defaultEngravingAdjustments: EngravingAdjustments = {
   threshold: 0.18,
   invert: false,
   edgeWeight: 0.2,
+  edgeWidth: engravingEdgeWidthRange.min,
   toneLevels: engravingToneLevelRange.min
 };
 
@@ -33,6 +40,14 @@ export function normalizeToneLevels(value: number): number {
   );
 }
 
+export function normalizeEdgeWidth(value: number): number {
+  const numericValue = Number.isFinite(value) ? value : engravingEdgeWidthRange.min;
+
+  return Math.round(
+    Math.min(engravingEdgeWidthRange.max, Math.max(engravingEdgeWidthRange.min, numericValue))
+  );
+}
+
 export function normalizeEngravingAdjustments(
   adjustments: Partial<EngravingAdjustments>
 ): EngravingAdjustments {
@@ -43,6 +58,7 @@ export function normalizeEngravingAdjustments(
 
   return {
     ...mergedAdjustments,
+    edgeWidth: normalizeEdgeWidth(mergedAdjustments.edgeWidth),
     toneLevels: normalizeToneLevels(mergedAdjustments.toneLevels)
   };
 }
@@ -70,7 +86,47 @@ export function buildLumaMap(pixels: Uint8ClampedArray): Float32Array {
   return result;
 }
 
-export function buildEdgeMap(source: Float32Array, width: number, height: number): Float32Array {
+function expandEdgeMap(
+  source: Float32Array,
+  width: number,
+  height: number,
+  edgeWidth: number
+): Float32Array {
+  const radius = normalizeEdgeWidth(edgeWidth) - 1;
+
+  if (radius === 0) {
+    return source;
+  }
+
+  const result = new Float32Array(source.length);
+
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      let maxEdge = 0;
+      const minY = Math.max(0, y - radius);
+      const maxY = Math.min(height - 1, y + radius);
+      const minX = Math.max(0, x - radius);
+      const maxX = Math.min(width - 1, x + radius);
+
+      for (let sampleY = minY; sampleY <= maxY; sampleY += 1) {
+        for (let sampleX = minX; sampleX <= maxX; sampleX += 1) {
+          maxEdge = Math.max(maxEdge, source[sampleY * width + sampleX]);
+        }
+      }
+
+      result[y * width + x] = maxEdge;
+    }
+  }
+
+  return result;
+}
+
+export function buildEdgeMap(
+  source: Float32Array,
+  width: number,
+  height: number,
+  edgeWidth = engravingEdgeWidthRange.min
+): Float32Array {
   const result = new Float32Array(source.length);
   const kernelX = [-1, 0, 1, -2, 0, 2, -1, 0, 1];
   const kernelY = [-1, -2, -1, 0, 0, 0, 1, 2, 1];
@@ -97,7 +153,7 @@ export function buildEdgeMap(source: Float32Array, width: number, height: number
     }
   }
 
-  return result;
+  return expandEdgeMap(result, width, height, edgeWidth);
 }
 
 export function applyEngravingAdjustments(
