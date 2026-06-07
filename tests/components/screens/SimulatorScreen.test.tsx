@@ -156,10 +156,10 @@ describe("SimulatorScreen", () => {
       expect.objectContaining({ contentFit: "contain" })
     );
     expect(screen.getByText("simulator.png の読み込みが完了しました。")).toBeInTheDocument();
-    expect(screen.queryByAltText("彫刻用グレースケールプレビュー")).not.toBeInTheDocument();
+    expect(screen.queryByAltText("彫刻用画像プレビュー")).not.toBeInTheDocument();
 
     await user.click(screen.getByRole("tab", { name: "彫刻" }));
-    expect(screen.getAllByAltText("彫刻用グレースケールプレビュー")).toHaveLength(1);
+    expect(screen.getAllByAltText("彫刻用画像プレビュー")).toHaveLength(1);
     expect(screen.getByTestId("simulator-canvas")).toHaveAttribute("data-is-engraving-mode", "false");
     expect(screen.getByRole("tab", { name: "配置" })).toHaveAttribute("data-state", "complete");
     expect(screen.getByRole("tab", { name: "配置" })).toHaveTextContent("配置");
@@ -397,6 +397,7 @@ describe("SimulatorScreen", () => {
           invert: false,
           edgeWeight: 0.2,
           edgeWidth: 1,
+          toneMode: "stepped",
           toneLevels: 8
         },
         averageStrength: 0.3
@@ -661,10 +662,11 @@ describe("SimulatorScreen", () => {
     await openControlDrawer(user);
     await user.click(screen.getByRole("tab", { name: "彫刻" }));
     await waitFor(() => {
-      expect(screen.getAllByAltText("彫刻用グレースケールプレビュー")).toHaveLength(1);
+      expect(screen.getAllByAltText("彫刻用画像プレビュー")).toHaveLength(1);
     });
     expect(screen.getByRole("radio", { name: "白を導光" })).toHaveAttribute("aria-checked", "true");
     await user.click(screen.getByRole("radio", { name: "黒を導光" }));
+    await user.click(screen.getByRole("radio", { name: "階調" }));
     fireEvent.change(screen.getByLabelText("しきい値 数値入力"), { target: { value: "0.45" } });
     fireEvent.change(screen.getByLabelText("階調数 数値入力"), { target: { value: "4" } });
     await user.click(screen.getByLabelText("白黒反転"));
@@ -673,7 +675,7 @@ describe("SimulatorScreen", () => {
     await waitFor(() => {
       expect(generateEngravingMapFromDataUrl).toHaveBeenCalledWith(
         "data:image/png;base64,simulator",
-        expect.objectContaining({ invert: true, threshold: 0.45, toneLevels: 4 })
+        expect.objectContaining({ invert: true, threshold: 0.45, toneMode: "stepped", toneLevels: 4 })
       );
       expect(exportEngravingImage).toHaveBeenCalledWith(
         "data:image/png;base64,engraving",

@@ -1,8 +1,8 @@
-# 彫刻用グレースケール仕様
+# 彫刻用画像仕様
 
 ## 目的
 
-入力PNGから、レーザー彫刻や導光表現に使うグレースケール画像を生成する。生成結果は3Dの彫刻モード表示と彫刻用PNGダウンロードに使う。
+入力PNGから、レーザー彫刻や導光表現に使う彫刻用画像を生成する。生成モードは連続グレースケール、または2から8段階の階調から選ぶ。生成結果は3Dの彫刻モード表示と彫刻用PNGダウンロードに使う。
 
 ## 利用者
 
@@ -14,10 +14,10 @@
 
 | 種別 | 入口 | 内容 |
 |---|---|---|
-| UI | `components/controls/EngravingControls.tsx` | 彫刻モード、導光階調、各調整値、比較プレビュー、彫刻PNGダウンロードを提供する |
+| UI | `components/controls/EngravingControls.tsx` | 彫刻モード、導光対象、彫刻画像の表現、階調数、各調整値、比較プレビュー、彫刻PNGダウンロードを提供する |
 | Screen | `components/screens/SimulatorScreen.tsx` | 元画像と調整値の変更に応じて彫刻画像を再生成する |
 | Lib | `lib/image/generateEngravingMap.ts` | Data URLまたはImageDataから彫刻用画像を生成する |
-| Lib | `lib/image/engravingFilters.ts` | 輝度、輪郭、線幅補正、コントラスト、ガンマ、しきい値、階調化の処理を行う |
+| Lib | `lib/image/engravingFilters.ts` | 輝度、輪郭、線幅補正、コントラスト、ガンマ、しきい値、生成モード、階調化の処理を行う |
 | 3D | `components/simulator/EngravingGlowMaterial.tsx` | 彫刻画像を発光プレーンとして描画する |
 
 ## 実装から分かる仕様
@@ -33,7 +33,9 @@
 - ガンマ補正後の値がthreshold未満の場合は0にする。
 - `edgeWeight > 0` の場合、Sobel風の3x3カーネルで輪郭マップを作り、強度に加算する。
 - `edgeWidth` は輪郭マップの線幅補正レベルを表し、`1` の場合は補正なし、`2` 以上の場合は近傍の最大輪郭値で輪郭マップを広げる。
-- 最終値は0から1へ丸め、2から8へ正規化したtoneLevelsに応じて量子化する。
+- 最終値は0から1へ丸める。
+- `toneMode="stepped"` の場合、2から8へ正規化したtoneLevelsに応じて量子化する。
+- `toneMode="grayscale"` の場合、toneLevelsを使わず連続値のまま出力する。
 - プレビュー画像は各強度をRGB同値、alpha 255のグレースケール画像にする。
 - `averageStrength` は強度平均として保持する。
 
@@ -52,7 +54,8 @@
 | invert | false | 白を導光 / 黒を導光 |
 | edgeWeight | 0.2 | 0 - 2 |
 | edgeWidth | 1 | 1 - 5 |
-| toneLevels | 2 | 2 - 8 |
+| toneMode | grayscale | グレースケール / 階調 |
+| toneLevels | 2 | 2 - 8。toneModeが階調のときだけ設定する |
 
 根拠:
 

@@ -25,6 +25,7 @@ describe("save session helpers", () => {
           invert: false,
           edgeWeight: 0.25,
           edgeWidth: 2,
+          toneMode: "grayscale",
           toneLevels: 32
         },
         averageStrength: 0.4
@@ -52,6 +53,7 @@ describe("save session helpers", () => {
     expect(readEditorSnapshot()?.simulation.showSourceOverlay).toBe(true);
     expect(readEditorSnapshot()?.simulation.heightAttenuation).toBe(0.45);
     expect(readEditorSnapshot()?.engraving.adjustments.edgeWidth).toBe(2);
+    expect(readEditorSnapshot()?.engraving.adjustments.toneMode).toBe("grayscale");
     expect(readEditorSnapshot()?.engraving.adjustments.toneLevels).toBe(8);
 
     clearEditorSnapshot();
@@ -73,6 +75,7 @@ describe("save session helpers", () => {
           invert: false,
           edgeWeight: 0.25,
           edgeWidth: 1,
+          toneMode: "stepped",
           toneLevels: 8
         },
         averageStrength: 0.4
@@ -118,6 +121,7 @@ describe("save session helpers", () => {
           invert: false,
           edgeWeight: 0.2,
           edgeWidth: 1,
+          toneMode: "stepped",
           toneLevels: 2
         },
         averageStrength: 0.3
@@ -184,6 +188,7 @@ describe("save session helpers", () => {
     expect(readEditorSnapshot()?.simulation.acrylicSizeId).toBe(defaultAcrylicSizePresetId);
     expect(readEditorSnapshot()?.simulation.heightAttenuation).toBe(0.3);
     expect(readEditorSnapshot()?.engraving.adjustments.edgeWidth).toBe(1);
+    expect(readEditorSnapshot()?.engraving.adjustments.toneMode).toBe("grayscale");
     expect(readEditorSnapshot()?.engraving.adjustments.toneLevels).toBe(2);
   });
 });

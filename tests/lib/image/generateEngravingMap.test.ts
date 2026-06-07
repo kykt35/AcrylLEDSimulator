@@ -12,6 +12,7 @@ describe("engravingFilters", () => {
   it("sets the default and maximum adjustment ranges", () => {
     expect(defaultEngravingAdjustments.edgeWidth).toBe(1);
     expect(engravingEdgeWidthRange.max).toBe(5);
+    expect(defaultEngravingAdjustments.toneMode).toBe("grayscale");
     expect(defaultEngravingAdjustments.toneLevels).toBe(2);
     expect(engravingToneLevelRange.max).toBe(8);
   });
@@ -52,6 +53,7 @@ describe("engravingFilters", () => {
       invert: false,
       edgeWeight: 0,
       edgeWidth: 1,
+      toneMode: "stepped",
       toneLevels: 8
     });
 
@@ -66,6 +68,7 @@ describe("engravingFilters", () => {
       invert: true,
       edgeWeight: 0,
       edgeWidth: 1,
+      toneMode: "stepped",
       toneLevels: 8
     });
 
@@ -83,6 +86,7 @@ describe("engravingFilters", () => {
       invert: true,
       edgeWeight: 0,
       edgeWidth: 1,
+      toneMode: "stepped",
       toneLevels: 8
     });
 
@@ -100,6 +104,7 @@ describe("engravingFilters", () => {
       invert: false,
       edgeWeight: 0,
       edgeWidth: 1,
+      toneMode: "stepped",
       toneLevels: 4
     });
 
@@ -108,6 +113,28 @@ describe("engravingFilters", () => {
     expect(result[2]).toBeCloseTo(1 / 3, 4);
     expect(result[3]).toBeCloseTo(2 / 3, 4);
     expect(result[4]).toBeCloseTo(2 / 3, 4);
+    expect(result[5]).toBe(1);
+  });
+
+  it("keeps continuous grayscale strength when grayscale tone mode is selected", () => {
+    const input = new Float32Array([0, 0.2, 0.49, 0.51, 0.8, 1]);
+
+    const result = applyEngravingAdjustments(input, {
+      contrast: 1,
+      gamma: 1,
+      threshold: 0,
+      invert: false,
+      edgeWeight: 0,
+      edgeWidth: 1,
+      toneMode: "grayscale",
+      toneLevels: 4
+    });
+
+    expect(result[0]).toBe(0);
+    expect(result[1]).toBeCloseTo(0.2, 4);
+    expect(result[2]).toBeCloseTo(0.49, 4);
+    expect(result[3]).toBeCloseTo(0.51, 4);
+    expect(result[4]).toBeCloseTo(0.8, 4);
     expect(result[5]).toBe(1);
   });
 
@@ -121,6 +148,7 @@ describe("engravingFilters", () => {
       invert: false,
       edgeWeight: 0,
       edgeWidth: 1,
+      toneMode: "stepped",
       toneLevels: 256
     });
 
@@ -145,6 +173,7 @@ describe("engravingFilters", () => {
       invert: false,
       edgeWeight: 0,
       edgeWidth: 1,
+      toneMode: "stepped",
       toneLevels: 8
     });
     const withEdges = applyEngravingAdjustments(source, {
@@ -154,6 +183,7 @@ describe("engravingFilters", () => {
       invert: false,
       edgeWeight: 0.5,
       edgeWidth: 1,
+      toneMode: "stepped",
       toneLevels: 8
     }, edgeMap);
 

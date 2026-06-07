@@ -23,7 +23,18 @@
 | `sourceImage.status` | `"idle" \| "loading" \| "ready" \| "error"` | 読み込み状態 |
 | `sourceImage.errorMessage` | `string \| null` | 読み込み失敗時の説明 |
 
-### 2. シミュレーター設定状態
+### 2. 彫刻画像状態
+
+| キー | 型 | 用途 |
+|---|---|---|
+| `engraving.src` | `string \| null` | 生成済み彫刻画像Data URL |
+| `engraving.status` | `"idle" \| "loading" \| "ready" \| "error"` | 彫刻画像生成状態 |
+| `engraving.errorMessage` | `string \| null` | 彫刻画像生成失敗時の説明 |
+| `engraving.adjustments.toneMode` | `"stepped" \| "grayscale"` | 階調量子化または連続グレースケールの生成モード |
+| `engraving.adjustments.toneLevels` | `number` | `toneMode="stepped"` のとき使う階調数。2から8 |
+| `engraving.averageStrength` | `number \| null` | 生成済み彫刻画像の平均強度 |
+
+### 3. シミュレーター設定状態
 
 | キー | 型 | 用途 |
 |---|---|---|
@@ -33,7 +44,7 @@
 | `simulation.cameraPresetId` | `string` | カメラプリセット識別子 |
 | `simulation.autoRotate` | `boolean` | 将来拡張。MVP では固定 `false` |
 
-### 3. 保存状態
+### 4. 保存状態
 
 | キー | 型 | 用途 |
 |---|---|---|
@@ -42,7 +53,7 @@
 | `save.savedAt` | `string \| null` | 保存完了時刻 |
 | `save.errorMessage` | `string \| null` | 保存失敗理由 |
 
-### 4. UI 補助状態
+### 5. UI 補助状態
 
 | キー | 型 | 用途 |
 |---|---|---|
@@ -68,6 +79,22 @@ type SimulatorScreenState = {
     backgroundId: string;
     cameraPresetId: string;
     autoRotate: boolean;
+  };
+  engraving: {
+    src: string | null;
+    status: "idle" | "loading" | "ready" | "error";
+    errorMessage: string | null;
+    adjustments: {
+      contrast: number;
+      gamma: number;
+      threshold: number;
+      invert: boolean;
+      edgeWeight: number;
+      edgeWidth: number;
+      toneMode: "stepped" | "grayscale";
+      toneLevels: number;
+    };
+    averageStrength: number | null;
   };
   save: {
     status: "idle" | "saving" | "success" | "error";

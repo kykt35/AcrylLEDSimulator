@@ -1,3 +1,5 @@
+export type EngravingToneMode = "stepped" | "grayscale";
+
 export type EngravingAdjustments = {
   contrast: number;
   gamma: number;
@@ -5,6 +7,7 @@ export type EngravingAdjustments = {
   invert: boolean;
   edgeWeight: number;
   edgeWidth: number;
+  toneMode: EngravingToneMode;
   toneLevels: number;
 };
 
@@ -25,6 +28,7 @@ export const defaultEngravingAdjustments: EngravingAdjustments = {
   invert: false,
   edgeWeight: 0.2,
   edgeWidth: engravingEdgeWidthRange.min,
+  toneMode: "grayscale",
   toneLevels: engravingToneLevelRange.min
 };
 
@@ -38,6 +42,10 @@ export function normalizeToneLevels(value: number): number {
   return Math.round(
     Math.min(engravingToneLevelRange.max, Math.max(engravingToneLevelRange.min, numericValue))
   );
+}
+
+export function normalizeToneMode(value: unknown): EngravingToneMode {
+  return value === "stepped" ? "stepped" : "grayscale";
 }
 
 export function normalizeEdgeWidth(value: number): number {
@@ -59,6 +67,7 @@ export function normalizeEngravingAdjustments(
   return {
     ...mergedAdjustments,
     edgeWidth: normalizeEdgeWidth(mergedAdjustments.edgeWidth),
+    toneMode: normalizeToneMode(mergedAdjustments.toneMode),
     toneLevels: normalizeToneLevels(mergedAdjustments.toneLevels)
   };
 }
@@ -162,6 +171,7 @@ export function applyEngravingAdjustments(
   edgeMap?: Float32Array
 ): Float32Array {
   const result = new Float32Array(source.length);
+  const toneMode = normalizeToneMode(adjustments.toneMode);
 
   for (let index = 0; index < source.length; index += 1) {
     const guideSource = adjustments.invert ? 1 - source[index] : source[index];
@@ -171,7 +181,8 @@ export function applyEngravingAdjustments(
     const edge = edgeMap ? edgeMap[index] * adjustments.edgeWeight : 0;
     const combined = clamp(thresholded + edge);
 
-    result[index] = quantizeStrength(combined, adjustments.toneLevels);
+    result[index] =
+      toneMode === "stepped" ? quantizeStrength(combined, adjustments.toneLevels) : clamp(combined);
   }
 
   return result;

@@ -8,6 +8,7 @@
 | モデル | 用途 |
 |---|---|
 | `SourceImage` | 元 PNG の参照情報 |
+| `EngravingAdjustments` | 彫刻用画像生成の調整値 |
 | `SimulationSettings` | シミュレーターの主要設定 |
 | `SavedSimulation` | 保存結果 1 件の情報 |
 
@@ -27,6 +28,26 @@ type SourceImage = {
 ### 備考
 - MVP では未保存のローカル画像も扱うため `id` と `sourceImageUrl` は `null` を許容する
 - プレビュー用途の object URL は別 state で管理してよい
+
+## `EngravingAdjustments`
+
+```ts
+type EngravingAdjustments = {
+  contrast: number;
+  gamma: number;
+  threshold: number;
+  invert: boolean;
+  edgeWeight: number;
+  edgeWidth: number;
+  toneMode: "stepped" | "grayscale";
+  toneLevels: number;
+};
+```
+
+### 制約
+- `toneMode="grayscale"` は `toneLevels` を使わず連続グレースケールとして生成する
+- `toneMode="stepped"` は2から8段階へ量子化する
+- セッション保存では `EditorSnapshot.engraving.adjustments` に保持する
 
 ## `SimulationSettings`
 
