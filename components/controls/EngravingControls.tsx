@@ -5,8 +5,10 @@ import {
   engravingEdgeWidthRange,
   engravingToneLevelRange,
   normalizeEdgeWidth,
+  normalizeToneMode,
   normalizeToneLevels,
-  type EngravingAdjustments
+  type EngravingAdjustments,
+  type EngravingToneMode
 } from "@/lib/image/engravingFilters";
 
 export type EngravingDownloadOptions = {
@@ -44,21 +46,27 @@ const numericControls: NumericAdjustmentControl[] = [
     max: engravingEdgeWidthRange.max,
     step: 1,
     formatValue: (value) => `${Math.round(value)}`
-  },
-  {
-    key: "toneLevels",
-    label: "階調数",
-    min: engravingToneLevelRange.min,
-    max: engravingToneLevelRange.max,
-    step: 1,
-    formatValue: (value) => `${Math.round(value)}`
   }
 ];
+
+const toneLevelsControl: NumericAdjustmentControl = {
+  key: "toneLevels",
+  label: "階調数",
+  min: engravingToneLevelRange.min,
+  max: engravingToneLevelRange.max,
+  step: 1,
+  formatValue: (value) => `${Math.round(value)}`
+};
 
 const guideToneOptions = [
   { id: "white", label: "白を導光", invert: false },
   { id: "black", label: "黒を導光", invert: true }
 ] as const;
+
+const toneModeOptions: ReadonlyArray<{ id: EngravingToneMode; label: string; toneMode: EngravingToneMode }> = [
+  { id: "grayscale", label: "グレースケール", toneMode: "grayscale" },
+  { id: "stepped", label: "階調", toneMode: "stepped" }
+];
 
 function parseNumericControlValue(control: NumericAdjustmentControl, rawValue: string): number {
   const value = Number(rawValue);
@@ -85,6 +93,7 @@ export function EngravingControls({
 }: EngravingControlsProps) {
   const [invertDownload, setInvertDownload] = useState(false);
   const pendingScrollTopRef = useRef<number | null>(null);
+  const activeToneMode = normalizeToneMode(adjustments.toneMode);
 
   const capturePanelScrollTop = () => {
     const scrollContainer = document.getElementById("control-panel-content");
@@ -99,6 +108,11 @@ export function EngravingControls({
   const handleEngravingModeChange = (enabled: boolean) => {
     capturePanelScrollTop();
     onEngravingModeChange(enabled);
+  };
+
+  const handleToneModeChange = (toneMode: EngravingToneMode) => {
+    capturePanelScrollTop();
+    onAdjustmentsChange({ toneMode });
   };
 
   useLayoutEffect(() => {
@@ -118,7 +132,7 @@ export function EngravingControls({
     requestAnimationFrame(() => {
       scrollContainer.scrollTop = scrollTop;
     });
-  }, [invertDownload, isEngravingMode]);
+  }, [activeToneMode, invertDownload, isEngravingMode]);
 
   return (
     <section className="panel-section">
@@ -143,8 +157,8 @@ export function EngravingControls({
       <div className="panel-subsection">
         <div className="control-grid">
           <div className="control-group full-width">
-            <span className="control-label">導光に使う階調</span>
-            <div className="choice-row" role="radiogroup" aria-label="導光に使う階調">
+            <span className="control-label">導光対象</span>
+            <div className="choice-row" role="radiogroup" aria-label="導光対象">
               {guideToneOptions.map((option) => (
                 <button
                   key={option.id}
@@ -153,6 +167,23 @@ export function EngravingControls({
                   role="radio"
                   aria-checked={adjustments.invert === option.invert}
                   onClick={() => onAdjustmentsChange({ invert: option.invert })}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="control-group full-width">
+            <span className="control-label">彫刻画像の表現</span>
+            <div className="choice-row" role="radiogroup" aria-label="彫刻画像の表現">
+              {toneModeOptions.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  className="chip-button"
+                  role="radio"
+                  aria-checked={activeToneMode === option.toneMode}
+                  onClick={() => handleToneModeChange(option.toneMode)}
                 >
                   {option.label}
                 </button>
@@ -197,6 +228,44 @@ export function EngravingControls({
               />
             </label>
           ))}
+          {activeToneMode === "stepped" ? (
+            <label key={toneLevelsControl.key} className="control-field range-field">
+              <span className="control-label with-badge">
+                <span>{toneLevelsControl.label}</span>
+                <span className="value-badge">
+                  {toneLevelsControl.formatValue
+                    ? toneLevelsControl.formatValue(adjustments[toneLevelsControl.key])
+                    : adjustments[toneLevelsControl.key].toFixed(2)}
+                </span>
+              </span>
+              <input
+                aria-label={toneLevelsControl.label}
+                type="range"
+                min={toneLevelsControl.min}
+                max={toneLevelsControl.max}
+                step={toneLevelsControl.step}
+                value={adjustments[toneLevelsControl.key]}
+                onChange={(event) =>
+                  onAdjustmentsChange({
+                    [toneLevelsControl.key]: parseNumericControlValue(toneLevelsControl, event.target.value)
+                  })
+                }
+              />
+              <input
+                aria-label={`${toneLevelsControl.label} 数値入力`}
+                type="number"
+                min={toneLevelsControl.min}
+                max={toneLevelsControl.max}
+                step={toneLevelsControl.step}
+                value={adjustments[toneLevelsControl.key]}
+                onChange={(event) =>
+                  onAdjustmentsChange({
+                    [toneLevelsControl.key]: parseNumericControlValue(toneLevelsControl, event.target.value)
+                  })
+                }
+              />
+            </label>
+          ) : null}
         </div>
       </div>
       <div className="panel-subsection">
@@ -222,7 +291,7 @@ export function EngravingControls({
               <div className={`preview-image-frame${invertDownload ? " is-inverted" : ""}`}>
                 <img
                   src={engravingImageUrl}
-                  alt="彫刻用グレースケールプレビュー"
+                  alt="彫刻用画像プレビュー"
                   className="preview-image"
                 />
               </div>

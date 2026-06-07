@@ -85,7 +85,7 @@ const CONTROL_PANEL_TABS: readonly ControlPanelTabDefinition[] = [
     id: "engraving",
     label: "彫刻",
     eyebrow: "Engraving",
-    description: "彫刻用グレースケールの強度を調整します。"
+    description: "彫刻用画像の強度を調整します。"
   },
   {
     id: "export",
@@ -399,7 +399,7 @@ export function SimulatorScreen({ searchParams = {} }: SimulatorScreenProps) {
     }
 
     if (engraving.status === "loading") {
-      return "彫刻用グレースケールを生成中です。";
+      return "彫刻用画像を生成中です。";
     }
 
     if (engraving.status === "error" && engraving.errorMessage) {

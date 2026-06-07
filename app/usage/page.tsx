@@ -11,7 +11,7 @@ const usageSteps = [
   {
     label: "02 Adjust",
     title: "彫刻とライトを調整する",
-    description: "彫刻用グレースケール、LED の色と明るさ、背景、カメラを切り替えて見え方を確認します。"
+    description: "彫刻用画像、LED の色と明るさ、背景、カメラを切り替えて見え方を確認します。"
   },
   {
     label: "03 Export",

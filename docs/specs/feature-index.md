@@ -10,7 +10,7 @@
 | シミュレーター | アクリル板とLED台座の表示 | [features/simulator.md](features/simulator.md), [features/display-controls.md](features/display-controls.md) |
 | 画像入力 | PNGアップロード/ドラッグ&ドロップ | [features/image-input.md](features/image-input.md) |
 | 画像入力 | 画像配置調整 | [features/image-input.md](features/image-input.md) |
-| 彫刻 | 彫刻用グレースケール生成 | [features/engraving-map.md](features/engraving-map.md) |
+| 彫刻 | 彫刻用画像生成 | [features/engraving-map.md](features/engraving-map.md) |
 | 彫刻 | 彫刻プレビュー切替/彫刻画像ダウンロード | [features/engraving-map.md](features/engraving-map.md), [features/export-save.md](features/export-save.md) |
 | 発光設定 | LED色、明るさ、高さ減衰 | [features/lighting-controls.md](features/lighting-controls.md) |
 | 表示設定 | 背景、カメラ、ビューリセット | [features/display-controls.md](features/display-controls.md) |
