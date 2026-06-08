@@ -19,7 +19,7 @@ describe("AcrylicStandMesh", () => {
   });
 
   it("loads the provided image texture when an image is present", () => {
-    render(
+    const { container } = render(
       <AcrylicStandMesh
         imageUrl="data:image/png;base64,abc"
         engravingImageUrl="data:image/png;base64,engraving"
@@ -28,6 +28,7 @@ describe("AcrylicStandMesh", () => {
     );
 
     expect(useTextureMock).toHaveBeenCalledWith("data:image/png;base64,abc");
+    expect(container.querySelector("meshStandardMaterial")).toHaveAttribute("opacity", "1");
   });
 
   it("falls back to a transparent pixel when no image is present", () => {

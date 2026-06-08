@@ -45,6 +45,7 @@ PNG画像をアクリル板に配置し、LED台座から照らした見え方�
 - 3Dシーンは `SceneLighting`, `AcrylicStandMesh`, `LedBaseMesh`, `CameraController` で構成する。
 - アクリル板はサイズプリセットに応じたbox geometryで表示する。
 - 通常表示では元画像テクスチャをアクリル板に貼る。
+- 元画像テクスチャありのアクリル素材は `opacity: 1.0` で表示する。
 - 彫刻モードでは元画像テクスチャを外し、前面に彫刻用発光プレーンを重ねる。
 - LED台座は円柱の台座、LEDバー、point lightで構成する。
 - WebGLエラーまたはcontext lost時はフォールバックを表示し、再読み込みボタンでCanvasを再生成する。

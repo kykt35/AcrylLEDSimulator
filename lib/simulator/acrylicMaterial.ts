@@ -13,7 +13,7 @@ export function getAcrylicMaterialPreset(hasTexture: boolean): AcrylicMaterialPr
       color: "#f3fbff",
       emissive: "#7fe7ff",
       emissiveIntensity: 0.14,
-      opacity: 0.56,
+      opacity: 1.0,
       roughness: 0.12,
       metalness: 0.08
     };
