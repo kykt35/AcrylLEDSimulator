@@ -1,49 +1,30 @@
 import { downloadBlob } from "@/lib/download/downloadBlob";
 
 describe("downloadBlob", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
   it("creates an object url and triggers an anchor download", () => {
     const blob = new Blob(["png"], { type: "image/png" });
     const createObjectURL = vi.fn(() => "blob:test");
     const revokeObjectURL = vi.fn();
-    const click = vi.fn();
-    const originalCreateElement = document.createElement.bind(document);
-    const createElement = vi.spyOn(document, "createElement");
+    const link = document.createElement("a");
+    const click = vi.spyOn(link, "click").mockImplementation(() => undefined);
 
     vi.stubGlobal("URL", {
-      ...URL,
       createObjectURL,
       revokeObjectURL
     });
-
-    createElement.mockImplementation(((tagName: string) => {
-      if (tagName === "a") {
-        return {
-          click,
-          set href(value: string) {
-            this._href = value;
-          },
-          get href() {
-            return this._href;
-          },
-          set download(value: string) {
-            this._download = value;
-          },
-          get download() {
-            return this._download;
-          }
-        } as HTMLAnchorElement;
-      }
-
-      return originalCreateElement(tagName);
-    }) as typeof document.createElement);
+    vi.spyOn(document, "createElement").mockReturnValue(link);
 
     downloadBlob(blob, "preview.png");
 
     expect(createObjectURL).toHaveBeenCalledWith(blob);
+    expect(link.href).toBe("blob:test");
+    expect(link.download).toBe("preview.png");
     expect(click).toHaveBeenCalledTimes(1);
     expect(revokeObjectURL).toHaveBeenCalledWith("blob:test");
-
-    createElement.mockRestore();
-    vi.unstubAllGlobals();
   });
 });
