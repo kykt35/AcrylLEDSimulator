@@ -134,7 +134,7 @@ export function buildEdgeMap(
   source: Float32Array,
   width: number,
   height: number,
-  edgeWidth = engravingEdgeWidthRange.min
+  edgeWidth: number = engravingEdgeWidthRange.min
 ): Float32Array {
   const result = new Float32Array(source.length);
   const kernelX = [-1, 0, 1, -2, 0, 2, -1, 0, 1];
