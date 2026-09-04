@@ -1,94 +1,83 @@
-# Phase 2 API Specification
+# API Specification
 
 ## 目的
-MVP のクライアントとサーバーの境界、および将来サーバー機能を追加する場合の API 契約候補を定義する。
 
-## 設計方針
-- PNG入力はブラウザ内の `FileReader` と Data URL で完結させ、サーバーへアップロードしない
-- 画像書き出し自体はクライアントで実行し、その結果を保存 API へ渡す
-- 保存先実装は後続で差し替え可能とするが、クライアント契約は固定する
-- 共有 URL や履歴一覧取得 API は MVP 対象外とする
+現行MVPのブラウザとアプリケーションサーバーの境界を定義し、未実装のサーバー保存APIを現行契約として扱わないようにする。
 
-## API 一覧
+## 現行MVPのAPI境界
 
-| エンドポイント | メソッド | 用途 |
+現行MVPにアプリ独自のAPI Route Handlerは存在しない。
+
+| 処理 | 実行場所 | 使用するブラウザAPI |
 |---|---|---|
-| `/api/save` | `POST` | 保存済み出力画像と設定値の登録 |
+| PNG入力 | クライアント | `FileReader.readAsDataURL` |
+| 画像/彫刻処理 | クライアント | Canvas 2D |
+| 3Dプレビュー | クライアント | WebGL / React Three Fiber |
+| PNG/JPG書き出し | クライアント | `HTMLCanvasElement.toBlob` |
+| ローカルダウンロード | クライアント | `URL.createObjectURL` と一時 `a` 要素 |
+| 編集状態の保存/復元 | クライアント | `sessionStorage` |
 
-## 1. `/api/save`
+PNGファイル、Data URL、生成したBlob、編集スナップショットはアプリケーションサーバーへ送信しない。
 
-### 用途
-- 現在のシミュレーション結果を画像と設定値のセットとして保存する
-- 保存結果画面で利用する参照情報を返す
+## ページルート
 
-### リクエスト
-
-```http
-POST /api/save
-Content-Type: application/json
-```
-
-```json
-{
-  "sourceImageId": null,
-  "exportedImageDataUrl": "data:image/png;base64,...",
-  "simulation": {
-    "ledColorId": "ice-blue",
-    "brightness": 1.4,
-    "backgroundId": "dark-room",
-    "cameraPresetId": "front"
-  },
-  "meta": {
-    "sourceFileName": "sample.png"
-  }
-}
-```
-
-### リクエストルール
-- `exportedImageDataUrl` はクライアントで書き出した PNG を送る
-- 現行MVPは元画像をアップロードしないため、`sourceImageId` は `null` とする
-- `simulation` は保存結果画面と再編集導線で使うため必須
-
-### 成功レスポンス
-
-```json
-{
-  "savedSimulationId": "sim_01HXYZ",
-  "resultImageUrl": "https://example.com/result/sim_01HXYZ.png",
-  "savedAt": "2026-04-03T10:00:00.000Z",
-  "simulation": {
-    "ledColorId": "ice-blue",
-    "brightness": 1.4,
-    "backgroundId": "dark-room",
-    "cameraPresetId": "front"
-  }
-}
-```
-
-### 失敗レスポンス
-
-| ステータス | 条件 | レスポンス例 |
+| URL | 種別 | 内容 |
 |---|---|---|
-| `400` | 必須項目不足、Data URL 不正 | `{ "code": "INVALID_PAYLOAD", "message": "保存データが不正です。" }` |
-| `422` | 画像書き出しはあるが設定値不正 | `{ "code": "INVALID_SIMULATION", "message": "保存設定を確認してください。" }` |
-| `500` | 保存処理失敗 | `{ "code": "SAVE_FAILED", "message": "保存に失敗しました。時間をおいて再試行してください。" }` |
+| `/` | page | `SimulatorScreen` |
+| `/simulator` | page | `/` と同じ `SimulatorScreen` |
+| `/usage` | page | 使い方 |
+| `/about` | page | アプリ概要 |
 
-## クライアント側保存フロー
+`/result` は存在せず、ダウンロード成功時のルート遷移は行わない。
+
+## クライアント側ダウンロードフロー
 
 ```text
-1. Canvas を PNG Data URL として書き出す
-2. /api/save に画像と simulation を送る
-3. 成功時は保存結果画面に必要な値を state またはレスポンスから組み立てる
+1. 3Dプレビュー内のCanvasを取得する
+2. ExportCropRegionをピクセル座標へ変換する
+3. PNGまたはJPGのBlobを生成する
+4. EditorSnapshotをsessionStorageまたはメモリへ保存する
+5. Object URLを一時リンクへ設定してダウンロードを開始する
+6. Object URLを破棄する
+7. 成功stateとtoastを表示する
 ```
 
-## MVP で許容する簡略化
-- 元画像はブラウザ内で Data URL として読み込み、サーバーへ送信または永続化しない
-- `/api/save` の契約では `sourceImageId` を `null` で受ける
-- 保存結果画面が当面不要なら、`/api/save` の成功レスポンスを保存完了モーダルで使ってもよい
+処理中に例外が発生した場合はサーバーへ再送せず、画面内エラーとして扱う。
 
-## 将来拡張
-- 元画像のサーバーアップロードは、実ストレージ、認証・認可、容量と形式の制限、レート制限、エラー契約、URLのライフサイクルを含む別機能として設計する
+## 現行MVPに存在しないAPI
+
+- `POST /api/upload`
+- `POST /api/save`
 - `GET /api/simulations/:id`
 - `GET /api/simulations`
-- 共有 URL 用トークン発行
-- 保存履歴の絞り込み
+- 共有URL発行API
+
+`POST /api/upload` は現行UIから使用されず実ストレージへ保存しない実装だったため、Issue #32 / PR #38で削除した。
+
+`POST /api/save` のリクエスト、レスポンス、エラーコードは実装されておらず、現行MVPの契約ではない。
+
+## 将来サーバー機能を設計する条件
+
+サーバー保存または共有を追加する場合は、少なくとも次を同じ設計で確定する。
+
+- 利用者の識別、認証、認可
+- 元画像と生成画像の保存先
+- ファイル形式、容量、画像寸法、リクエストサイズの制限
+- データの保持期間、削除、URL失効
+- 保存IDと共有tokenの生成
+- 同一データの再送、冪等性、競合処理
+- レート制限と濫用対策
+- 成功/失敗レスポンスとユーザー向け回復導線
+- 監視、ログ、個人情報の取り扱い
+
+APIパスやpayloadは、これらの要件が確定するまで予約しない。
+
+## 関連実装
+
+- `app/page.tsx`
+- `app/simulator/page.tsx`
+- `components/screens/SimulatorScreen.tsx`
+- `lib/image/loadPngTexture.ts`
+- `lib/export/exportCanvasImage.ts`
+- `lib/download/downloadBlob.ts`
+- `lib/save/session.ts`
