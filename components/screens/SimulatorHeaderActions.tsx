@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import React, { useCallback, useEffect, useId, useRef, useState } from "react";
-import { NoticeModal } from "@/components/modals/NoticeModal";
+import { NoticeDialog, NoticeModal } from "@/components/modals/NoticeModal";
 
 export function SimulatorHeaderActions() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobileNoticeOpen, setIsMobileNoticeOpen] = useState(false);
   const menuId = useId();
   const menuRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -13,6 +14,15 @@ export function SimulatorHeaderActions() {
   const closeMenu = useCallback(() => {
     setIsMenuOpen(false);
   }, []);
+
+  const closeMobileNotice = useCallback(() => {
+    setIsMobileNoticeOpen(false);
+  }, []);
+
+  const openMobileNotice = useCallback(() => {
+    closeMenu();
+    setIsMobileNoticeOpen(true);
+  }, [closeMenu]);
 
   useEffect(() => {
     if (!isMenuOpen) {
@@ -90,13 +100,21 @@ export function SimulatorHeaderActions() {
             >
               このアプリについて
             </Link>
-            <NoticeModal
-              triggerLabel="注意事項"
-              buttonClassName="ghost-link header-menu-link"
-              onTriggerClick={closeMenu}
-            />
+            <button
+              type="button"
+              className="ghost-link header-menu-link"
+              role="menuitem"
+              onClick={openMobileNotice}
+            >
+              注意事項
+            </button>
           </div>
         ) : null}
+        <NoticeDialog
+          open={isMobileNoticeOpen}
+          onClose={closeMobileNotice}
+          returnFocusRef={toggleRef}
+        />
       </div>
     </nav>
   );

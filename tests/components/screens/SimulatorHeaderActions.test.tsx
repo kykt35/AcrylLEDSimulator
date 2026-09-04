@@ -29,7 +29,7 @@ describe("SimulatorHeaderActions", () => {
     expect(menuPanel).toBeInTheDocument();
     expect(menuPanel).toHaveTextContent("使い方");
     expect(menuPanel).toHaveTextContent("このアプリについて");
-    expect(within(menuPanel).getByRole("button", { name: "注意事項" })).toBeInTheDocument();
+    expect(within(menuPanel).getByRole("menuitem", { name: "注意事項" })).toBeInTheDocument();
 
     await user.click(toggle);
 
@@ -59,7 +59,7 @@ describe("SimulatorHeaderActions", () => {
     await user.click(toggle);
 
     const menuPanel = screen.getByTestId("header-menu-panel");
-    await user.click(within(menuPanel).getByRole("button", { name: "注意事項" }));
+    await user.click(within(menuPanel).getByRole("menuitem", { name: "注意事項" }));
 
     expect(toggle).toHaveAttribute("aria-expanded", "false");
     expect(screen.queryByTestId("header-menu-panel")).not.toBeInTheDocument();
@@ -73,7 +73,7 @@ describe("SimulatorHeaderActions", () => {
 
     await user.click(toggle);
     await user.click(
-      within(screen.getByTestId("header-menu-panel")).getByRole("button", { name: "注意事項" })
+      within(screen.getByTestId("header-menu-panel")).getByRole("menuitem", { name: "注意事項" })
     );
     await user.click(screen.getByRole("button", { name: "閉じる" }));
 
