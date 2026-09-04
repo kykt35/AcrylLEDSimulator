@@ -101,7 +101,10 @@
 
 ---
 
-## 2.6 画像アップロード・保存
+## 2.6 将来のサーバー保存（MVP対象外）
+
+現行MVPの元画像入力はブラウザ内のFileReader/Data URL処理で完結し、外部ストレージへアップロードしない。以下はサーバー保存を別機能として再設計する場合の候補とする。
+
 ### 第一候補
 - **Vercel Blob**
 
@@ -224,8 +227,6 @@ app/
   simulator/
     page.tsx
   api/
-    upload/
-      route.ts
     save/
       route.ts
 
@@ -245,7 +246,6 @@ lib/
     acrylicVertex.glsl
     acrylicFragment.glsl
   storage/
-    uploadImage.ts
     savePreset.ts
   utils/
     mask.ts
