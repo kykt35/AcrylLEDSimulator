@@ -26,6 +26,8 @@ PlaywrightのChromium/WebKitは継続的な回帰検知に使う。実Chrome/Edg
 | branch | `test/release-browser-acceptance` |
 | base | `main` at `605b97b` |
 | 自動受入commit | `b05cb4d` |
+| 実Chrome受入commit | `4e832b4`（後続はtest/docsのみ） |
+| 実Chrome desktop viewport | browser既定値（実寸未記録） |
 | 実行日 | 2026-09-04 |
 | 実行者 | Codex |
 | CI URL | PR作成後に追記 |
@@ -63,7 +65,7 @@ PlaywrightのChromium/WebKitは継続的な回帰検知に使う。実Chrome/Edg
 
 | ID | シナリオ | Chromium | WebKit | Chrome | Edge | Safari |
 |---|---|---|---|---|---|---|
-| B-01 | production初期表示、console errorなし | Pass | Pass | Pass | Blocked | Pending |
+| B-01 | production初期表示、console errorなし | Pass | Pass | Partial | Blocked | Pending |
 | B-02 | 正常PNG uploadと3D描画 | Pass | Pass | Blocked | Blocked | Pending |
 | B-03 | 配置、発光、背景、カメラ調整 | Pass | Pass | Blocked | Blocked | Pending |
 | B-04 | 彫刻生成、表示切替、彫刻PNG download | Pass | Pass | Blocked | Blocked | Pending |
@@ -74,7 +76,7 @@ PlaywrightのChromium/WebKitは継続的な回帰検知に使う。実Chrome/Edg
 | B-09 | resume/reset | Pass | Pass | Blocked | Blocked | Pending |
 | B-10 | 注意事項モーダルの表示/閉鎖 | Pass | Pass | Pass | Blocked | Pending |
 
-`Blocked`と`Pending`は製品不具合の判定ではなく、実行環境または受入作業が未完了であることを示す。
+ChromeのB-01はproduction初期表示をPassとした一方、実Chromeのconsole確認は未実施であるためPartialとする。`Blocked`と`Pending`は製品不具合の判定ではなく、実行環境または受入作業が未完了であることを示す。
 
 ## 390 x 844受入
 
