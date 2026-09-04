@@ -2,7 +2,7 @@
 
 ## 目的
 
-ユーザーがPNG画像をアップロードまたはドラッグ&ドロップし、アクリル板プレビュー用の画像として読み込めるようにする。読み込んだ画像は配置調整と彫刻用画像生成の入力になる。
+ユーザーがPNGファイルを選択またはドラッグ&ドロップし、アクリル板プレビュー用の画像としてブラウザ内で読み込めるようにする。読み込んだ画像は配置調整と彫刻用画像生成の入力になる。
 
 ## 利用者
 
@@ -17,7 +17,6 @@
 | UI | `components/controls/ImageControls.tsx` | アクリル板サイズ、content fit、拡大率、位置を変更する |
 | Lib | `lib/image/loadPngTexture.ts` | PNGファイル検証、Data URL読み込み、初期彫刻画像生成を行う |
 | Lib | `lib/image/composePreviewImage.ts` | 透明余白を除いたプレビュー配置画像を生成する |
-| API | `app/api/upload/route.ts` | PNGのサーバー側検証レスポンスを提供する |
 
 ## 実装から分かる仕様
 
@@ -28,7 +27,10 @@
 - ファイルタイプが `image/png` でない場合は拒否する。
 - ファイルサイズが8MBを超える場合は拒否する。
 - 読み込みは `FileReader.readAsDataURL` で行う。
+- ファイル選択とドラッグ&ドロップは、どちらもブラウザ内で同じ読み込み処理を実行する。画像入力のためのHTTPリクエストは送信しない。
 - 読み込み成功時、元画像Data URL、ファイル名、初期彫刻画像を状態に保存する。
+- 元画像Data URLはブラウザ内のプレビュー、彫刻生成、セッション保存に使用し、サーバーには永続化しない。
+- 再利用可能な画像URL、共有URL、サーバー側の画像IDは画像入力処理から生成しない。
 - 読み込み成功時、書き出しクロップ範囲は全体に戻り、書出範囲表示は閉じる。
 - 読み込み失敗時、画像と彫刻のプレビュー状態はerrorまたはidle相当に戻る。
 
@@ -67,19 +69,6 @@
 - `lib/simulator/imageLayout.ts`
 - `lib/image/composePreviewImage.ts`
 
-### APIアップロード検証
-
-- `POST /api/upload` はform dataの `file` を受け取る。
-- `file` が空、`File` ではない、または `type !== image/png` の場合は400を返す。
-- PNGシグネチャとIHDRのwidth/heightを読み取り、PNGでない場合は400を返す。
-- 成功時は `sourceImageId`, `sourceImageUrl`, `fileName`, `mimeType`, `width`, `height` を返す。
-- ファイル名は英数字、ドット、アンダースコア、ハイフン以外を `-` に置換してURL用に使う。
-- このAPIは現行画面のクライアント読み込みフローからは直接使われていない。
-
-根拠:
-
-- `app/api/upload/route.ts`
-
 ## エラー・例外
 
 | 条件 | 応答/挙動 |
@@ -88,7 +77,6 @@
 | 8MB超過 | `8MB 以下の PNG ファイルを選択してください。` を表示する |
 | FileReader失敗 | PNG読み込み失敗として扱う |
 | プレビュー合成用canvas初期化失敗 | 元画像または現行画像にフォールバックし、状態はerrorになる |
-| APIでPNG不正 | `400`, `INVALID_FILE` を返す |
 
 ## 関連実装
 
@@ -98,7 +86,6 @@
 - `lib/image/composePreviewImage.ts`
 - `lib/simulator/imageLayout.ts`
 - `lib/simulator/acrylicSizePresets.ts`
-- `app/api/upload/route.ts`
 
 ## 関連テスト
 
@@ -108,6 +95,5 @@
 
 ## 未確認・推定
 
-- `app/api/upload/route.ts` のAPIが将来的な保存/アップロード導線で使われるかは未確認。
 - 最大8MBの根拠となるプロダクト要件は未確認。
 - 透明余白除去のアルファしきい値8が、すべての入稿画像に適切かは未検証。
