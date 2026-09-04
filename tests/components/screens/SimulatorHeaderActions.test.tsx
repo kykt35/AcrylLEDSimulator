@@ -49,4 +49,35 @@ describe("SimulatorHeaderActions", () => {
 
     expect(screen.queryByTestId("header-menu-panel")).not.toBeInTheDocument();
   });
+
+  it("opens the notice dialog after closing the mobile menu and returns focus to the toggle", async () => {
+    const user = userEvent.setup();
+
+    render(<SimulatorHeaderActions />);
+
+    const toggle = screen.getByTestId("header-menu-toggle");
+    await user.click(toggle);
+
+    const menuPanel = screen.getByTestId("header-menu-panel");
+    await user.click(within(menuPanel).getByRole("button", { name: "注意事項" }));
+
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByTestId("header-menu-panel")).not.toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: "実物との差異について" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "閉じる" })).toHaveFocus();
+
+    await user.keyboard("{Escape}");
+
+    expect(screen.queryByRole("dialog", { name: "実物との差異について" })).not.toBeInTheDocument();
+    expect(toggle).toHaveFocus();
+
+    await user.click(toggle);
+    await user.click(
+      within(screen.getByTestId("header-menu-panel")).getByRole("button", { name: "注意事項" })
+    );
+    await user.click(screen.getByRole("button", { name: "閉じる" }));
+
+    expect(screen.queryByRole("dialog", { name: "実物との差異について" })).not.toBeInTheDocument();
+    expect(toggle).toHaveFocus();
+  });
 });
