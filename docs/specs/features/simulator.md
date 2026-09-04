@@ -38,6 +38,21 @@ PNG画像をアクリル板に配置し、LED台座から照らした見え方�
 - `app/simulator/page.tsx`
 - `components/screens/SimulatorScreen.tsx`
 
+### ヘッダーと注意事項モーダル
+
+- 961px以上では、使い方、このアプリについて、注意事項の導線をヘッダーに並べて表示する。
+- 960px以下ではヘッダー導線をハンバーガーメニュー内に表示する。
+- モバイルメニューの注意事項を選ぶと、メニューを閉じてから注意事項モーダルを表示する。
+- 注意事項モーダルは、閉じるボタン、Escape、背景押下で閉じられる。
+- 注意事項モーダルの表示中はフォーカスをモーダル内に保つ。
+- モバイルの注意事項モーダルを閉じた後は、ハンバーガーボタンへフォーカスを戻す。
+- モーダル表示中に960pxの境界を跨いでも表示を維持し、閉じた後は変更後の表示幅で可視な注意事項導線へフォーカスを戻す。
+
+根拠:
+
+- `components/screens/SimulatorHeaderActions.tsx`
+- `components/modals/NoticeModal.tsx`
+
 ### 3Dプレビュー
 
 - 3Dプレビューは `@react-three/fiber` の `Canvas` で描画する。
@@ -88,6 +103,7 @@ PNG画像をアクリル板に配置し、LED台座から照らした見え方�
 - `app/simulator/page.tsx`
 - `components/screens/SimulatorScreen.tsx`
 - `components/screens/SimulatorHeaderActions.tsx`
+- `components/modals/NoticeModal.tsx`
 - `components/simulator/SimulatorCanvas.tsx`
 - `components/simulator/AcrylicStandMesh.tsx`
 - `components/simulator/LedBaseMesh.tsx`
@@ -102,6 +118,7 @@ PNG画像をアクリル板に配置し、LED台座から照らした見え方�
 - `tests/app/page.test.tsx`
 - `tests/components/screens/SimulatorScreen.test.tsx`
 - `tests/components/screens/SimulatorHeaderActions.test.tsx`
+- `tests/components/modals/NoticeModal.test.tsx`
 - `tests/components/simulator/SimulatorCanvas.test.tsx`
 - `tests/components/simulator/AcrylicStandMesh.test.tsx`
 - `tests/components/simulator/CameraController.test.tsx`
