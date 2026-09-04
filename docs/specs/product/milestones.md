@@ -342,10 +342,10 @@ MVPを公開し、利用状況とフィードバックを集める。
 | マイルストーン | 状態 | 完了済み | 未完了条件 |
 |---|---|---|---|
 | M4: MVP実装完了 | 進行中 | 主要MVP機能、production build/typecheck阻害の修正、CI品質ゲート、1画面ダウンロード仕様の同期 | ステージング/preview環境への反映とproduction相当のsmoke test |
-| M5: QA完了 | Chrome限定で完了 / Go | unit/componentテスト、typecheck、production build、Chromium/WebKit E2E、実Chrome desktop/390 x 844の主要フロー、Critical/High 0件 | Edge/Safariの実ブラウザ互換性確認はDeferred |
+| M5: QA完了 | Chrome限定受入を実施 / Hold | unit/componentテスト、typecheck、production build、ローカルChromium/WebKit E2E、実Chrome desktop/390 x 844の主要フロー、Critical/High 0件 | PR CI green、実Chromeで破損PNG直後の正常upload再受入。Edge/Safariの実ブラウザ互換性確認はDeferred |
 | M6: MVP公開 | 未着手相当 | リポジトリ内で完了と判断できる証跡なし | 本番リリース、リリース/ロールバック記録、利用計測、フィードバック導線、初期利用レポート |
 
-M4の残作業は [Issue #35](https://github.com/kykt35/AcrylLEDSimulator/issues/35)、M5は [Issue #34](https://github.com/kykt35/AcrylLEDSimulator/issues/34)、M6の公開後検証は [Issue #36](https://github.com/kykt35/AcrylLEDSimulator/issues/36) で追跡する。M5の詳細は[リリースブラウザ受入記録](../operations/release-acceptance.md)に残す。M5はユーザー承認によりChrome限定スコープをGoとし、Edge/Safariの実ブラウザ確認はDeferredとする。M4の完了条件を満たすまではリリース判断をHoldとする。
+M4の残作業は [Issue #35](https://github.com/kykt35/AcrylLEDSimulator/issues/35)、M5は [Issue #34](https://github.com/kykt35/AcrylLEDSimulator/issues/34)、M6の公開後検証は [Issue #36](https://github.com/kykt35/AcrylLEDSimulator/issues/36) で追跡する。M5の詳細は[リリースブラウザ受入記録](../operations/release-acceptance.md)に残す。M5はユーザー承認によりChrome限定スコープで受入中とし、最終headのPR CIと実ChromeのB-06再受入が完了するまではHoldとする。Edge/Safariの実ブラウザ確認はDeferredとする。M4の完了条件を満たすまではリリース判断をHoldとする。
 
 ---
 

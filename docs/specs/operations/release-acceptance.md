@@ -33,7 +33,7 @@ PlaywrightのChromium/WebKitは継続的な回帰検知に使う。実ブラウ�
 | 実Chrome desktop viewport | 1536 x 753 |
 | 実Chrome mobile viewport | 390 x 844 |
 | 実行日 | 2026-09-04 |
-| 実行者 | Codex |
+| 実行者 | ユーザー / Codex |
 | CI URL | PR作成後に追記 |
 
 ## 自動受入結果
@@ -74,13 +74,13 @@ PlaywrightのChromium/WebKitは継続的な回帰検知に使う。実ブラウ�
 | B-03 | 配置、発光、背景、カメラ調整 | Pass | Pass | Pass | Deferred | Deferred |
 | B-04 | 彫刻生成、表示切替、彫刻PNG download | Pass | Pass | Pass | Deferred | Deferred |
 | B-05 | crop、PNG/JPG download | Pass | Pass | Pass | Deferred | Deferred |
-| B-06 | 非PNG/破損PNG後の回復 | Pass | Pass | Pass | Deferred | Deferred |
+| B-06 | 非PNG/破損PNG後の回復 | Pass | Pass | Partial | Deferred | Deferred |
 | B-07 | WebGL fallback/retry | Pass | Pass | 自動のみ | Deferred | Deferred |
 | B-08 | 保存失敗後の再試行 | Pass | Pass | 自動のみ | Deferred | Deferred |
 | B-09 | resume/reset | Pass | Pass | Pass | Deferred | Deferred |
 | B-10 | 注意事項モーダルの表示/閉鎖 | Pass | Pass | Pass | Deferred | Deferred |
 
-実Chromeではconsole error 0件、正常PNG後の3D canvas、設定変更、彫刻生成、実ファイルdownload、resume、UI/query resetを確認した。B-06は非PNGエラー後の正常uploadまで実行し、破損PNGのエラー表示も確認した。B-07とB-08は通常のUI操作では意図的に発生させられないため、自動E2Eを受入証跡とする。
+実Chromeではconsole error 0件、正常PNG後の3D canvas、設定変更、彫刻生成、実ファイルdownload、resume、UI/query resetを確認した。B-06は非PNGエラー後の正常uploadと破損PNGのエラー表示まで確認したが、破損PNG直後の正常uploadは未確認のためPartialとする。Chromium/WebKit E2Eでは両エラー直後の正常uploadを確認済みである。B-07とB-08は通常のUI操作では意図的に発生させられないため、自動E2Eを受入証跡とする。
 
 ## 390 x 844受入
 
@@ -109,13 +109,14 @@ PlaywrightのChromium/WebKitは継続的な回帰検知に使う。実ブラウ�
 
 | 項目 | 判定 |
 |---|---|
-| 自動品質ゲート | Pass |
+| ローカル自動品質ゲート | Pass |
+| PR CI | Pending（PR作成後に実行） |
 | Chromium/WebKit E2E | Pass |
-| 実Chrome主要フロー | Pass |
+| 実Chrome主要フロー | Partial（B-06再受入待ち） |
 | 実Edge主要フロー | Deferred（今回の必須範囲外） |
 | 実Safari主要フロー | Deferred（今回の必須範囲外） |
 | 390 x 844主要フロー | Pass |
 | Critical/High 0件の確認 | Pass（Chrome限定スコープ） |
-| M5 | **Go（Chrome限定スコープ）** |
+| M5 | **Hold（PR CI / B-06再受入待ち）** |
 
-Chromium/WebKit自動E2Eと実Chromeのdesktop/390 x 844受入が成功したため、今回のChrome限定スコープをGoとする。これはEdge/Safariの互換性を保証する判定ではなく、両ブラウザはDeferredとして残す。
+ローカルのChromium/WebKit自動E2Eと実Chromeのdesktop/390 x 844受入は成功した。最終headのPR CI成功と、実Chromeでの破損PNG直後の正常upload確認が完了するまではHoldとする。Edge/Safariは今回の必須範囲外としてDeferredに残し、Goへ変更する場合も両ブラウザの互換性を保証する判定とはしない。
