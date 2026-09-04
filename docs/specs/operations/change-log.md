@@ -12,4 +12,4 @@
 | 2026-09-04 | changed | 画像入力、API境界 | 未使用の画像アップロードAPIを削除し、ブラウザ内のFileReader/Data URL処理をMVPの正規フローとして明記 | Issue #32 / PR #38 |
 | 2026-09-04 | bugfix | `features/simulator.md` | モバイルメニューから注意事項モーダルを開く際のメニュー閉鎖とフォーカス復帰を明記 | Issue #31 / PR #40 |
 | 2026-09-04 | changed | UX、architecture、受入基準 | `/` と `/simulator` の1画面、ローカルダウンロード、sessionStorage、成功toastを現行MVPとして統一し、結果画面とサーバー保存を将来候補へ分離 | Issue #33 |
-| 2026-09-04 | operations | リリースブラウザ受入 | Playwright Chromium/WebKitの主要・回復導線E2Eを追加し、自動受入結果と実Chromeの部分受入、Edge/Safari未完了によるM5 Holdを記録 | Issue #34 |
+| 2026-09-04 | operations | リリースブラウザ受入 | Playwright Chromium/WebKitの主要・回復導線E2Eと実Chrome desktop/390 x 844受入を完了し、ユーザー承認のChrome限定スコープをM5 Go、Edge/SafariをDeferredとして記録 | Issue #34 |
