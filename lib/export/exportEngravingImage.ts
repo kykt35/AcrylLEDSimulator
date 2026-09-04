@@ -14,7 +14,7 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
-function decodePngDataUrl(dataUrl: string): { mimeType: string; bytes: Uint8Array } {
+function decodePngDataUrl(dataUrl: string): { mimeType: string; buffer: ArrayBuffer } {
   const match = dataUrl.match(/^data:(image\/png);base64,(.+)$/);
 
   if (!match) {
@@ -23,13 +23,14 @@ function decodePngDataUrl(dataUrl: string): { mimeType: string; bytes: Uint8Arra
 
   const [, mimeType, encoded] = match;
   const binary = atob(encoded);
-  const bytes = new Uint8Array(binary.length);
+  const buffer = new ArrayBuffer(binary.length);
+  const bytes = new Uint8Array(buffer);
 
   for (let index = 0; index < binary.length; index += 1) {
     bytes[index] = binary.charCodeAt(index);
   }
 
-  return { mimeType, bytes };
+  return { mimeType, buffer };
 }
 
 async function invertPngDataUrl(dataUrl: string): Promise<Blob> {
@@ -73,10 +74,10 @@ export async function exportEngravingImage(
     };
   }
 
-  const { mimeType, bytes } = decodePngDataUrl(dataUrl);
+  const { mimeType, buffer } = decodePngDataUrl(dataUrl);
 
   return {
-    blob: new Blob([bytes], { type: mimeType }),
+    blob: new Blob([buffer], { type: mimeType }),
     fileName
   };
 }

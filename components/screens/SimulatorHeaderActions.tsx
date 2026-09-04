@@ -2,16 +2,44 @@
 
 import Link from "next/link";
 import React, { useCallback, useEffect, useId, useRef, useState } from "react";
-import { NoticeModal } from "@/components/modals/NoticeModal";
+import { NoticeDialog } from "@/components/modals/NoticeModal";
 
 export function SimulatorHeaderActions() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isNoticeOpen, setIsNoticeOpen] = useState(false);
   const menuId = useId();
   const menuRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
+  const desktopNoticeRef = useRef<HTMLButtonElement>(null);
+  const lastNoticeTriggerRef = useRef<HTMLElement | null>(null);
 
   const closeMenu = useCallback(() => {
     setIsMenuOpen(false);
+  }, []);
+
+  const closeNotice = useCallback(() => {
+    setIsNoticeOpen(false);
+  }, []);
+
+  const openMobileNotice = useCallback(() => {
+    lastNoticeTriggerRef.current = toggleRef.current;
+    closeMenu();
+    setIsNoticeOpen(true);
+  }, [closeMenu]);
+
+  const openDesktopNotice = useCallback(() => {
+    lastNoticeTriggerRef.current = desktopNoticeRef.current;
+    setIsNoticeOpen(true);
+  }, []);
+
+  const resolveNoticeReturnFocus = useCallback(() => {
+    if (typeof window.matchMedia === "function") {
+      return window.matchMedia("(max-width: 960px)").matches
+        ? toggleRef.current
+        : desktopNoticeRef.current;
+    }
+
+    return lastNoticeTriggerRef.current;
   }, []);
 
   useEffect(() => {
@@ -53,7 +81,14 @@ export function SimulatorHeaderActions() {
         <Link href="/about" className="secondary-link">
           このアプリについて
         </Link>
-        <NoticeModal triggerLabel="注意事項" buttonClassName="ghost-link" />
+        <button
+          ref={desktopNoticeRef}
+          type="button"
+          className="ghost-link"
+          onClick={openDesktopNotice}
+        >
+          注意事項
+        </button>
       </div>
       <div className="header-actions-mobile" ref={menuRef}>
         <button
@@ -90,14 +125,22 @@ export function SimulatorHeaderActions() {
             >
               このアプリについて
             </Link>
-            <NoticeModal
-              triggerLabel="注意事項"
-              buttonClassName="ghost-link header-menu-link"
-              onTriggerClick={closeMenu}
-            />
+            <button
+              type="button"
+              className="ghost-link header-menu-link"
+              role="menuitem"
+              onClick={openMobileNotice}
+            >
+              注意事項
+            </button>
           </div>
         ) : null}
       </div>
+      <NoticeDialog
+        open={isNoticeOpen}
+        onClose={closeNotice}
+        resolveReturnFocus={resolveNoticeReturnFocus}
+      />
     </nav>
   );
 }
