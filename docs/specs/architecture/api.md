@@ -1,10 +1,10 @@
 # Phase 2 API Specification
 
 ## 目的
-MVP の画像アップロードと保存機能に必要な最小 API 契約を定義し、Phase 3 実装でクライアントとサーバーの境界が揺れないようにする。
+MVP のクライアントとサーバーの境界、および将来サーバー機能を追加する場合の API 契約候補を定義する。
 
 ## 設計方針
-- MVP では `Next.js Route Handler` を前提にする
+- PNG入力はブラウザ内の `FileReader` と Data URL で完結させ、サーバーへアップロードしない
 - 画像書き出し自体はクライアントで実行し、その結果を保存 API へ渡す
 - 保存先実装は後続で差し替え可能とするが、クライアント契約は固定する
 - 共有 URL や履歴一覧取得 API は MVP 対象外とする
@@ -13,55 +13,9 @@ MVP の画像アップロードと保存機能に必要な最小 API 契約を�
 
 | エンドポイント | メソッド | 用途 |
 |---|---|---|
-| `/api/upload` | `POST` | 元画像の保存先確保またはアップロード |
 | `/api/save` | `POST` | 保存済み出力画像と設定値の登録 |
 
-## 1. `/api/upload`
-
-### 用途
-- ユーザーが選択した PNG を保存し、再利用可能な URL を返す
-- MVP では即時プレビューが優先のため、クライアント上の object URL だけで完結してもよい
-- 永続保存が必要な場合に備えて API 契約は先に用意する
-
-### リクエスト
-
-```http
-POST /api/upload
-Content-Type: multipart/form-data
-```
-
-| フィールド | 型 | 必須 | 説明 |
-|---|---|---|---|
-| `file` | binary | 必須 | PNG ファイル |
-| `clientFileName` | string | 任意 | 元ファイル名 |
-
-### 成功レスポンス
-
-```json
-{
-  "sourceImageId": "src_01HXYZ",
-  "sourceImageUrl": "https://example.com/source/src_01HXYZ.png",
-  "fileName": "sample.png",
-  "mimeType": "image/png",
-  "width": 1200,
-  "height": 1200
-}
-```
-
-### バリデーション
-- PNG 以外は受け付けない
-- サイズ上限は MVP で別途決めるが、少なくとも UI に制限を明示する
-- 空ファイルは拒否する
-
-### 失敗レスポンス
-
-| ステータス | 条件 | レスポンス例 |
-|---|---|---|
-| `400` | PNG 以外、空ファイル | `{ "code": "INVALID_FILE", "message": "PNG ファイルを選択してください。" }` |
-| `413` | ファイルサイズ超過 | `{ "code": "FILE_TOO_LARGE", "message": "ファイルサイズが上限を超えています。" }` |
-| `500` | 保存先書き込み失敗 | `{ "code": "UPLOAD_FAILED", "message": "画像の保存に失敗しました。" }` |
-
-## 2. `/api/save`
+## 1. `/api/save`
 
 ### 用途
 - 現在のシミュレーション結果を画像と設定値のセットとして保存する
@@ -76,7 +30,7 @@ Content-Type: application/json
 
 ```json
 {
-  "sourceImageId": "src_01HXYZ",
+  "sourceImageId": null,
   "exportedImageDataUrl": "data:image/png;base64,...",
   "simulation": {
     "ledColorId": "ice-blue",
@@ -92,7 +46,7 @@ Content-Type: application/json
 
 ### リクエストルール
 - `exportedImageDataUrl` はクライアントで書き出した PNG を送る
-- `sourceImageId` は未アップロード運用の場合 `null` 許容でもよい
+- 現行MVPは元画像をアップロードしないため、`sourceImageId` は `null` とする
 - `simulation` は保存結果画面と再編集導線で使うため必須
 
 ### 成功レスポンス
@@ -123,17 +77,17 @@ Content-Type: application/json
 
 ```text
 1. Canvas を PNG Data URL として書き出す
-2. 画像入力が永続保存対象なら /api/upload を先に実行する
-3. /api/save に画像と simulation を送る
-4. 成功時は保存結果画面に必要な値を state またはレスポンスから組み立てる
+2. /api/save に画像と simulation を送る
+3. 成功時は保存結果画面に必要な値を state またはレスポンスから組み立てる
 ```
 
 ## MVP で許容する簡略化
-- `/api/upload` を実装せず、ローカル object URL だけでプレビューを成立させる
-- その場合でも `/api/save` の契約は維持し、`sourceImageId` を `null` で受ける
+- 元画像はブラウザ内で Data URL として読み込み、サーバーへ送信または永続化しない
+- `/api/save` の契約では `sourceImageId` を `null` で受ける
 - 保存結果画面が当面不要なら、`/api/save` の成功レスポンスを保存完了モーダルで使ってもよい
 
 ## 将来拡張
+- 元画像のサーバーアップロードは、実ストレージ、認証・認可、容量と形式の制限、レート制限、エラー契約、URLのライフサイクルを含む別機能として設計する
 - `GET /api/simulations/:id`
 - `GET /api/simulations`
 - 共有 URL 用トークン発行

@@ -133,10 +133,13 @@ describe("SimulatorScreen", () => {
   afterEach(() => {
     clearEditorSnapshot();
     window.sessionStorage.clear();
+    vi.unstubAllGlobals();
   });
 
   it("updates preview state when a png file is selected", async () => {
     const user = userEvent.setup();
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
 
     render(<SimulatorScreen />);
 
@@ -148,6 +151,9 @@ describe("SimulatorScreen", () => {
     await waitFor(() => {
       expect(screen.getByTestId("simulator-canvas")).toHaveTextContent("data:image/png;base64,simulator-preview");
     });
+
+    expect(loadPngTexture).toHaveBeenCalledWith(file);
+    expect(fetchMock).not.toHaveBeenCalled();
 
     await openControlDrawer(user);
 
@@ -168,6 +174,8 @@ describe("SimulatorScreen", () => {
 
   it("supports click and drag interactions on the preview upload surface", async () => {
     const user = userEvent.setup();
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
 
     render(<SimulatorScreen />);
 
@@ -201,6 +209,20 @@ describe("SimulatorScreen", () => {
       expect(screen.getByTestId("simulator-canvas")).toHaveTextContent("data:image/png;base64,simulator-preview");
     });
 
+    expect(loadPngTexture).toHaveBeenCalledWith(file);
+
+    const droppedFile = new File(["replacement"], "replacement.png", { type: "image/png" });
+    fireEvent.drop(uploadSurface, {
+      dataTransfer: {
+        files: [droppedFile]
+      }
+    });
+
+    await waitFor(() => {
+      expect(loadPngTexture).toHaveBeenCalledWith(droppedFile);
+    });
+
+    expect(fetchMock).not.toHaveBeenCalled();
     expect(screen.queryByText("画像を差し替える")).not.toBeInTheDocument();
   });
 

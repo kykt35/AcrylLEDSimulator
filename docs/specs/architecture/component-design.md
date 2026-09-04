@@ -23,7 +23,7 @@ Phase 1 PoC の単一ワークベンチ構成を、画面、UI、3D シーン、
 - 画面コンポーネントはルーティング単位で分ける
 - UI パネルと 3D シーンを別責務にする
 - 状態更新の起点はコンテナコンポーネントへ寄せる
-- 保存やアップロードなど外部 I/O は `lib/` と `app/api/` に閉じる
+- PNG入力は `lib/image/` のクライアント処理で完結させ、サーバー保存など将来の外部 I/O は `lib/` と `app/api/` に閉じる
 - Phase 3 では実装不要な将来拡張の抽象化は増やしすぎない
 
 ## 推奨ディレクトリ構成
@@ -36,8 +36,6 @@ app/
   result/
     page.tsx
   api/
-    upload/
-      route.ts
     save/
       route.ts
 
@@ -75,7 +73,6 @@ lib/
   export/
     exportCanvasImage.ts
   storage/
-    uploadImage.ts
     saveSimulation.ts
   simulator/
     lightingPresets.ts
