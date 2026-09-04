@@ -49,6 +49,7 @@ describe("loadPngTexture", () => {
       }
     });
 
+    expect(readAsDataUrl).toHaveBeenCalledWith(file);
     expect(validatePngFile(file)).toBeNull();
     expect(generateEngravingMapFromDataUrl).toHaveBeenCalledWith("data:image/png;base64,abc123");
     vi.unstubAllGlobals();
