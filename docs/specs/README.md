@@ -19,7 +19,13 @@
 | `ux/` | ユーザーフロー、画面仕様、UIデザイン |
 | `architecture/` | 技術構成、コンポーネント、状態、データ、API、エラー処理 |
 | `features/` | 機能別の詳細仕様、エラー、関連実装、関連テスト |
-| `operations/` | 仕様更新ルール、変更履歴 |
+| `operations/` | 仕様更新ルール、変更履歴、リリース受入記録 |
+
+## 運用記録
+
+- [リリースブラウザ受入記録](operations/release-acceptance.md)
+- [仕様変更履歴](operations/change-log.md)
+- [仕様更新ルール](operations/spec-maintenance.md)
 
 ## 仕様追加ルール
 

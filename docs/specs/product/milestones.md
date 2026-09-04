@@ -342,10 +342,10 @@ MVPを公開し、利用状況とフィードバックを集める。
 | マイルストーン | 状態 | 完了済み | 未完了条件 |
 |---|---|---|---|
 | M4: MVP実装完了 | 進行中 | 主要MVP機能、production build/typecheck阻害の修正、CI品質ゲート、1画面ダウンロード仕様の同期 | ステージング/preview環境への反映とproduction相当のsmoke test |
-| M5: QA完了 | 部分完了 / Hold | unit/componentテスト、typecheck、production buildをCIで実行する構成 | Chromium/WebKit E2E、実Chrome/Edge/Safari、390 x 844相当の主要フロー受入、Go/Hold記録 |
+| M5: QA完了 | 部分完了 / Hold | unit/componentテスト、typecheck、production build、Chromium/WebKit E2E、実Chromeでの初期表示と注意事項、390 x 844でのモバイル注意事項 | 実Chromeのupload以降、実Edge/Safari、390 x 844の設定drawer/crop/download、Critical/High 0件の最終確認 |
 | M6: MVP公開 | 未着手相当 | リポジトリ内で完了と判断できる証跡なし | 本番リリース、リリース/ロールバック記録、利用計測、フィードバック導線、初期利用レポート |
 
-M4の残作業は [Issue #35](https://github.com/kykt35/AcrylLEDSimulator/issues/35)、M5は [Issue #34](https://github.com/kykt35/AcrylLEDSimulator/issues/34)、M6の公開後検証は [Issue #36](https://github.com/kykt35/AcrylLEDSimulator/issues/36) で追跡する。M4とM5の完了条件を満たすまではリリース判断をHoldとする。
+M4の残作業は [Issue #35](https://github.com/kykt35/AcrylLEDSimulator/issues/35)、M5は [Issue #34](https://github.com/kykt35/AcrylLEDSimulator/issues/34)、M6の公開後検証は [Issue #36](https://github.com/kykt35/AcrylLEDSimulator/issues/36) で追跡する。M5の詳細は[リリースブラウザ受入記録](../operations/release-acceptance.md)に残す。M4とM5の完了条件を満たすまではリリース判断をHoldとする。
 
 ---
 
