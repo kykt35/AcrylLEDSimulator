@@ -1,6 +1,7 @@
 import React from "react";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { vi } from "vitest";
 import { SimulatorHeaderActions } from "@/components/screens/SimulatorHeaderActions";
 
 describe("SimulatorHeaderActions", () => {
@@ -79,5 +80,33 @@ describe("SimulatorHeaderActions", () => {
 
     expect(screen.queryByRole("dialog", { name: "実物との差異について" })).not.toBeInTheDocument();
     expect(toggle).toHaveFocus();
+  });
+
+  it("keeps the mobile dialog visible across the desktop breakpoint and restores visible focus", async () => {
+    const user = userEvent.setup();
+    const matchMedia = vi
+      .spyOn(window, "matchMedia")
+      .mockReturnValue({ matches: false } as MediaQueryList);
+
+    try {
+      render(<SimulatorHeaderActions />);
+
+      const desktopNoticeTrigger = screen.getByRole("button", { name: "注意事項" });
+      await user.click(screen.getByTestId("header-menu-toggle"));
+      await user.click(
+        within(screen.getByTestId("header-menu-panel")).getByRole("menuitem", {
+          name: "注意事項"
+        })
+      );
+
+      const dialog = screen.getByRole("dialog", { name: "実物との差異について" });
+      expect(dialog.closest(".header-actions-mobile")).toBeNull();
+
+      await user.click(screen.getByRole("button", { name: "閉じる" }));
+
+      expect(desktopNoticeTrigger).toHaveFocus();
+    } finally {
+      matchMedia.mockRestore();
+    }
   });
 });

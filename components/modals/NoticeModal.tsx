@@ -5,18 +5,34 @@ import React, { useCallback, useEffect, useId, useRef, useState } from "react";
 type NoticeModalProps = {
   triggerLabel: string;
   buttonClassName?: string;
+  onTriggerClick?: () => void;
 };
 
 type NoticeDialogProps = {
   open: boolean;
   onClose: () => void;
   returnFocusRef?: React.RefObject<HTMLElement | null>;
+  resolveReturnFocus?: () => HTMLElement | null;
 };
 
-export function NoticeDialog({ open, onClose, returnFocusRef }: NoticeDialogProps) {
+export function NoticeDialog({
+  open,
+  onClose,
+  returnFocusRef,
+  resolveReturnFocus
+}: NoticeDialogProps) {
   const titleId = useId();
   const descriptionId = useId();
   const dialogRef = useRef<HTMLDivElement>(null);
+  const onCloseRef = useRef(onClose);
+  const returnFocusRefRef = useRef(returnFocusRef);
+  const resolveReturnFocusRef = useRef(resolveReturnFocus);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+    returnFocusRefRef.current = returnFocusRef;
+    resolveReturnFocusRef.current = resolveReturnFocus;
+  }, [onClose, resolveReturnFocus, returnFocusRef]);
 
   useEffect(() => {
     if (!open) {
@@ -35,7 +51,7 @@ export function NoticeDialog({ open, onClose, returnFocusRef }: NoticeDialogProp
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         event.preventDefault();
-        onClose();
+        onCloseRef.current();
         return;
       }
 
@@ -60,9 +76,11 @@ export function NoticeDialog({ open, onClose, returnFocusRef }: NoticeDialogProp
     return () => {
       document.body.style.overflow = previousOverflow;
       document.removeEventListener("keydown", handleKeyDown);
-      returnFocusRef?.current?.focus();
+      const returnFocusTarget =
+        resolveReturnFocusRef.current?.() ?? returnFocusRefRef.current?.current;
+      returnFocusTarget?.focus();
     };
-  }, [onClose, open, returnFocusRef]);
+  }, [open]);
 
   if (!open) {
     return null;
@@ -100,7 +118,8 @@ export function NoticeDialog({ open, onClose, returnFocusRef }: NoticeDialogProp
 
 export function NoticeModal({
   triggerLabel,
-  buttonClassName = "secondary-link"
+  buttonClassName = "secondary-link",
+  onTriggerClick
 }: NoticeModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -114,7 +133,10 @@ export function NoticeModal({
         ref={triggerRef}
         type="button"
         className={buttonClassName}
-        onClick={() => setIsOpen(true)}
+        onClick={() => {
+          onTriggerClick?.();
+          setIsOpen(true);
+        }}
       >
         {triggerLabel}
       </button>
