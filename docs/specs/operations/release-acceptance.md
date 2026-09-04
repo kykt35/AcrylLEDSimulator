@@ -25,7 +25,7 @@ PlaywrightのChromium/WebKitは継続的な回帰検知に使う。実Chrome/Edg
 | Issue | [#34](https://github.com/kykt35/AcrylLEDSimulator/issues/34) |
 | branch | `test/release-browser-acceptance` |
 | base | `main` at `605b97b` |
-| 自動受入commit | `4e832b4` |
+| 自動受入commit | `b05cb4d` |
 | 実行日 | 2026-09-04 |
 | 実行者 | Codex |
 | CI URL | PR作成後に追記 |
@@ -37,9 +37,9 @@ PlaywrightのChromium/WebKitは継続的な回帰検知に使う。実Chrome/Edg
 | `pnpm test` | Pass | 20 files / 92 tests |
 | `pnpm typecheck` | Pass | TypeScript error 0 |
 | `pnpm build` | Pass | Next.js 15.5.15 production build |
-| Playwright Chromium | Pass | 6 tests |
-| Playwright WebKit | Pass | 6 tests |
-| 全E2E | Pass | 12 tests / 52.8s / 1 worker |
+| Playwright Chromium | Pass | 7 tests |
+| Playwright WebKit | Pass | 7 tests |
+| 全E2E | Pass | 14 tests / 56.9s / 1 worker |
 
 自動E2Eは、次を実ファイルまたはブラウザAPIで確認した。
 
