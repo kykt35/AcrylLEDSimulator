@@ -1,186 +1,203 @@
-# Phase 2 Component Design
+# Component Design
 
 ## 目的
-Phase 1 PoC の単一ワークベンチ構成を、画面、UI、3D シーン、保存処理ごとの責務へ分解し、Phase 3 の実装単位を明確にする。
 
-## 現状整理
-
-### 現行構成
-- `app/page.tsx`: トップ訴求と PoC ワークベンチを同一画面に配置
-- `components/simulator/PocWorkbench.tsx`: 画面全体の状態と UI を集中管理
-- `components/simulator/SimulatorCanvas.tsx`: Canvas と 3D シーンの合成
-- `components/upload/ImageUploader.tsx`: ファイル入力と読み込み状態表示
-- `components/controls/LightingControls.tsx`: 発光とカメラ操作 UI
-- `components/actions/ExportPreviewButton.tsx`: クライアント側画像書き出し
-
-### 現状の課題
-- 画面責務とシミュレーター責務が `PocWorkbench` に集中している
-- 画像入力、表示設定、保存状態が局所 state で混在している
-- 保存結果画面や将来の API 連携を差し込む境界がない
-- `components/simulator` 配下に UI と 3D 表示が混在している
+現行MVPの1画面シミュレーターについて、ルート、画面コンテナ、UI、3D表示、画像処理、ダウンロード、セッション保存の責務を定義する。
 
 ## 設計方針
-- 画面コンポーネントはルーティング単位で分ける
-- UI パネルと 3D シーンを別責務にする
-- 状態更新の起点はコンテナコンポーネントへ寄せる
-- PNG入力は `lib/image/` のクライアント処理で完結させ、サーバー保存など将来の外部 I/O は `lib/` と `app/api/` に閉じる
-- Phase 3 では実装不要な将来拡張の抽象化は増やしすぎない
 
-## 推奨ディレクトリ構成
+- `/` と `/simulator` は同じ `SimulatorScreen` を表示する
+- 画面状態と処理の起点は `SimulatorScreen` に集約する
+- 操作UIは `components/controls/`、3D表示は `components/simulator/` に分離する
+- 画像入力、彫刻生成、Canvas書き出し、ダウンロード、セッション保存は `lib/` の純粋処理またはブラウザ処理へ分離する
+- 現行MVPの画像入力とダウンロードはブラウザ内で完結し、アプリ独自APIを使用しない
+- 未実装の結果画面、サーバー保存、共有機能の抽象化は現行構成へ混在させない
+
+## 現行ディレクトリ構成
 
 ```text
 app/
   page.tsx
   simulator/
     page.tsx
-  result/
+  usage/
     page.tsx
-  api/
-    save/
-      route.ts
+  about/
+    page.tsx
+  layout.tsx
+  globals.css
 
 components/
-  layout/
-    SiteHeader.tsx
-  simulator/
+  screens/
     SimulatorScreen.tsx
+    SimulatorHeaderActions.tsx
+  controls/
+    LightingControls.tsx
+    DisplayControls.tsx
+    ImageControls.tsx
+    EngravingControls.tsx
+    SaveControls.tsx
+    ExportCropOverlay.tsx
+    ExportCropOverlayToggle.tsx
+  simulator/
     SimulatorCanvas.tsx
-    SimulatorScene.tsx
     AcrylicStandMesh.tsx
+    EngravingGlowMaterial.tsx
     LedBaseMesh.tsx
     SceneLighting.tsx
     CameraController.tsx
-  controls/
-    SimulatorControlPanel.tsx
-    ImageSettingsSection.tsx
-    LightingControls.tsx
-    DisplayControls.tsx
-    SaveControls.tsx
-  upload/
-    ImageUploader.tsx
-    UploadStatus.tsx
-  feedback/
+  modals/
     NoticeModal.tsx
     SaveCompleteModal.tsx
+  ui/
     ErrorNotice.tsx
-  result/
-    ExportResultCard.tsx
-    ResultActions.tsx
+    PreviewEmptyIcon.tsx
 
 lib/
   image/
     loadPngTexture.ts
+    composePreviewImage.ts
+    generateEngravingMap.ts
+    engravingFilters.ts
   export/
     exportCanvasImage.ts
-  storage/
-    saveSimulation.ts
+    exportCropRegion.ts
+    exportEngravingImage.ts
+  download/
+    downloadBlob.ts
+  save/
+    session.ts
   simulator/
+    acrylicMaterial.ts
+    acrylicSizePresets.ts
+    displayPresets.ts
+    imageLayout.ts
     lightingPresets.ts
-    backgroundPresets.ts
-    cameraPresets.ts
-
-types/
-  simulator.ts
-  save.ts
 ```
 
-## 画面単位の責務
+## ルート責務
 
 ### `app/page.tsx`
-- サービス概要と開始導線の表示
-- シミュレーター本体を直接持たない
+
+- `searchParams` を解決して `SimulatorScreen` へ渡す
+- `/` にシミュレーター本体を表示する
 
 ### `app/simulator/page.tsx`
-- シミュレーター画面全体のコンテナ
-- URL からの初期状態復元や保存結果への遷移制御
 
-### `app/result/page.tsx`
-- 保存済み出力の表示
-- 再編集、新規作成、ダウンロードの導線管理
+- `app/page.tsx` と同様に `searchParams` を解決して `SimulatorScreen` へ渡す
+- `/simulator` に同一のシミュレーターを表示する
+
+### `app/usage/page.tsx`
+
+- PNG追加、調整、書き出しの手順を表示する
+- `/` へ戻る導線と注意事項dialogを提供する
+
+### `app/about/page.tsx`
+
+- アプリの目的、対象機能、注意事項を表示する
+- `/` で試す導線を提供する
+
+結果専用ルートとAPI Route Handlerは現行MVPに存在しない。
 
 ## コンポーネント責務
 
-### 画面コンテナ
+### 画面統合
 
 #### `SimulatorScreen`
-- シミュレーター画面のレイアウトを構成する
-- 状態フックと UI セクションを束ねる
-- 3D 表示と操作パネルの橋渡しを行う
 
-### 3D 表示
+- 画像、彫刻、ライト、表示、配置、書出し、UIの状態を管理する
+- ファイル入力、ドラッグ&ドロップ、リセット、復元のイベントを処理する
+- 画像処理とダウンロード処理を `lib/` へ委譲する
+- 3D表示と各設定コントロールへpropsとcallbackを渡す
+- ローディング、成功toast、エラー表示を制御する
 
-#### `SimulatorCanvas`
-- Canvas のマウント、サイズ、背景コンテナを扱う
-- `SimulatorScene` へ描画用 props を渡す
+#### `SimulatorHeaderActions`
 
-#### `SimulatorScene`
-- `SceneLighting`、`AcrylicStandMesh`、`LedBaseMesh`、`CameraController` を組み合わせる
-- Canvas 内の表示責務を 1 箇所へまとめる
+- デスクトップの補助リンクと注意事項ボタンを表示する
+- 960px以下のハンバーガーメニューを制御する
+- 表示幅に応じた注意事項dialogのフォーカス復帰先を決める
 
-#### `AcrylicStandMesh`
-- PNG テクスチャ反映とアクリル板表現を担当する
+### 操作UI
 
-#### `LedBaseMesh`
-- 台座と発光基準表現を担当する
-
-#### `CameraController`
-- カメラプリセット、リセット、操作制御を担当する
-
-### UI パネル
-
-#### `SimulatorControlPanel`
-- 画像設定、発光設定、表示設定、出力設定を縦に構成する
-- 状態表示の順序を一貫させる
-
-#### `ImageSettingsSection`
-- ファイル入力、ファイル名、読込状態、差し替え導線を担当する
-
-#### `LightingControls`
-- LED 色プリセットと明るさ変更を担当する
-
-#### `DisplayControls`
-- 背景切替、カメラプリセット、各種リセットを担当する
-
-#### `SaveControls`
-- 保存ボタン、保存中表示、保存成功 / 失敗通知を担当する
-
-### 補助表示
-
-#### `NoticeModal`
-- 実物との差異や利用上の注意事項を表示する
-
-#### `SaveCompleteModal`
-- 保存成功後の行動を案内する
-
-#### `ErrorNotice`
-- 読込失敗や保存失敗など画面内エラーを一貫した見た目で表示する
-
-### 保存結果表示
-
-#### `ExportResultCard`
-- 保存画像と主要設定値をまとめて表示する
-
-#### `ResultActions`
-- 再編集、新規作成、ダウンロードを提供する
-
-## 既存コンポーネントの扱い
-
-| 既存 | 方針 |
+| コンポーネント | 責務 |
 |---|---|
-| `PocWorkbench` | Phase 3 で廃止し、`SimulatorScreen` とトップ画面へ責務を分離する |
-| `SimulatorCanvas` | 継続利用し、Canvas マウント責務へ限定する |
-| `ImageUploader` | `ImageSettingsSection` の配下へ移し、UI 表示を分離する |
-| `LightingControls` | 継続利用し、背景や保存操作は別コンポーネントへ分離する |
-| `ExportPreviewButton` | `SaveControls` の内部責務へ吸収するか、薄い部品として再利用する |
+| `LightingControls` | LED色、明るさ、高さ方向の減衰 |
+| `DisplayControls` | 背景、カメラ、元画像オーバーレイ、カメラリセット |
+| `ImageControls` | アクリルサイズ、content fit、画像サイズ、縦横位置 |
+| `EngravingControls` | 彫刻モード、彫刻調整、彫刻用PNGダウンロード |
+| `SaveControls` | 書出しプレビュー、PNG/JPG選択、ダウンロード操作 |
+| `ExportCropOverlayToggle` | 書出範囲オーバーレイの表示切替 |
+| `ExportCropOverlay` | 書出範囲の移動とリサイズ |
 
-## 実装順メモ
-1. ルーティング分割と画面シェル
-2. シミュレーター画面コンテナ作成
-3. 操作パネル分割
-4. 保存結果画面作成
-5. モーダルとエラー表示追加
+設定パネル自体は独立コンポーネントではなく、`SimulatorScreen` が選択中タブに応じて各コントロールを表示する。
 
-## 非対象
-- グローバルデザインシステムの整備
-- 共有 URL 向け専用コンポーネント
-- 管理画面向け一覧 UI
+### 3D表示
+
+| コンポーネント | 責務 |
+|---|---|
+| `SimulatorCanvas` | React Three Fiber Canvas、シーン合成、WebGL復旧UI |
+| `AcrylicStandMesh` | アクリル板、元画像テクスチャ、彫刻発光面 |
+| `EngravingGlowMaterial` | 彫刻画像に基づく発光マテリアル |
+| `LedBaseMesh` | LED台座、LEDバー、point light |
+| `SceneLighting` | ambient/directional light |
+| `CameraController` | カメラプリセット、OrbitControls、リセット |
+
+### フィードバック
+
+| コンポーネント | 責務 |
+|---|---|
+| `NoticeDialog` / `NoticeModal` | 注意事項、フォーカストラップ、スクロール抑止、フォーカス復帰 |
+| `SaveCompleteModal` | ダウンロード開始を非モーダルtoastとして通知 |
+| `ErrorNotice` | 画像読込、彫刻生成、ダウンロード失敗を画面内表示 |
+| `PreviewEmptyIcon` | 画像未選択時の視覚的な案内 |
+
+ファイル名に `Modal` を含む `SaveCompleteModal` は、実際には `role="status"` のtoastとして描画され、フォーカスを奪わない。
+
+## ライブラリ責務
+
+| 領域 | 主な責務 |
+|---|---|
+| `lib/image/` | PNG検証、Data URL読込、配置合成、彫刻マップ生成 |
+| `lib/export/` | Canvasクロップ、PNG/JPG Blob化、彫刻用PNG Blob化 |
+| `lib/download/` | Object URLと一時リンクによるローカルダウンロード |
+| `lib/save/session.ts` | `EditorSnapshot` のsessionStorage保存、復元、初期化、メモリフォールバック |
+| `lib/simulator/` | 3D表示用プリセット、マテリアル値、画像配置値 |
+
+## 処理の依存方向
+
+```text
+app/page.tsx または app/simulator/page.tsx
+  ↓
+SimulatorScreen
+  ├─ controls / modals / ui
+  ├─ SimulatorCanvas
+  │    └─ 3D表示コンポーネント
+  └─ lib
+       ├─ image
+       ├─ export
+       ├─ download
+       ├─ save
+       └─ simulator
+```
+
+表示コンポーネントからページルートやサーバーAPIへ直接依存しない。
+
+## 現行MVPに存在しない構成
+
+- `app/result/page.tsx`
+- `app/api/save/route.ts`
+- `ExportResultCard`
+- `ResultActions`
+- `PocWorkbench`
+- `ImageUploader`
+- `ExportPreviewButton`
+- `SimulatorControlPanel`
+- `types/save.ts`
+
+これらを将来追加する場合は、現行コンポーネントとして記載せず、対応Issueの設計で責務とデータ境界を定義する。
+
+## 将来拡張との境界
+
+- サーバー保存は認証、ストレージ、容量制限、保持期間を含む別機能とする
+- 保存結果画面はサーバー保存または結果の再参照要件が確定した場合に設計する
+- 共有URL、保存履歴、比較、注文、管理画面はMVP対象外とする
