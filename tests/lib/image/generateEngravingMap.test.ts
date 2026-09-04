@@ -191,7 +191,7 @@ describe("engravingFilters", () => {
     expect(withEdges[1]).toBeGreaterThan(withoutEdges[1]);
   });
 
-  it("widens the edge map when edgeWidth is increased", () => {
+  it("widens the edge map for every supported edgeWidth", () => {
     const width = 5;
     const height = 5;
     const source = new Float32Array([
@@ -202,10 +202,24 @@ describe("engravingFilters", () => {
       0, 0, 0, 0, 0
     ]);
 
-    const narrowEdgeMap = buildEdgeMap(source, width, height, 1);
-    const wideEdgeMap = buildEdgeMap(source, width, height, 3);
+    const supportedWidths = Array.from(
+      { length: engravingEdgeWidthRange.max },
+      (_, index) => index + engravingEdgeWidthRange.min
+    );
+    const edgeMaps = supportedWidths.map((edgeWidth) =>
+      buildEdgeMap(source, width, height, edgeWidth)
+    );
 
-    expect(narrowEdgeMap[0]).toBe(0);
-    expect(wideEdgeMap[0]).toBeGreaterThan(0);
+    for (let index = 1; index < edgeMaps.length; index += 1) {
+      const previousMap = edgeMaps[index - 1];
+      const currentMap = edgeMaps[index];
+
+      for (let pixelIndex = 0; pixelIndex < currentMap.length; pixelIndex += 1) {
+        expect(currentMap[pixelIndex]).toBeGreaterThanOrEqual(previousMap[pixelIndex]);
+      }
+    }
+
+    expect(edgeMaps[0][0]).toBe(0);
+    expect(edgeMaps[2][0]).toBeGreaterThan(0);
   });
 });
