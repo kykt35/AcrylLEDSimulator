@@ -1,5 +1,5 @@
-import { expect, test } from "@playwright/test";
-import { expectImageDownload } from "./support/download-assertions";
+import { expect, test, type Page } from "@playwright/test";
+import { expectImageDownload, readPngDimensions } from "./support/download-assertions";
 import {
   editorStorageKey,
   openControlPanel,
@@ -11,6 +11,37 @@ test.beforeEach(async ({ page }) => {
 
   await expect(page.getByRole("heading", { name: "LEDアクスタ シミュレーター" })).toBeVisible();
   await expect(page.getByTestId("preview-empty-state")).toBeVisible();
+});
+
+async function uploadAndExpectDefaultLighting(page: Page): Promise<void> {
+  await uploadReleaseSource(page);
+  await openControlPanel(page, "ライト");
+  await expect(page.getByRole("button", { name: "Ice Blue" })).toHaveAttribute(
+    "aria-pressed",
+    "true"
+  );
+  await expect(page.getByLabel("明るさ")).toHaveValue("1.2");
+}
+
+test("loads without browser errors and opens the notice modal", async ({ page }) => {
+  const consoleErrors: string[] = [];
+  const pageErrors: string[] = [];
+
+  page.on("console", (message) => {
+    if (message.type() === "error") {
+      consoleErrors.push(message.text());
+    }
+  });
+  page.on("pageerror", (error) => pageErrors.push(error.message));
+
+  await page.reload();
+  await page.getByRole("button", { name: "注意事項" }).click();
+  await expect(page.getByRole("heading", { name: "実物との差異について" })).toBeVisible();
+  await page.getByRole("button", { name: "閉じる" }).click();
+  await expect(page.getByRole("heading", { name: "実物との差異について" })).toHaveCount(0);
+
+  expect(consoleErrors).toEqual([]);
+  expect(pageErrors).toEqual([]);
 });
 
 test("uploads, adjusts, crops, and downloads release images", async ({ page }) => {
@@ -72,12 +103,23 @@ test("uploads, adjusts, crops, and downloads release images", async ({ page }) =
   await page.mouse.up();
   await expect(cropBox).not.toHaveAttribute("style", initialCropStyle ?? "");
 
+  const sourceCanvasDimensions = await page
+    .locator(".simulator-canvas-host canvas")
+    .evaluate((canvas: HTMLCanvasElement) => ({ width: canvas.width, height: canvas.height }));
+
   await openControlPanel(page, "書出し");
   await expect(page.getByAltText("書き出しプレビュー")).toBeVisible();
 
   const pngDownloadPromise = page.waitForEvent("download");
   await page.getByRole("button", { name: "画像をダウンロードする" }).click();
-  await expectImageDownload(await pngDownloadPromise, "release-source.png", "png");
+  const pngBytes = await expectImageDownload(
+    await pngDownloadPromise,
+    "release-source.png",
+    "png"
+  );
+  const croppedDimensions = readPngDimensions(pngBytes);
+  expect(croppedDimensions.width).toBeLessThan(sourceCanvasDimensions.width);
+  expect(croppedDimensions.height).toBeLessThan(sourceCanvasDimensions.height);
   await expect(page.getByRole("heading", { name: "ダウンロードを開始しました" })).toBeVisible();
   await page.getByRole("button", { name: "閉じる" }).click();
 
@@ -112,6 +154,7 @@ test("resumes a saved editor and clears it through both reset paths", async ({ p
   await expect
     .poll(() => page.evaluate((key) => window.sessionStorage.getItem(key), editorStorageKey))
     .toBeNull();
+  await uploadAndExpectDefaultLighting(page);
 
   await page.evaluate(
     ([key, value]) => window.sessionStorage.setItem(key, value),
@@ -122,4 +165,5 @@ test("resumes a saved editor and clears it through both reset paths", async ({ p
   await expect
     .poll(() => page.evaluate((key) => window.sessionStorage.getItem(key), editorStorageKey))
     .toBeNull();
+  await uploadAndExpectDefaultLighting(page);
 });

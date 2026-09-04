@@ -37,7 +37,7 @@ export default defineConfig({
   webServer: {
     command: `pnpm start --hostname 127.0.0.1 --port ${e2ePort}`,
     url: baseURL,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: process.env.E2E_REUSE_SERVER === "1",
     timeout: 120_000
   }
 });

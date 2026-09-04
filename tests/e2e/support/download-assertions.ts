@@ -10,7 +10,7 @@ export async function expectImageDownload(
   download: Download,
   expectedFileName: string,
   format: keyof typeof signatures
-): Promise<void> {
+): Promise<Buffer> {
   expect(download.suggestedFilename()).toBe(expectedFileName);
 
   const downloadPath = await download.path();
@@ -19,4 +19,16 @@ export async function expectImageDownload(
   const bytes = await readFile(downloadPath!);
   expect(bytes.length).toBeGreaterThan(signatures[format].length);
   expect(bytes.subarray(0, signatures[format].length)).toEqual(signatures[format]);
+
+  return bytes;
+}
+
+export function readPngDimensions(bytes: Buffer): { width: number; height: number } {
+  expect(bytes.length).toBeGreaterThanOrEqual(24);
+  expect(bytes.subarray(0, signatures.png.length)).toEqual(signatures.png);
+
+  return {
+    width: bytes.readUInt32BE(16),
+    height: bytes.readUInt32BE(20)
+  };
 }
