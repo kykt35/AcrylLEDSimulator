@@ -54,7 +54,10 @@ describe("exportEngravingImage", () => {
     const exportedBlob = new Blob(["inverted"], { type: "image/png" });
     const drawImage = vi.fn();
     const getImageData = vi.fn(() => ({ data: pixels }));
-    const putImageData = vi.fn();
+    const renderedPixels: number[][] = [];
+    const putImageData = vi.fn((imageData: { data: Uint8ClampedArray }) => {
+      renderedPixels.push(Array.from(imageData.data));
+    });
     const toBlob = vi.fn((callback: BlobCallback) => callback(exportedBlob));
 
     Object.defineProperties(image, {
@@ -89,6 +92,7 @@ describe("exportEngravingImage", () => {
     expect(drawImage).toHaveBeenCalledWith(image, 0, 0, 1, 1);
     expect(getImageData).toHaveBeenCalledWith(0, 0, 1, 1);
     expect(Array.from(pixels)).toEqual([245, 235, 225, 128]);
+    expect(renderedPixels).toEqual([[245, 235, 225, 128]]);
     expect(putImageData).toHaveBeenCalledWith(
       expect.objectContaining({ data: pixels }),
       0,

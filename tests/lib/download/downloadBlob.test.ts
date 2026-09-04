@@ -21,10 +21,12 @@ describe("downloadBlob", () => {
 
     downloadBlob(blob, "preview.png");
 
+    expect(createObjectURL).toHaveBeenCalledTimes(1);
     expect(createObjectURL).toHaveBeenCalledWith(blob);
     expect(link.href).toBe("blob:test");
     expect(link.download).toBe("preview.png");
     expect(click).toHaveBeenCalledTimes(1);
+    expect(revokeObjectURL).toHaveBeenCalledTimes(1);
     expect(revokeObjectURL).toHaveBeenCalledWith("blob:test");
   });
 });

@@ -7,6 +7,7 @@ import {
   engravingToneLevelRange,
   invertGrayscalePixels
 } from "@/lib/image/engravingFilters";
+import { generateEngravingMapFromImageData } from "@/lib/image/generateEngravingMap";
 
 describe("engravingFilters", () => {
   it("sets the default and maximum adjustment ranges", () => {
@@ -221,5 +222,59 @@ describe("engravingFilters", () => {
 
     expect(edgeMaps[0][0]).toBe(0);
     expect(edgeMaps[2][0]).toBeGreaterThan(0);
+    expect(buildEdgeMap(source, width, height)).toEqual(edgeMaps[0]);
+  });
+});
+
+describe("generateEngravingMapFromImageData", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("passes the configured edgeWidth to edge map generation", () => {
+    vi.stubGlobal(
+      "ImageData",
+      class {
+        constructor(
+          public data: Uint8ClampedArray,
+          public width: number,
+          public height: number
+        ) {}
+      }
+    );
+
+    const width = 5;
+    const height = 5;
+    const pixels = new Uint8ClampedArray(width * height * 4);
+
+    for (let index = 0; index < width * height; index += 1) {
+      pixels[index * 4 + 3] = 255;
+    }
+
+    const centerPixelIndex = (2 * width + 2) * 4;
+    pixels[centerPixelIndex] = 255;
+    pixels[centerPixelIndex + 1] = 255;
+    pixels[centerPixelIndex + 2] = 255;
+
+    const imageData = new ImageData(pixels, width, height);
+    const adjustments = {
+      ...defaultEngravingAdjustments,
+      contrast: 1,
+      gamma: 1,
+      threshold: 0,
+      edgeWeight: 1,
+      toneMode: "grayscale" as const
+    };
+    const narrow = generateEngravingMapFromImageData(imageData, {
+      ...adjustments,
+      edgeWidth: 1
+    });
+    const wide = generateEngravingMapFromImageData(imageData, {
+      ...adjustments,
+      edgeWidth: 5
+    });
+
+    expect(narrow.imageData.data[0]).toBe(0);
+    expect(wide.imageData.data[0]).toBeGreaterThan(0);
   });
 });
