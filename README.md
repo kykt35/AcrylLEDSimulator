@@ -2,10 +2,28 @@
 
 レーザー彫刻アクリル板向けの LED 導光シミュレーションを検証するための Next.js アプリです。
 
+## Requirements
+
+- Node.js 22.13.0 以上
+- pnpm 11.5.1
+
 ## Scripts
 
 - `pnpm dev`: 開発サーバーを起動
 - `pnpm test`: Vitest を実行
+- `pnpm typecheck`: TypeScript の型チェックを実行
+- `pnpm build`: production build を生成
+
+## Validation
+
+GitHub Actions は pull request と `main` ブランチへの push でテスト、型チェック、production build を実行します。同じ検証をローカルで再現するには、次の順で実行してください。
+
+```bash
+pnpm install --frozen-lockfile
+pnpm test
+pnpm typecheck
+pnpm build
+```
 
 ## Specs
 
